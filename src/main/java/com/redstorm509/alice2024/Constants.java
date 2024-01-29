@@ -79,10 +79,10 @@ public final class Constants {
 
 	public static record SwerveModuleConfiguration(
 			int moduleNumber,
-			int angleEncoderId,
-			int angleMotorId,
+			int steerEncoderId,
+			int steerMotorId,
 			int driveMotorId,
-			double angleEncoderOffset) {
+			double steerEncoderOffset) {
 	}
 
 	// Replace Me!

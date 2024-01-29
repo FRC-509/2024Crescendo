@@ -3,11 +3,9 @@ package com.redstorm509.alice2024.subsystems.drive;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.RobotBase;
 
 import com.redstorm509.alice2024.Constants;
 import com.redstorm509.alice2024.util.math.Conversions;
-
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -16,6 +14,7 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 public class SwerveModule {
@@ -34,25 +33,23 @@ public class SwerveModule {
 	// The previously set steer angle.
 	private double lastSteerAngleDeg;
 
-	// The last desired SwerveModuleState
-	private SwerveModuleState lastDesiredState = new SwerveModuleState();
-
 	// Construct a new Swerve Module using a preset Configuration
 	public SwerveModule(Constants.SwerveModuleConfiguration configs) {
 		this.moduleNumber = configs.moduleNumber();
 
 		// Angle Encoder Config
 		CANcoderConfiguration canCoderConfiguration = new CANcoderConfiguration();
-		canCoderConfiguration.MagnetSensor.MagnetOffset = (configs.angleEncoderOffset()) / 360.0d;
-		this.steerEncoder = new CANcoder(configs.angleEncoderId(), Constants.kRio);
+		canCoderConfiguration.MagnetSensor.MagnetOffset = (configs.steerEncoderOffset()) / 360.0d;
+		this.steerEncoder = new CANcoder(configs.steerEncoderId(), Constants.kCANIvore);
 		this.steerEncoder.getConfigurator().apply(canCoderConfiguration);
 
 		// Angle Motor Config
 		TalonFXConfiguration steerMotorConfig = new TalonFXConfiguration();
 		steerMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+		steerMotorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 		steerMotorConfig.MotorOutput.DutyCycleNeutralDeadband = 0.02;
 		steerMotorConfig.ClosedLoopGeneral.ContinuousWrap = true;
-		steerMotorConfig.Feedback.FeedbackRemoteSensorID = configs.angleEncoderId();
+		steerMotorConfig.Feedback.FeedbackRemoteSensorID = configs.steerEncoderId();
 		steerMotorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
 		steerMotorConfig.Feedback.RotorToSensorRatio = Constants.MK4I.kAngleGearRatio;
 		steerMotorConfig.Slot0.kP = Constants.kSteerAngleP;
@@ -62,18 +59,19 @@ public class SwerveModule {
 		// encoders, we don't need to divide the steer motor's position by the gear
 		// ratio ourselves.
 
-		this.steerMotor = new TalonFX(configs.angleMotorId(), Constants.kRio);
+		this.steerMotor = new TalonFX(configs.steerMotorId(), Constants.kCANIvore);
 		this.steerMotor.getConfigurator().apply(steerMotorConfig);
 
 		// Drive Motor Config
 		TalonFXConfiguration driveMotorConfig = new TalonFXConfiguration();
 		driveMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+		driveMotorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 		driveMotorConfig.Slot0.kP = Constants.kDriveVelocityP;
 		driveMotorConfig.Slot0.kI = Constants.kDriveVelocityI;
 		driveMotorConfig.Slot0.kD = Constants.kDriveVelocityD;
 		driveMotorConfig.Slot0.kS = Constants.kDriveVelocityS;
 		driveMotorConfig.Slot0.kV = Constants.kDriveVelocityV;
-		this.driveMotor = new TalonFX(configs.driveMotorId(), Constants.kRio);
+		this.driveMotor = new TalonFX(configs.driveMotorId(), Constants.kCANIvore);
 		this.driveMotor.getConfigurator().apply(driveMotorConfig);
 
 		this.driveMotor.setPosition(0);
@@ -102,9 +100,6 @@ public class SwerveModule {
 	}
 
 	public SwerveModuleState getState() {
-		if (RobotBase.isSimulation()) {
-			return lastDesiredState;
-		}
 		return new SwerveModuleState(
 				Conversions.falconToMPS(
 						driveMotor.getVelocity().getValue(),
@@ -114,7 +109,6 @@ public class SwerveModule {
 	}
 
 	public void setDesiredState(SwerveModuleState desiredState, boolean closedLoop) {
-		lastDesiredState = desiredState;
 		// Ensures that the module takes the optimal path towards the target angle,
 		// limiting rotation to only 90 degrees at a time.
 		desiredState = SwerveModuleState.optimize(desiredState, getAngle());
