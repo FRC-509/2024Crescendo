@@ -46,9 +46,9 @@ public class SwerveDrive extends SubsystemBase {
 
 	private double prevTime = -1.0d;
 	private double targetHeading;
-	private PIDController rotationPassivePID = new PIDController(Constants.kHeadingPassiveP, Constants.kHeadingPassiveI,
+	private PIDController headingPassive = new PIDController(Constants.kHeadingPassiveP, Constants.kHeadingPassiveI,
 			Constants.kHeadingPassiveD);
-	private PIDController rotationAggressivePID = new PIDController(Constants.kHeadingAggressiveP,
+	private PIDController headingAggressive = new PIDController(Constants.kHeadingAggressiveP,
 			Constants.kHeadingAggressiveI, Constants.kHeadingAggressiveD);
 
 	public SwerveDrive(Pigeon2 pigeon) {
@@ -80,44 +80,40 @@ public class SwerveDrive extends SubsystemBase {
 		if (prevTime < 0) {
 			dt = 0.02;
 		}
-		/*
-		 * headingInterplator.setPoint(rotationRadiansPerSecond);
-		 * 
-		 * double rotationOutput;
-		 * 
-		 * double interpolatedRotation = headingInterplator.update(dt);
-		 * 
-		 * boolean hasRotationInput = Math.abs(rotationRadiansPerSecond) > 0.01;
-		 * 
-		 * if (hasRotationInput) {
-		 * timer.reset();
-		 * }
-		 * 
-		 * double speed = Math.hypot(translationMetersPerSecond.getX(),
-		 * translationMetersPerSecond.getY());
-		 * 
-		 * if ((speed != 0 && speed < Constants.kMinHeadingCorrectionSpeed) ||
-		 * omitRotationCorrection || hasRotationInput || timer.get() <
-		 * Constants.kHeadingTimeout) {
-		 * setTargetHeading(pigeon.getYaw().getValue());
-		 * rotationOutput = interpolatedRotation;
-		 * } else {
-		 * double delta = pigeon.getYaw().getValue() - targetHeading;
-		 * if (delta > 180.0d) {
-		 * delta -= 360.0d;
-		 * }
-		 * if (delta < -180.0d) {
-		 * delta += 360.0d;
-		 * }
-		 * 
-		 * double outputDegrees = Math.abs(delta) > 2.0d ?
-		 * rotationAggressivePID.calculate(delta) : rotationPassivePID.calculate(delta);
-		 * 
-		 * rotationOutput = Units.degreesToRadians(outputDegrees);
-		 * }
-		 */
 
-		double rotationOutput = rotationRadiansPerSecond;
+		headingInterplator.setPoint(rotationRadiansPerSecond);
+
+		double rotationOutput;
+
+		double interpolatedRotation = headingInterplator.update(dt);
+
+		boolean hasRotationInput = Math.abs(rotationRadiansPerSecond) > 0.01;
+
+		if (hasRotationInput) {
+			timer.reset();
+		}
+
+		double speed = Math.hypot(translationMetersPerSecond.getX(),
+				translationMetersPerSecond.getY());
+
+		if ((speed != 0 && speed < Constants.kMinHeadingCorrectionSpeed) ||
+				omitRotationCorrection || hasRotationInput || timer.get() < Constants.kHeadingTimeout) {
+			setTargetHeading(pigeon.getYaw().getValue());
+			rotationOutput = interpolatedRotation;
+		} else {
+			double delta = pigeon.getYaw().getValue() - targetHeading;
+			if (delta > 180.0d) {
+				delta -= 360.0d;
+			}
+			if (delta < -180.0d) {
+				delta += 360.0d;
+			}
+
+			double outputDegrees = Math.abs(delta) > 2.0d ? headingAggressive.calculate(delta)
+					: headingPassive.calculate(delta);
+
+			rotationOutput = Math.toRadians(outputDegrees);
+		}
 
 		SwerveModuleState[] moduleStates;
 

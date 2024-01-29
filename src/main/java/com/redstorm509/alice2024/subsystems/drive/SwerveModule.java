@@ -6,8 +6,6 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.RobotBase;
 
 import com.redstorm509.alice2024.Constants;
-import com.redstorm509.alice2024.Constants.MK4I;
-import com.redstorm509.alice2024.Constants.SwerveModuleConfiguration;
 import com.redstorm509.alice2024.util.math.Conversions;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
@@ -60,6 +58,9 @@ public class SwerveModule {
 		steerMotorConfig.Slot0.kP = Constants.kSteerAngleP;
 		steerMotorConfig.Slot0.kI = Constants.kSteerAngleI;
 		steerMotorConfig.Slot0.kD = Constants.kSteerAngleD;
+		// Since we've just configured the steer motors to use data from the absolute
+		// encoders, we don't need to divide the steer motor's position by the gear
+		// ratio ourselves.
 
 		this.steerMotor = new TalonFX(configs.angleMotorId(), Constants.kRio);
 		this.steerMotor.getConfigurator().apply(steerMotorConfig);
@@ -79,6 +80,7 @@ public class SwerveModule {
 
 		// TODO: Add current limits
 
+		// We wait 1.0s for a sensor reading on startup to ensure its validity.
 		this.lastSteerAngleDeg = steerMotor.getPosition().waitForUpdate(1.0).getValueAsDouble() * 360.0;
 	}
 
@@ -87,6 +89,8 @@ public class SwerveModule {
 	}
 
 	public SwerveModulePosition getPosition() {
+		// Accounts for coupling; rotation of the angle motor causing the actual drive
+		// wheel to rotate slightly.
 		double drivePosition = driveMotor.getPosition().getValue()
 				- steerMotor.getPosition().getValue() * Constants.MK4I.kCouplingRatio;
 		return new SwerveModulePosition(
@@ -111,9 +115,10 @@ public class SwerveModule {
 
 	public void setDesiredState(SwerveModuleState desiredState, boolean closedLoop) {
 		lastDesiredState = desiredState;
+		// Ensures that the module takes the optimal path towards the target angle,
+		// limiting rotation to only 90 degrees at a time.
 		desiredState = SwerveModuleState.optimize(desiredState, getAngle());
 
-		// calculate final target angle and set motor position to it
 		double optimalTargetAngle = desiredState.angle.getDegrees();
 
 		if (Math.abs(optimalTargetAngle - lastSteerAngleDeg) < Constants.kMaxAngularVelocity * 0.01) {
