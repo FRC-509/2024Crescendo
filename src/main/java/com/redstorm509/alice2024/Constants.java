@@ -3,12 +3,14 @@ package com.redstorm509.alice2024;
 import com.redstorm509.alice2024.util.math.Conversions;
 
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 
 public final class Constants {
 	// Set to true if in replay mode. Set to false if in simulation mode.
-	public static final boolean kAdvantageKitReplay = true;
+	public static final boolean kAdvantageKitReplay = false;
+
+	public static final double kGravity = 9.80665;
 
 	public static final String kRio = "rio";
 	public static final String kCANIvore = "509CANIvore";
@@ -25,10 +27,16 @@ public final class Constants {
 		public static final double kCouplingRatio = 25.0d / 7.0d;
 	}
 
+	// (0, 0, 0) -> Center of Drivetrain Projected Onto Ground
+	// Front of robot is the direction where the intake is pointing.
 	public static class Shooter {
 		// Replace Me!
-		public static final Translation2d kPointOfRotation = new Translation2d();
-		public static final Translation2d kOffsetToShootingPoint = new Translation2d();
+		public static final Translation3d kPointOfRotation = new Translation3d(-0.253997, 0, 0.581834);
+		public static final Translation3d kDefaultShootingOrigin = new Translation3d(0.185567, 0, 0.286656);
+		public static final double kPivotToShootAngleOffset = 61.0d;
+		public static final Translation3d kGoalApex = null;
+		public static final double kMinPivot = 0.0d;
+		public static final double kMaxPivot = 100.0d;
 	}
 
 	public static class PreCompressor {

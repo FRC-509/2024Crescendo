@@ -52,6 +52,14 @@ public class SwerveModule {
 		steerMotorConfig.Feedback.FeedbackRemoteSensorID = configs.steerEncoderId();
 		steerMotorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
 		steerMotorConfig.Feedback.RotorToSensorRatio = Constants.MK4I.kAngleGearRatio;
+		// The absolute encoder and mechanism are one-to-one, as the absolute
+		// encoder is on the output shaft. However, the internal encoder and the
+		// absoltue encoder do have a ratio equal to the steer gear ratio.
+
+		// Phoenix ignores RotorToSensorRatio in the signals coming from the motor when
+		// you configure it to use its internal sensor, but since we're configuring a
+		// remote sensor this works. If we wanted to use the internal encoder, we would
+		// instead use SensorToMechanismRatio.
 		steerMotorConfig.Slot0.kP = Constants.kSteerAngleP;
 		steerMotorConfig.Slot0.kI = Constants.kSteerAngleI;
 		steerMotorConfig.Slot0.kD = Constants.kSteerAngleD;
