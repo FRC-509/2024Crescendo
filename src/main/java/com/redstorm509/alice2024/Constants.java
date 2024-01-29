@@ -7,6 +7,9 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 
 public final class Constants {
+	// Set to true if in replay mode. Set to false if in simulation mode.
+	public static final boolean kAdvantageKitReplay = true;
+
 	public static final String kRio = "rio";
 	public static final String kCANIvore = "509CANIvore";
 	public static final double kStickDeadband = 0.1;
