@@ -1,6 +1,8 @@
 package com.redstorm509.alice2024;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
 import com.redstorm509.alice2024.commands.*;
@@ -37,14 +39,18 @@ public class RobotContainer {
 		configureButtonBindings();
 	}
 
-	// Configure the trigger bindings
 	private void configureButtonBindings() {
+		// Binds translation to the left stick, and rotation to the right stick.
+		// Defaults to field-oriented drive unless the left button on the left stick is
+		// held down.
 		swerve.setDefaultCommand(new DriveCommand(
 				swerve,
-				() -> driverLeft.getX(),
-				() -> -driverLeft.getY(),
-				() -> driverRight.getX(),
-				() -> driverLeft.isDown(StickButton.Left)));
+				() -> MathUtil.applyDeadband(driverLeft.getX(), Constants.kStickDeadband),
+				() -> MathUtil.applyDeadband(-driverLeft.getY(), Constants.kStickDeadband),
+				() -> MathUtil.applyDeadband(driverRight.getX(), Constants.kStickDeadband),
+				() -> !driverLeft.isDown(StickButton.Left)));
+		// Zeroes the gyroscope when the bottom button the left stick is pressed.
+		driverLeft.isPressedBind(StickButton.Bottom, Commands.runOnce(() -> pigeon.setYaw(0), swerve));
 	}
 
 	public Command getAutonomousCommand() {
