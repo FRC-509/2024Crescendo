@@ -32,11 +32,11 @@ public final class Constants {
 	public static class Shooter {
 		// Replace Me!
 		public static final Translation3d kPointOfRotation = new Translation3d(-0.253997, 0, 0.581834);
-		public static final Translation3d kDefaultShootingOrigin = new Translation3d(0.185567, 0, 0.286656);
+		public static final Translation3d kDefaultShootingOrigin = new Translation3d(0.019505, 0, 0.597487);
 		public static final double kPivotToShootAngleOffset = 61.0d;
-		public static final Translation3d kGoalApex = null;
+		public static final Translation3d kGoalApex = new Translation3d(0.1, 0, Units.inchesToMeters(80.5) + 0.3);
 		public static final double kMinPivot = 0.0d;
-		public static final double kMaxPivot = 100.0d;
+		public static final double kMaxPivot = 130.0d;
 	}
 
 	public static class PreCompressor {

@@ -8,6 +8,8 @@ import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 
 import edu.wpi.first.math.MathUtil;
@@ -19,19 +21,26 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Shooter extends SubsystemBase {
-	private TalonFX shootMotor = new TalonFX(0);
+	private TalonFX shooterLeader = new TalonFX(0);
+	private TalonFX shooterFollower = new TalonFX(0);
+
+	private TalonFX indexer = new TalonFX(0);
+
 	private TalonFX pivotLeader = new TalonFX(0);
 	private TalonFX pivotFollower = new TalonFX(0);
 	private CANcoder pivotEncoder = new CANcoder(0);
 
-	private VoltageOut openLoop = new VoltageOut(0);
+	private VoltageOut openLoop = new VoltageOut(0).withEnableFOC(false);
+	private VelocityVoltage closedLoopVelocity = new VelocityVoltage(0).withEnableFOC(false);
+	private PositionVoltage closedLoopPosition = new PositionVoltage(0).withEnableFOC(false);
 
 	// TODO: Define coordinate space!
 	public Shooter() {
 		TalonFXConfiguration shootConf = new TalonFXConfiguration();
 		shootConf.CurrentLimits.StatorCurrentLimitEnable = true;
 		shootConf.CurrentLimits.StatorCurrentLimit = 35.0;
-		shootMotor.getConfigurator().apply(shootConf);
+		shooterLeader.getConfigurator().apply(shootConf);
+		shooterFollower.getConfigurator().apply(shootConf);
 
 		TalonFXConfiguration pivotConf = new TalonFXConfiguration();
 		pivotLeader.getConfigurator().apply(pivotConf);
@@ -42,6 +51,7 @@ public class Shooter extends SubsystemBase {
 		pivotEncoderConf.MagnetSensor.AbsoluteSensorRange = AbsoluteSensorRangeValue.Unsigned_0To1;
 
 		pivotFollower.setControl(new Follower(pivotLeader.getDeviceID(), true));
+		shooterFollower.setControl(new Follower(shooterLeader.getDeviceID(), true));
 	}
 
 	// Gets the point of shooting relative to the origin of the robot.
@@ -88,21 +98,6 @@ public class Shooter extends SubsystemBase {
 		// ??? profit
 	}
 
-	@Override
-	public void periodic() {
-		SmartDashboard.putNumber("PivotIntegrated", pivotLeader.getPosition().getValue());
-		SmartDashboard.putNumber("PivotAbsolute", pivotEncoder.getAbsolutePosition().getValue());
-	}
-
-	@Override
-	public void simulationPeriodic() {
-		// This method will be called once per scheduler run during simulation
-	}
-
-	public void shoot() {
-		// Math for shooter tbd
-	}
-
 	public double getPivotDegrees() {
 		return pivotEncoder.getAbsolutePosition().getValue() * 360.0;
 	}
@@ -110,6 +105,13 @@ public class Shooter extends SubsystemBase {
 	public void setPivotDegrees(double degrees) {
 	}
 
-	public void setPivotOutput() {
+	public void setPivotOutput(double percentOutput) {
+		pivotLeader.setControl(openLoop.withOutput(percentOutput * 12.0));
+	}
+
+	@Override
+	public void periodic() {
+		SmartDashboard.putNumber("PivotIntegrated", pivotLeader.getPosition().getValue());
+		SmartDashboard.putNumber("PivotAbsolute", pivotEncoder.getAbsolutePosition().getValue());
 	}
 }
