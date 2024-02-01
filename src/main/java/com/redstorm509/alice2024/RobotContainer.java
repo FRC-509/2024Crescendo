@@ -23,18 +23,20 @@ public class RobotContainer {
 
 	private final SwerveDrive swerve;
 	private final Intake intake;
-	private final Shooter shooter;
-	private final PreCompressor preCompressor;
-	private final Limelight intakeCamera = new Limelight("limelight-front", Constants.Vision.kIntakeCameraPose);
-	private final Limelight shooterCamera = new Limelight("limelight-back", Constants.Vision.kShooterCameraPose);
+	// private final Shooter shooter;
+	// private final PreCompressor preCompressor;
+	// private final Limelight intakeCamera = new Limelight("limelight-front",
+	// Constants.Vision.kIntakeCameraPose);
+	// private final Limelight shooterCamera = new Limelight("limelight-back",
+	// Constants.Vision.kShooterCameraPose);
 
 	private final SendableChooser<Command> chooser = new SendableChooser<Command>();
 
 	public RobotContainer() {
 		this.intake = new Intake();
 		this.swerve = new SwerveDrive(pigeon);
-		this.shooter = new Shooter();
-		this.preCompressor = new PreCompressor();
+		// this.shooter = new Shooter();
+		// this.preCompressor = new PreCompressor();
 
 		configureButtonBindings();
 	}
@@ -51,6 +53,8 @@ public class RobotContainer {
 				() -> !driverLeft.isDown(StickButton.Left)));
 		// Zeroes the gyroscope when the bottom button the left stick is pressed.
 		driverLeft.isPressedBind(StickButton.Bottom, Commands.runOnce(() -> pigeon.setYaw(0), swerve));
+		// driverLeft.isPressedBind(StickButton.Trigger,Commands.run(() ->
+		// intake.intake(Constants.Intake.intakeSpinSpeed)));
 	}
 
 	public Command getAutonomousCommand() {

@@ -1,18 +1,21 @@
 package com.redstorm509.alice2024.subsystems;
 
+import java.util.function.DoubleSupplier;
+
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class PreCompressor extends SubsystemBase {
 
-	private final CANSparkMax leftMotor = new CANSparkMax(0, MotorType.kBrushless);
-	private final CANSparkMax rightMotor = new CANSparkMax(0, MotorType.kBrushless);
+	private final CANSparkMax motor = new CANSparkMax(10, MotorType.kBrushed);
 
 	public PreCompressor() {
-		rightMotor.setInverted(true);
-		rightMotor.setSmartCurrentLimit(18);
+		// motor.setInverted(true);
+		motor.setSmartCurrentLimit(18);
+		motor.setIdleMode(IdleMode.kBrake);
 	}
 
 	@Override
@@ -26,7 +29,6 @@ public class PreCompressor extends SubsystemBase {
 	}
 
 	public void spin(double speed) {
-		rightMotor.set(speed);
-		leftMotor.set(speed);
+		motor.set(speed);
 	}
 }

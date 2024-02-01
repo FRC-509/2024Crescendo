@@ -40,9 +40,11 @@ public final class Constants {
 	}
 
 	public static class PreCompressor {
+		public static final double preCompressorSpinSpeed = 0.7;
 	}
 
 	public static class Intake {
+		public static final double intakeSpinSpeed = 0.7; // between -1.0 1.0
 	}
 
 	public static class Vision {
@@ -71,7 +73,7 @@ public final class Constants {
 	public static final double kDriveVelocityD = 0.0;
 
 	// Tune Me!
-	public static final double kSteerAngleP = 0.0;
+	public static final double kSteerAngleP = 100.0;
 	public static final double kSteerAngleI = 0.0;
 	public static final double kSteerAngleD = 0.0;
 
@@ -97,28 +99,28 @@ public final class Constants {
 	public static final SwerveModuleConfiguration kFrontRight = new SwerveModuleConfiguration(
 			0,
 			0,
-			0,
-			0,
+			8,
+			4,
 			0);
 
 	public static final SwerveModuleConfiguration kFrontLeft = new SwerveModuleConfiguration(
 			1,
 			0,
-			0,
-			0,
+			9,
+			5,
 			0);
 
 	public static final SwerveModuleConfiguration kBackLeft = new SwerveModuleConfiguration(
 			2,
 			0,
-			0,
-			0,
+			10,
+			6,
 			0);
 
 	public static final SwerveModuleConfiguration kBackRight = new SwerveModuleConfiguration(
 			3,
 			0,
-			0,
-			0,
+			11,
+			7,
 			0);
 }
