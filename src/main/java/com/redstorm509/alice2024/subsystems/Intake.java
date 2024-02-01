@@ -8,7 +8,7 @@ import com.redstorm509.alice2024.Constants;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Intake extends SubsystemBase {
-	public TalonFX intakeMotor = new TalonFX(0);
+	public TalonFX intakeMotor = new TalonFX(12);
 	private VoltageOut openLoopVoltage = new VoltageOut(0);
 
 	public Intake() {

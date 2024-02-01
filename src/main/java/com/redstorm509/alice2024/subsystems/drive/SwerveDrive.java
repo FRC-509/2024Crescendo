@@ -135,7 +135,7 @@ public class SwerveDrive extends SubsystemBase {
 				Constants.kMaxSpeed);
 
 		for (SwerveModule mod : swerveModules) {
-			mod.setDesiredState(moduleStates[mod.moduleNumber], true);
+			mod.setDesiredState(moduleStates[mod.moduleNumber], false);
 		}
 
 		prevTime = Timer.getFPGATimestamp();
@@ -203,6 +203,10 @@ public class SwerveDrive extends SubsystemBase {
 
 	@Override
 	public void periodic() {
+		for (var mod : swerveModules) {
+			double s = mod.steerEncoder.getAbsolutePosition().getValue() * 360.0;
+			SmartDashboard.putNumber("Module" + mod.moduleNumber + "AHHHHASLKFLSAKJFD", s);
+		}
 		odometry.update(getYaw(), getModulePositions());
 
 		field2d.setRobotPose(getRawOdometeryPose());

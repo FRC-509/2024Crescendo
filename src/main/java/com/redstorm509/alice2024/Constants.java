@@ -44,7 +44,7 @@ public final class Constants {
 	}
 
 	public static class Intake {
-		public static final double intakeSpinSpeed = 0.7; // between -1.0 1.0
+		public static final double intakeSpinSpeed = 0.4; // between -1.0 1.0
 	}
 
 	public static class Vision {
@@ -105,21 +105,21 @@ public final class Constants {
 
 	public static final SwerveModuleConfiguration kFrontLeft = new SwerveModuleConfiguration(
 			1,
-			0,
+			1,
 			9,
 			5,
 			0);
 
 	public static final SwerveModuleConfiguration kBackLeft = new SwerveModuleConfiguration(
 			2,
-			0,
+			2,
 			10,
 			6,
 			0);
 
 	public static final SwerveModuleConfiguration kBackRight = new SwerveModuleConfiguration(
 			3,
-			0,
+			3,
 			11,
 			7,
 			0);

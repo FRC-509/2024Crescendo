@@ -3,6 +3,7 @@ package com.redstorm509.alice2024.subsystems.drive;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.redstorm509.alice2024.Constants;
 import com.redstorm509.alice2024.util.math.Conversions;
@@ -23,7 +24,7 @@ public class SwerveModule {
 	// Motor Controllers for Drive/Steer and Steering Encoder
 	private TalonFX steerMotor;
 	private TalonFX driveMotor;
-	private CANcoder steerEncoder;
+	public CANcoder steerEncoder;
 
 	// Cached control requests for Pheonix 6
 	private final PositionVoltage steerRequest = new PositionVoltage(0).withEnableFOC(false);
