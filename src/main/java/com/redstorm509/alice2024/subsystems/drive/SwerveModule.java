@@ -24,7 +24,7 @@ public class SwerveModule {
 	// Motor Controllers for Drive/Steer and Steering Encoder
 	private TalonFX steerMotor;
 	private TalonFX driveMotor;
-	public CANcoder steerEncoder;
+	private CANcoder steerEncoder;
 
 	// Cached control requests for Pheonix 6
 	private final PositionVoltage steerRequest = new PositionVoltage(0).withEnableFOC(false);
@@ -40,7 +40,7 @@ public class SwerveModule {
 
 		// Angle Encoder Config
 		CANcoderConfiguration canCoderConfiguration = new CANcoderConfiguration();
-		canCoderConfiguration.MagnetSensor.MagnetOffset = (configs.steerEncoderOffset()) / 360.0d;
+		canCoderConfiguration.MagnetSensor.MagnetOffset = (configs.steerEncoderOffset() + 90) / 360.0d;
 		this.steerEncoder = new CANcoder(configs.steerEncoderId(), Constants.kCANIvore);
 		this.steerEncoder.getConfigurator().apply(canCoderConfiguration);
 

@@ -30,9 +30,9 @@ public class SwerveDrive extends SubsystemBase {
 	 * module 2 (-, -) |--b--| module 3 (-, +)
 	 */
 	private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
-			new Translation2d(+Chassis.kOffsetToSwerveModule, +Chassis.kOffsetToSwerveModule),
-			new Translation2d(+Chassis.kOffsetToSwerveModule, -Chassis.kOffsetToSwerveModule),
 			new Translation2d(-Chassis.kOffsetToSwerveModule, -Chassis.kOffsetToSwerveModule),
+			new Translation2d(+Chassis.kOffsetToSwerveModule, -Chassis.kOffsetToSwerveModule),
+			new Translation2d(+Chassis.kOffsetToSwerveModule, +Chassis.kOffsetToSwerveModule),
 			new Translation2d(-Chassis.kOffsetToSwerveModule, +Chassis.kOffsetToSwerveModule));
 
 	public SwerveModule[] swerveModules;
@@ -203,10 +203,6 @@ public class SwerveDrive extends SubsystemBase {
 
 	@Override
 	public void periodic() {
-		for (var mod : swerveModules) {
-			double s = mod.steerEncoder.getAbsolutePosition().getValue() * 360.0;
-			SmartDashboard.putNumber("Module" + mod.moduleNumber + "AHHHHASLKFLSAKJFD", s);
-		}
 		odometry.update(getYaw(), getModulePositions());
 
 		field2d.setRobotPose(getRawOdometeryPose());

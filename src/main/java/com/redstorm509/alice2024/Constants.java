@@ -101,26 +101,26 @@ public final class Constants {
 			0,
 			8,
 			4,
-			0);
+			154.423828);
 
 	public static final SwerveModuleConfiguration kFrontLeft = new SwerveModuleConfiguration(
 			1,
 			1,
 			9,
 			5,
-			0);
+			101.337891);
 
 	public static final SwerveModuleConfiguration kBackLeft = new SwerveModuleConfiguration(
 			2,
 			2,
 			10,
 			6,
-			0);
+			178.066406);
 
 	public static final SwerveModuleConfiguration kBackRight = new SwerveModuleConfiguration(
 			3,
 			3,
 			11,
 			7,
-			0);
+			258.925782);
 }
