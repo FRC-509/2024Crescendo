@@ -1,6 +1,5 @@
 package com.redstorm509.alice2024.commands;
 
-import com.redstorm509.alice2024.Constants;
 import com.redstorm509.alice2024.subsystems.Intake;
 import com.redstorm509.alice2024.subsystems.PreCompressor;
 
@@ -18,7 +17,6 @@ public class IntakeNote extends Command {
 
 	@Override
 	public void execute() {
-		m_Intake.intake(Constants.Intake.intakeSpinSpeed);
-		// m_Intake.runOnce();
+		m_Intake.intake(true);
 	}
 }

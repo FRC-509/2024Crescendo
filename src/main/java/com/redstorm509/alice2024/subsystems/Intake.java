@@ -20,7 +20,7 @@ public class Intake extends SubsystemBase {
 
 	@Override
 	public void periodic() {
-		// This method will be called once per scheduler run
+		intakeMotor.setControl(openLoopVoltage);
 	}
 
 	@Override
@@ -28,7 +28,15 @@ public class Intake extends SubsystemBase {
 		// This method will be called once per scheduler run during simulation
 	}
 
-	public void intake(double percent) {
-		intakeMotor.setControl(openLoopVoltage.withOutput(percent * 12));
+	public void intake(boolean inwards) {
+		if (inwards) {
+			openLoopVoltage = openLoopVoltage.withOutput(-Constants.Intake.kIntakeSpinSpeed * 12);
+		} else {
+			openLoopVoltage = openLoopVoltage.withOutput(Constants.Intake.kIntakeSpinSpeed * 12);
+		}
+	}
+
+	public void stop() {
+		openLoopVoltage = openLoopVoltage.withOutput(0);
 	}
 }

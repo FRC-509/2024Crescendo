@@ -44,7 +44,7 @@ public final class Constants {
 	}
 
 	public static class Intake {
-		public static final double intakeSpinSpeed = 0.4; // between -1.0 1.0
+		public static final double kIntakeSpinSpeed = 0.35; // between -1.0 1.0
 	}
 
 	public static class Vision {

@@ -53,8 +53,8 @@ public class RobotContainer {
 				() -> !driverLeft.isDown(StickButton.Left)));
 		// Zeroes the gyroscope when the bottom button the left stick is pressed.
 		driverLeft.isPressedBind(StickButton.Bottom, Commands.runOnce(() -> pigeon.setYaw(0), swerve));
-		// driverLeft.isPressedBind(StickButton.Trigger,Commands.run(() ->
-		// intake.intake(Constants.Intake.intakeSpinSpeed)));
+		driverLeft.isDownBind(StickButton.Trigger,
+				Commands.startEnd(() -> intake.intake(true), () -> intake.stop(), intake));
 	}
 
 	public Command getAutonomousCommand() {
