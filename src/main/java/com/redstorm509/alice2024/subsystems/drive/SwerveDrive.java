@@ -26,8 +26,8 @@ public class SwerveDrive extends SubsystemBase {
 	 * The order of each vector corresponds to the index of the swerve module inside
 	 * the swerveModules array.
 	 * 
-	 * module 1 (+, -) |--f--| module 0 (+, +)
-	 * module 2 (-, -) |--b--| module 3 (-, +)
+	 * module 1 (-, +) |--f--| module 0 (+, +)
+	 * module 2 (-, -) |--b--| module 3 (+, -)
 	 */
 	private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
 			new Translation2d(+Chassis.kOffsetToSwerveModule, +Chassis.kOffsetToSwerveModule),
@@ -57,7 +57,9 @@ public class SwerveDrive extends SubsystemBase {
 
 		this.pigeon = pigeon;
 		this.headingInterplator = new Interpolator(Constants.kMaxAngularVelocity);
-		this.targetHeading = 180.0;
+		this.targetHeading = 0.0;
+
+		pigeon.setYaw(0.0d, 1.0d);
 
 		swerveModules = new SwerveModule[] {
 				new SwerveModule(Constants.kFrontRight),
@@ -105,20 +107,20 @@ public class SwerveDrive extends SubsystemBase {
 			rotationOutput = interpolatedRotation;
 		} else {
 			SmartDashboard.putBoolean("HeyImIgnoringShit", false);
-			double error = targetHeading - pigeon.getYaw().getValue();
-			if (error > 180.0d) {
-				error -= 360.0d;
+			double delta = pigeon.getYaw().getValue() - targetHeading;
+			if (delta > 180.0d) {
+				delta -= 360.0d;
 			}
-			if (error < -180.0d) {
-				error += 360.0d;
+			if (delta < -180.0d) {
+				delta += 360.0d;
 			}
 
 			// double outputDegrees = Math.abs(delta) > 2.0d ?
 			// headingAggressive.calculate(delta) : headingPassive.calculate(delta);
-			double outputDegrees = Math.abs(error) > 0.5d ? headingPassive.calculate(error) : 0;
+			double outputDegrees = Math.abs(delta) > 0.5d ? headingPassive.calculate(delta) : 0;
 			rotationOutput = Math.toRadians(outputDegrees);
 			SmartDashboard.putNumber("RotationOutput", rotationOutput);
-			SmartDashboard.putBoolean("UsingAggressiveShit", Math.abs(error) > 2.0d);
+			SmartDashboard.putBoolean("UsingAggressiveShit", Math.abs(delta) > 2.0d);
 		}
 
 		SwerveModuleState[] moduleStates;
@@ -162,10 +164,6 @@ public class SwerveDrive extends SubsystemBase {
 
 	public void setTargetHeading(double heading) {
 		targetHeading = heading % 360.0d;
-	}
-
-	public void setTargetHeadingToCurrent() {
-		setTargetHeading(pigeon.getYaw().getValue());
 	}
 
 	/* Used by SwerveControllerCommand in Auto */

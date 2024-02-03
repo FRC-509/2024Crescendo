@@ -54,11 +54,15 @@ public class RobotContainer {
 				swerve,
 				() -> MathUtil.applyDeadband(driverLeft.getX() / 2, Constants.kStickDeadband),
 				() -> MathUtil.applyDeadband(-driverLeft.getY() / 2, Constants.kStickDeadband),
-				() -> MathUtil.applyDeadband(driverRight.getX() / 2, Constants.kStickDeadband),
+				() -> MathUtil.applyDeadband(-driverRight.getX() / 2, Constants.kStickDeadband),
 				() -> !driverLeft.isDown(StickButton.Left)));
 		// Zeroes the gyroscope when the bottom button the left stick is pressed.
-		driverLeft.isPressedBind(StickButton.Bottom, Commands.runOnce(() -> pigeon.setYaw(180), swerve));
-		driverLeft.isPressedBind(StickButton.Left, new AutoPickup(swerve, intakeCamera, intake));
+		driverLeft.isPressedBind(StickButton.Bottom, Commands.runOnce(() -> {
+			pigeon.setYaw(0);
+			swerve.setTargetHeading(0);
+		}, swerve));
+		driverLeft.isPressedBind(StickButton.Left, new AutoPickup(swerve,
+				intakeCamera, intake));
 		driverLeft.isDownBind(StickButton.Trigger,
 				Commands.startEnd(() -> intake.intake(true), () -> intake.stop(), intake));
 	}
