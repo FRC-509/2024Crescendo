@@ -2,6 +2,7 @@ package com.redstorm509.alice2024.commands;
 
 import java.util.function.BooleanSupplier;
 import com.redstorm509.alice2024.Constants;
+import com.redstorm509.alice2024.subsystems.Intake;
 import com.redstorm509.alice2024.subsystems.drive.SwerveDrive;
 import com.redstorm509.alice2024.subsystems.vision.Limelight;
 
@@ -13,11 +14,13 @@ public class AutoPickup extends Command {
 
 	private SwerveDrive swerve;
 	private Limelight limelight;
-	private BooleanSupplier run;
+	private Intake intake;
+	private boolean beganIntaking;
 
-	public AutoPickup(SwerveDrive swerve, Limelight limelight) {
-		// this.swerve = swerve;
+	public AutoPickup(SwerveDrive swerve, Limelight limelight, Intake intake) {
+		this.swerve = swerve;
 		this.limelight = limelight;
+		this.intake = intake;
 
 		addRequirements(swerve);
 	}
@@ -27,9 +30,11 @@ public class AutoPickup extends Command {
 		if (!limelight.getTV()) {
 			end(true);
 		}
+		beganIntaking = false;
+
+		limelight.setLEDMode_ForceOn();
 
 		this.limelight.setPipelineIndex(Constants.Vision.NeuralNetworkPipeline);
-		this.limelight.setLEDMode_ForceOff();
 
 		// set setpoint for pid
 	}
@@ -41,23 +46,33 @@ public class AutoPickup extends Command {
 		}
 
 		// Math to get distance from target
-		double angleToTarget = -limelight.getTY() + Constants.Vision.intakeCAmeraAngleOffset;
-		swerve.drive(new Translation2d(0.0, Constants.Vision.intakeCameraHeightFromGround / Math.tan(angleToTarget)),
-				Math.toRadians(limelight.getTX()),
+		double angleToTarget = -limelight.getTY() + Constants.Vision.kIntakeCameraAngleOffset;
+		double distanceToTarget = Constants.Vision.kIntakeCameraHeightFromGround
+				/ Math.tan(Math.toRadians(angleToTarget));
+		double outputMove = -distanceToTarget * 2;
+		if (outputMove > Constants.kMaxSpeed) {
+			outputMove = Constants.kMaxSpeed;
+		}
+		swerve.drive(new Translation2d(0.0,
+				outputMove),
+				Math.toRadians(limelight.getTX() * 3),
 				false, false);
-
+		if (distanceToTarget < 2 || beganIntaking) {
+			beganIntaking = true;
+			intake.intake(true);
+		}
 		SmartDashboard.putNumber("Angle To Target", angleToTarget);
-		SmartDashboard.putNumber("Distance From Target",
-				Constants.Vision.intakeCameraHeightFromGround / Math.tan(angleToTarget));
+		SmartDashboard.putNumber("Distance From Target", distanceToTarget);
 	}
 
 	@Override
 	public boolean isFinished() {
-		return !run.getAsBoolean();
+		return false;
 	}
 
 	@Override
 	public void end(boolean wasInterrupted) {
 		swerve.drive(new Translation2d(0, 0), 0, true, false);
+		intake.stop();
 	}
 }

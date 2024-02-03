@@ -50,11 +50,11 @@ public final class Constants {
 	public static class Vision {
 		// Replace Me!
 		public static final Pose3d kIntakeCameraPose = new Pose3d();
-		public static final double intakeCAmeraAngleOffset = 5.0;
+		public static final double kIntakeCameraAngleOffset = 5.0;
 		public static final Pose3d kShooterCameraPose = new Pose3d();
 		public static final int NeuralNetworkPipeline = 0;
 		public static final double limelightFullFOVAngle = 24.85 * 2;
-		public static final double intakeCameraHeightFromGround = 0.2794; // meters
+		public static final double kIntakeCameraHeightFromGround = 0.2794; // meters
 	}
 
 	// Replace Me!

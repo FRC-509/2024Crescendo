@@ -9,7 +9,6 @@ import com.redstorm509.alice2024.commands.*;
 import com.redstorm509.alice2024.subsystems.*;
 import com.redstorm509.alice2024.subsystems.drive.*;
 import com.redstorm509.alice2024.subsystems.vision.*;
-import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.redstorm509.stormkit.controllers.ThrustmasterJoystick;
 import com.redstorm509.stormkit.controllers.ThrustmasterJoystick.StickButton;
@@ -42,6 +41,8 @@ public class RobotContainer {
 		// this.shooter = new Shooter();
 		// this.preCompressor = new PreCompressor();
 
+		intakeCamera.setLEDMode_ForceOn();
+
 		configureButtonBindings();
 	}
 
@@ -57,7 +58,7 @@ public class RobotContainer {
 				() -> !driverLeft.isDown(StickButton.Left)));
 		// Zeroes the gyroscope when the bottom button the left stick is pressed.
 		driverLeft.isPressedBind(StickButton.Bottom, Commands.runOnce(() -> pigeon.setYaw(180), swerve));
-		driverLeft.isPressedBind(StickButton.Left, new AutoPickup(swerve, intakeCamera));
+		driverLeft.isPressedBind(StickButton.Left, new AutoPickup(swerve, intakeCamera, intake));
 		driverLeft.isDownBind(StickButton.Trigger,
 				Commands.startEnd(() -> intake.intake(true), () -> intake.stop(), intake));
 	}
