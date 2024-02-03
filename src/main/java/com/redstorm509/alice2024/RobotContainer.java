@@ -9,6 +9,7 @@ import com.redstorm509.alice2024.commands.*;
 import com.redstorm509.alice2024.subsystems.*;
 import com.redstorm509.alice2024.subsystems.drive.*;
 import com.redstorm509.alice2024.subsystems.vision.*;
+import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.redstorm509.stormkit.controllers.ThrustmasterJoystick;
 import com.redstorm509.stormkit.controllers.ThrustmasterJoystick.StickButton;
@@ -25,14 +26,17 @@ public class RobotContainer {
 	private final Intake intake;
 	// private final Shooter shooter;
 	// private final PreCompressor preCompressor;
-	// private final Limelight intakeCamera = new Limelight("limelight-front",
-	// Constants.Vision.kIntakeCameraPose);
+	private final Limelight intakeCamera = new Limelight("limelight", Constants.Vision.kIntakeCameraPose);
 	// private final Limelight shooterCamera = new Limelight("limelight-back",
 	// Constants.Vision.kShooterCameraPose);
 
 	private final SendableChooser<Command> chooser = new SendableChooser<Command>();
 
 	public RobotContainer() {
+		// Pigeon2Configuration conf = new Pigeon2Configuration();
+		// conf.MountPose.MountPoseYaw = 180.0;
+		// pigeon.getConfigurator().apply(conf);
+
 		this.intake = new Intake();
 		this.swerve = new SwerveDrive(pigeon);
 		// this.shooter = new Shooter();
@@ -47,12 +51,12 @@ public class RobotContainer {
 		// held down.
 		swerve.setDefaultCommand(new DriveCommand(
 				swerve,
-				() -> MathUtil.applyDeadband(driverLeft.getX(), Constants.kStickDeadband),
-				() -> MathUtil.applyDeadband(-driverLeft.getY(), Constants.kStickDeadband),
-				() -> MathUtil.applyDeadband(driverRight.getX(), Constants.kStickDeadband),
+				() -> MathUtil.applyDeadband(driverLeft.getX() / 2, Constants.kStickDeadband),
+				() -> MathUtil.applyDeadband(-driverLeft.getY() / 2, Constants.kStickDeadband),
+				() -> MathUtil.applyDeadband(driverRight.getX() / 2, Constants.kStickDeadband),
 				() -> !driverLeft.isDown(StickButton.Left)));
 		// Zeroes the gyroscope when the bottom button the left stick is pressed.
-		driverLeft.isPressedBind(StickButton.Bottom, Commands.runOnce(() -> pigeon.setYaw(0), swerve));
+		driverLeft.isPressedBind(StickButton.Bottom, Commands.runOnce(() -> pigeon.setYaw(180), swerve));
 		driverLeft.isDownBind(StickButton.Trigger,
 				Commands.startEnd(() -> intake.intake(true), () -> intake.stop(), intake));
 	}

@@ -30,10 +30,10 @@ public class SwerveDrive extends SubsystemBase {
 	 * module 2 (-, -) |--b--| module 3 (-, +)
 	 */
 	private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
-			new Translation2d(-Chassis.kOffsetToSwerveModule, -Chassis.kOffsetToSwerveModule),
-			new Translation2d(+Chassis.kOffsetToSwerveModule, -Chassis.kOffsetToSwerveModule),
 			new Translation2d(+Chassis.kOffsetToSwerveModule, +Chassis.kOffsetToSwerveModule),
-			new Translation2d(-Chassis.kOffsetToSwerveModule, +Chassis.kOffsetToSwerveModule));
+			new Translation2d(-Chassis.kOffsetToSwerveModule, +Chassis.kOffsetToSwerveModule),
+			new Translation2d(-Chassis.kOffsetToSwerveModule, -Chassis.kOffsetToSwerveModule),
+			new Translation2d(+Chassis.kOffsetToSwerveModule, -Chassis.kOffsetToSwerveModule));
 
 	public SwerveModule[] swerveModules;
 	public SwerveDriveOdometry odometry;
@@ -57,7 +57,7 @@ public class SwerveDrive extends SubsystemBase {
 
 		this.pigeon = pigeon;
 		this.headingInterplator = new Interpolator(Constants.kMaxAngularVelocity);
-		this.targetHeading = 0.0;
+		this.targetHeading = 180.0;
 
 		swerveModules = new SwerveModule[] {
 				new SwerveModule(Constants.kFrontRight),
@@ -96,23 +96,29 @@ public class SwerveDrive extends SubsystemBase {
 		double speed = Math.hypot(translationMetersPerSecond.getX(),
 				translationMetersPerSecond.getY());
 
-		if ((speed != 0 && speed < Constants.kMinHeadingCorrectionSpeed) ||
-				omitRotationCorrection || hasRotationInput || timer.get() < Constants.kHeadingTimeout) {
+		SmartDashboard.putBoolean("hasRotationInput", hasRotationInput);
+
+		if ((speed != 0 && speed < Constants.kMinHeadingCorrectionSpeed) || omitRotationCorrection || hasRotationInput
+				|| timer.get() < Constants.kHeadingTimeout) {
+			SmartDashboard.putBoolean("HeyImIgnoringShit", true);
 			setTargetHeading(pigeon.getYaw().getValue());
 			rotationOutput = interpolatedRotation;
 		} else {
-			double delta = pigeon.getYaw().getValue() - targetHeading;
-			if (delta > 180.0d) {
-				delta -= 360.0d;
+			SmartDashboard.putBoolean("HeyImIgnoringShit", false);
+			double error = targetHeading - pigeon.getYaw().getValue();
+			if (error > 180.0d) {
+				error -= 360.0d;
 			}
-			if (delta < -180.0d) {
-				delta += 360.0d;
+			if (error < -180.0d) {
+				error += 360.0d;
 			}
 
-			double outputDegrees = Math.abs(delta) > 2.0d ? headingAggressive.calculate(delta)
-					: headingPassive.calculate(delta);
-
+			// double outputDegrees = Math.abs(delta) > 2.0d ?
+			// headingAggressive.calculate(delta) : headingPassive.calculate(delta);
+			double outputDegrees = Math.abs(error) > 0.5d ? headingPassive.calculate(error) : 0;
 			rotationOutput = Math.toRadians(outputDegrees);
+			SmartDashboard.putNumber("RotationOutput", rotationOutput);
+			SmartDashboard.putBoolean("UsingAggressiveShit", Math.abs(error) > 2.0d);
 		}
 
 		SwerveModuleState[] moduleStates;
@@ -135,7 +141,7 @@ public class SwerveDrive extends SubsystemBase {
 				Constants.kMaxSpeed);
 
 		for (SwerveModule mod : swerveModules) {
-			mod.setDesiredState(moduleStates[mod.moduleNumber], false);
+			mod.setDesiredState(moduleStates[mod.moduleNumber], true);
 		}
 
 		prevTime = Timer.getFPGATimestamp();
@@ -208,9 +214,11 @@ public class SwerveDrive extends SubsystemBase {
 		field2d.setRobotPose(getRawOdometeryPose());
 
 		SmartDashboard.putNumber("yaw", getYaw().getDegrees());
-		SmartDashboard.putNumber("pitch", pigeon.getPitch().getValue());
-		SmartDashboard.putNumber("roll", pigeon.getRoll().getValue());
-		SmartDashboard.putNumber("odometry-x", odometry.getPoseMeters().getX());
-		SmartDashboard.putNumber("odometry-y", odometry.getPoseMeters().getY());
+		SmartDashboard.putNumber("TargetHeading", targetHeading);
+
+		// SmartDashboard.putNumber("pitch", pigeon.getPitch().getValue());
+		// SmartDashboard.putNumber("roll", pigeon.getRoll().getValue());
+		// SmartDashboard.putNumber("odometry-x", odometry.getPoseMeters().getX());
+		// SmartDashboard.putNumber("odometry-y", odometry.getPoseMeters().getY());
 	}
 }

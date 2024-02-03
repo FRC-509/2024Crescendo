@@ -51,6 +51,7 @@ public final class Constants {
 		// Replace Me!
 		public static final Pose3d kIntakeCameraPose = new Pose3d();
 		public static final Pose3d kShooterCameraPose = new Pose3d();
+		public static final int NeuralNetworkPipeline = 0;
 	}
 
 	// Replace Me!
@@ -63,13 +64,13 @@ public final class Constants {
 	public static final double kMaxAngularAcceleration = 0.0;
 
 	// Tune Me!
-	public static final double kDriveVelocityS = 0.0 / 12.0;
-	public static final double kDriveVelocityV = 0.0 / 12.0;
-	public static final double kDriveVelocityA = 0.0 / 12.0;
+	public static final double kDriveVelocityS = 0.128;
+	public static final double kDriveVelocityV = 0.109;
+	public static final double kDriveVelocityA = 0.0;
 
 	// Tune Me!
-	public static final double kDriveVelocityP = 0.0;
-	public static final double kDriveVelocityI = 0.0;
+	public static final double kDriveVelocityP = 0.2;
+	public static final double kDriveVelocityI = 3.0;
 	public static final double kDriveVelocityD = 0.0;
 
 	// Tune Me!
@@ -78,13 +79,13 @@ public final class Constants {
 	public static final double kSteerAngleD = 0.0;
 
 	// Tune Me!
-	public static final double kHeadingPassiveP = 0.0 * 12.0d;
-	public static final double kHeadingPassiveI = 0.0 * 12.0d;
+	public static final double kHeadingPassiveP = 0.3 * 12.0d;
+	public static final double kHeadingPassiveI = 0.8 * 12.0d;
 	public static final double kHeadingPassiveD = 0.0 * 12.0d;
 	public static final double kHeadingAggressiveP = 0.0 * 12.0d;
 	public static final double kHeadingAggressiveI = 0.0 * 12.0d;
 	public static final double kHeadingAggressiveD = 0.0 * 12.0d;
-	public static final double kHeadingTimeout = 0.35;
+	public static final double kHeadingTimeout = 0.40;
 	public static final double kMinHeadingCorrectionSpeed = 0.15;
 
 	public static record SwerveModuleConfiguration(
