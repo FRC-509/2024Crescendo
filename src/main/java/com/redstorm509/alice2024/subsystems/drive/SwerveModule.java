@@ -118,7 +118,6 @@ public class SwerveModule {
 	}
 
 	public void setDesiredState(SwerveModuleState desiredState, boolean closedLoop) {
-		SmartDashboard.putNumber("ClosedLoopError", driveMotor.getClosedLoopError().getValue());
 		// Ensures that the module takes the optimal path towards the target angle,
 		// limiting rotation to only 90 degrees at a time.
 		desiredState = SwerveModuleState.optimize(desiredState, getAngle());
