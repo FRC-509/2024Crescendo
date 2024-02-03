@@ -8,6 +8,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -97,6 +98,12 @@ public class Robot extends LoggedRobot {
 		// robot's periodic
 		// block in order for anything in the Command-based framework to work.
 		CommandScheduler.getInstance().run();
+
+		SmartDashboard.putNumber("Angle To Target",
+				Math.abs(m_robotContainer.intakeCamera.getTY()) + Constants.Vision.intakeCAmeraAngleOffset);
+		SmartDashboard.putNumber("Distance From Target",
+				Constants.Vision.intakeCameraHeightFromGround / Math.tan(
+						Math.abs(m_robotContainer.intakeCamera.getTY()) + Constants.Vision.intakeCAmeraAngleOffset));
 	}
 
 	/** This function is called once each time the robot enters Disabled mode. */

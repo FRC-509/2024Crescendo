@@ -4,23 +4,32 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.redstorm509.alice2024.Constants;
+import com.revrobotics.CANSparkBase.IdleMode;
+import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.CANSparkMax;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Intake extends SubsystemBase {
-	public TalonFX intakeMotor = new TalonFX(12);
+	public final TalonFX intakeMotor = new TalonFX(12);
+	private final CANSparkMax preCompressorMotors = new CANSparkMax(10, MotorType.kBrushed);
 	private VoltageOut openLoopVoltage = new VoltageOut(0);
+	private double preCompressorSpeed = 0.0d;
 
 	public Intake() {
 		TalonFXConfiguration conf = new TalonFXConfiguration();
 		conf.CurrentLimits.StatorCurrentLimitEnable = true;
 		conf.CurrentLimits.StatorCurrentLimit = 35.0;
 		intakeMotor.getConfigurator().apply(conf);
+
+		preCompressorMotors.setSmartCurrentLimit(18);
+		preCompressorMotors.setIdleMode(IdleMode.kCoast);
 	}
 
 	@Override
 	public void periodic() {
 		intakeMotor.setControl(openLoopVoltage);
+		preCompressorMotors.set(preCompressorSpeed);
 	}
 
 	@Override
@@ -30,13 +39,15 @@ public class Intake extends SubsystemBase {
 
 	public void intake(boolean inwards) {
 		if (inwards) {
-			openLoopVoltage = openLoopVoltage.withOutput(-Constants.Intake.kIntakeSpinSpeed * 12);
+			openLoopVoltage.Output = (-Constants.Intake.kIntakeSpinSpeed * 12);
 		} else {
-			openLoopVoltage = openLoopVoltage.withOutput(Constants.Intake.kIntakeSpinSpeed * 12);
+			openLoopVoltage.Output = (Constants.Intake.kIntakeSpinSpeed * 12);
 		}
+		preCompressorSpeed = Constants.PreCompressor.kPreCompressorSpinSpeed;
 	}
 
 	public void stop() {
-		openLoopVoltage = openLoopVoltage.withOutput(0);
+		openLoopVoltage.Output = 0;
+		preCompressorSpeed = 0.0d;
 	}
 }
