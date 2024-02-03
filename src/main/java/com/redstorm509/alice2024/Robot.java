@@ -100,10 +100,10 @@ public class Robot extends LoggedRobot {
 		CommandScheduler.getInstance().run();
 
 		SmartDashboard.putNumber("Angle To Target",
-				Math.abs(m_robotContainer.intakeCamera.getTY()) + Constants.Vision.intakeCAmeraAngleOffset);
+				-m_robotContainer.intakeCamera.getTY() + Constants.Vision.intakeCAmeraAngleOffset);
 		SmartDashboard.putNumber("Distance From Target",
 				Constants.Vision.intakeCameraHeightFromGround / Math.tan(
-						Math.abs(m_robotContainer.intakeCamera.getTY()) + Constants.Vision.intakeCAmeraAngleOffset));
+						-m_robotContainer.intakeCamera.getTY() + Constants.Vision.intakeCAmeraAngleOffset));
 	}
 
 	/** This function is called once each time the robot enters Disabled mode. */

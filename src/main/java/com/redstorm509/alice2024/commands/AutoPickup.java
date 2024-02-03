@@ -41,7 +41,7 @@ public class AutoPickup extends Command {
 		}
 
 		// Math to get distance from target
-		double angleToTarget = Math.abs(limelight.getTY()) + Constants.Vision.intakeCAmeraAngleOffset;
+		double angleToTarget = -limelight.getTY() + Constants.Vision.intakeCAmeraAngleOffset;
 		swerve.drive(new Translation2d(0.0, Constants.Vision.intakeCameraHeightFromGround / Math.tan(angleToTarget)),
 				Math.toRadians(limelight.getTX()),
 				false, false);
