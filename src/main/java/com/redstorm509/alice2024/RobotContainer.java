@@ -41,7 +41,7 @@ public class RobotContainer {
 		// this.shooter = new Shooter();
 		// this.preCompressor = new PreCompressor();
 
-		intakeCamera.setLEDMode_ForceOn();
+		intakeCamera.setLEDMode_ForceOff();
 
 		configureButtonBindings();
 	}

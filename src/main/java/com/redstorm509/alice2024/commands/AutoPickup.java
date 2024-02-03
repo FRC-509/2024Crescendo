@@ -1,6 +1,7 @@
 package com.redstorm509.alice2024.commands;
 
-import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
+
 import com.redstorm509.alice2024.Constants;
 import com.redstorm509.alice2024.subsystems.Intake;
 import com.redstorm509.alice2024.subsystems.drive.SwerveDrive;
@@ -16,11 +17,31 @@ public class AutoPickup extends Command {
 	private Limelight limelight;
 	private Intake intake;
 	private boolean beganIntaking;
+	private DoubleSupplier xSupplier;
+	private DoubleSupplier ySupplier;
+	private double stickMagnitude;
+	private double startingMagnitude;
+	private boolean usesMagnitudeCondition;
+
+	public AutoPickup(SwerveDrive swerve, Limelight limelight, Intake intake, DoubleSupplier xSupplier,
+			DoubleSupplier ySupplier) {
+		this.swerve = swerve;
+		this.limelight = limelight;
+		this.intake = intake;
+		this.xSupplier = xSupplier;
+		this.ySupplier = ySupplier;
+
+		usesMagnitudeCondition = true;
+
+		addRequirements(swerve, intake);
+	}
 
 	public AutoPickup(SwerveDrive swerve, Limelight limelight, Intake intake) {
 		this.swerve = swerve;
 		this.limelight = limelight;
 		this.intake = intake;
+
+		usesMagnitudeCondition = false;
 
 		addRequirements(swerve);
 	}
@@ -32,47 +53,77 @@ public class AutoPickup extends Command {
 		}
 		beganIntaking = false;
 
+		// sets the starting magnitude to the
+		if (usesMagnitudeCondition) {
+			if (Math.abs(ySupplier.getAsDouble()) >= Math.abs(xSupplier.getAsDouble())) {
+				startingMagnitude = Math.abs(ySupplier.getAsDouble());
+			} else {
+				startingMagnitude = Math.abs(xSupplier.getAsDouble());
+			}
+		}
+
 		limelight.setLEDMode_ForceOn();
 
-		this.limelight.setPipelineIndex(Constants.Vision.NeuralNetworkPipeline);
-
-		// set setpoint for pid
+		limelight.setPipelineIndex(Constants.Vision.NeuralNetworkPipeline);
 	}
 
 	@Override
 	public void execute() {
+		// Checks if limelight has a target
 		if (!limelight.getTV()) {
+			limelight.setLEDMode_ForceBlink();
 			return;
+		} else {
+			limelight.setLEDMode_ForceOn();
 		}
 
-		// Math to get distance from target
+		// sets the Stick magnitude to the highest value
+		if (usesMagnitudeCondition) {
+			if (Math.abs(ySupplier.getAsDouble()) >= Math.abs(xSupplier.getAsDouble())) {
+				stickMagnitude = Math.abs(ySupplier.getAsDouble());
+			} else {
+				stickMagnitude = Math.abs(xSupplier.getAsDouble());
+			}
+		}
+
+		// Finds distance to target and how much to move
 		double angleToTarget = -limelight.getTY() + Constants.Vision.kIntakeCameraAngleOffset;
 		double distanceToTarget = Constants.Vision.kIntakeCameraHeightFromGround
 				/ Math.tan(Math.toRadians(angleToTarget));
-		double outputMove = -distanceToTarget * 2;
-		if (outputMove > Constants.kMaxSpeed) {
+		double outputMove = -distanceToTarget * 3; // tune this
+
+		// Scales outputMove with the x angle to the target, or just sets to maxSpeed
+		if (outputMove > Constants.kMaxSpeed || (Math.abs(limelight.getTX()) < 0.5)) { // tune this second value
 			outputMove = Constants.kMaxSpeed;
 		}
-		swerve.drive(new Translation2d(0.0,
+
+		swerve.drive(new Translation2d(0.0, // possibly change 0.0 to: -distanceToTarget * getTX() or scale somehow
 				outputMove),
-				Math.toRadians(limelight.getTX() * 3),
+				Math.toRadians(-distanceToTarget * limelight.getTX() * 1.5), // tune this
 				false, false);
+
 		if (distanceToTarget < 2 || beganIntaking) {
 			beganIntaking = true;
 			intake.intake(true);
 		}
+
 		SmartDashboard.putNumber("Angle To Target", angleToTarget);
 		SmartDashboard.putNumber("Distance From Target", distanceToTarget);
 	}
 
 	@Override
 	public boolean isFinished() {
-		return false;
+		// ends if the stick crosses
+		if (usesMagnitudeCondition) {
+			return stickMagnitude < startingMagnitude / 5 || stickMagnitude < 0.05;
+		}
+		return false; // add an || for if note sensors detect note in pipeline
 	}
 
 	@Override
 	public void end(boolean wasInterrupted) {
 		swerve.drive(new Translation2d(0, 0), 0, true, false);
+		limelight.setLEDMode_ForceOff();
 		intake.stop();
 	}
 }
