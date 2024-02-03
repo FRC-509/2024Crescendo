@@ -5,10 +5,13 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.Odometry;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -16,8 +19,17 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.redstorm509.alice2024.Constants;
+import com.redstorm509.alice2024.Robot;
 import com.redstorm509.alice2024.Constants.Chassis;
+
+import java.util.Optional;
+
 import com.ctre.phoenix6.hardware.Pigeon2;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
+import com.pathplanner.lib.util.PIDConstants;
+import com.pathplanner.lib.util.PathPlannerLogging;
+import com.pathplanner.lib.util.ReplanningConfig;
 import com.redstorm509.stormkit.math.Interpolator;
 
 public class SwerveDrive extends SubsystemBase {
@@ -26,8 +38,8 @@ public class SwerveDrive extends SubsystemBase {
 	 * The order of each vector corresponds to the index of the swerve module inside
 	 * the swerveModules array.
 	 * 
-	 * module 1 (+, -) |--f--| module 0 (+, +)
-	 * module 2 (-, -) |--b--| module 3 (-, +)
+	 * module 1 (-, +) |--f--| module 0 (+, +)
+	 * module 2 (-, -) |--b--| module 3 (+, -)
 	 */
 	private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
 			new Translation2d(+Chassis.kOffsetToSwerveModule, +Chassis.kOffsetToSwerveModule),
@@ -57,7 +69,9 @@ public class SwerveDrive extends SubsystemBase {
 
 		this.pigeon = pigeon;
 		this.headingInterplator = new Interpolator(Constants.kMaxAngularVelocity);
-		this.targetHeading = 180.0;
+		this.targetHeading = 0.0;
+
+		pigeon.setYaw(0.0d, 1.0d);
 
 		swerveModules = new SwerveModule[] {
 				new SwerveModule(Constants.kFrontRight),
@@ -70,6 +84,33 @@ public class SwerveDrive extends SubsystemBase {
 
 		odometry = new SwerveDriveOdometry(kinematics, getYaw(), getModulePositions());
 
+		HolonomicPathFollowerConfig pathFollowerConfig = new HolonomicPathFollowerConfig(
+				new PIDConstants(5.0, 0, 0), // Translation constants
+				new PIDConstants(5.0, 0, 0), // Rotation constants
+				Constants.kMaxSpeed,
+				Constants.Chassis.kOffsetToSwerveModule * Math.sqrt(2),
+				new ReplanningConfig(false, false));
+
+		AutoBuilder.configureHolonomic(
+				this::getRawOdometeryPose,
+				this::resetOdometry,
+				this::getChassisSpeeds,
+				this::setChassisSpeeds,
+				pathFollowerConfig,
+				() -> {
+					// Boolean supplier that controls when the path will be mirrored for the red
+					// alliance
+					// This will flip the path being followed to the red side of the field.
+					// THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+
+					Optional<Alliance> alliance = DriverStation.getAlliance();
+					if (alliance.isPresent()) {
+						return alliance.get() == DriverStation.Alliance.Red;
+					}
+					return false;
+				},
+				this);
+		PathPlannerLogging.setLogActivePathCallback((poses) -> field2d.getObject("path").setPoses(poses));
 		Shuffleboard.getTab("Robot Field Position").add(field2d);
 	}
 
@@ -96,29 +137,23 @@ public class SwerveDrive extends SubsystemBase {
 		double speed = Math.hypot(translationMetersPerSecond.getX(),
 				translationMetersPerSecond.getY());
 
-		SmartDashboard.putBoolean("hasRotationInput", hasRotationInput);
-
 		if ((speed != 0 && speed < Constants.kMinHeadingCorrectionSpeed) || omitRotationCorrection || hasRotationInput
 				|| timer.get() < Constants.kHeadingTimeout) {
-			SmartDashboard.putBoolean("HeyImIgnoringShit", true);
 			setTargetHeading(pigeon.getYaw().getValue());
 			rotationOutput = interpolatedRotation;
 		} else {
-			SmartDashboard.putBoolean("HeyImIgnoringShit", false);
-			double error = targetHeading - pigeon.getYaw().getValue();
-			if (error > 180.0d) {
-				error -= 360.0d;
+			double delta = pigeon.getYaw().getValue() - targetHeading;
+			if (delta > 180.0d) {
+				delta -= 360.0d;
 			}
-			if (error < -180.0d) {
-				error += 360.0d;
+			if (delta < -180.0d) {
+				delta += 360.0d;
 			}
 
 			// double outputDegrees = Math.abs(delta) > 2.0d ?
 			// headingAggressive.calculate(delta) : headingPassive.calculate(delta);
-			double outputDegrees = Math.abs(error) > 0.5d ? headingPassive.calculate(error) : 0;
+			double outputDegrees = Math.abs(delta) > 0.5d ? headingPassive.calculate(delta) : 0;
 			rotationOutput = Math.toRadians(outputDegrees);
-			SmartDashboard.putNumber("RotationOutput", rotationOutput);
-			SmartDashboard.putBoolean("UsingAggressiveShit", Math.abs(error) > 2.0d);
 		}
 
 		SwerveModuleState[] moduleStates;
@@ -164,19 +199,30 @@ public class SwerveDrive extends SubsystemBase {
 		targetHeading = heading % 360.0d;
 	}
 
-	public void setTargetHeadingToCurrent() {
-		setTargetHeading(pigeon.getYaw().getValue());
+	public ChassisSpeeds getChassisSpeeds() {
+		return kinematics.toChassisSpeeds(getModuleStates());
 	}
 
-	/* Used by SwerveControllerCommand in Auto */
-	public void setModuleStates(SwerveModuleState[] desiredStates) {
+	// Used strictly for PathPlanner in autonomous
+	public void setChassisSpeeds(ChassisSpeeds robotRelativeSpeeds) {
+		ChassisSpeeds targetSpeeds = ChassisSpeeds.discretize(robotRelativeSpeeds, 0.02);
+		SwerveModuleState[] targetStates = kinematics.toSwerveModuleStates(targetSpeeds);
+		SwerveDriveKinematics.desaturateWheelSpeeds(targetStates, Constants.kMaxSpeed);
+
 		for (SwerveModule mod : swerveModules) {
-			mod.setDesiredState(desiredStates[mod.moduleNumber], true);
+			mod.setDesiredState(targetStates[mod.moduleNumber], true);
 		}
 	}
 
 	public Pose2d getRawOdometeryPose() {
-		return odometry.getPoseMeters();
+		// if (DriverStation.isAutonomous()) {
+		// return odometry.getPoseMeters().rotateBy(Rotation2d.fromDegrees(90));
+		// }
+		Translation2d trans = odometry.getPoseMeters().getTranslation();
+		Rotation2d rot = odometry.getPoseMeters().getRotation().rotateBy(Rotation2d.fromDegrees(90));
+		// return new Pose2d(trans, rot);
+
+		return new Pose2d(trans, rot);
 	}
 
 	public void resetOdometry(Pose2d pose) {
@@ -214,11 +260,10 @@ public class SwerveDrive extends SubsystemBase {
 		field2d.setRobotPose(getRawOdometeryPose());
 
 		SmartDashboard.putNumber("yaw", getYaw().getDegrees());
-		SmartDashboard.putNumber("TargetHeading", targetHeading);
+		SmartDashboard.putNumber("target-heading", targetHeading);
+		SmartDashboard.putNumber("odometry-x", getRawOdometeryPose().getX());
+		SmartDashboard.putNumber("odometry-y", getRawOdometeryPose().getY());
+		SmartDashboard.putNumber("odometry-theta", getRawOdometeryPose().getRotation().getDegrees());
 
-		// SmartDashboard.putNumber("pitch", pigeon.getPitch().getValue());
-		// SmartDashboard.putNumber("roll", pigeon.getRoll().getValue());
-		// SmartDashboard.putNumber("odometry-x", odometry.getPoseMeters().getX());
-		// SmartDashboard.putNumber("odometry-y", odometry.getPoseMeters().getY());
 	}
 }

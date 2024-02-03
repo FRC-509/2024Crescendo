@@ -74,7 +74,7 @@ public class SwerveModule {
 		// Drive Motor Config
 		TalonFXConfiguration driveMotorConfig = new TalonFXConfiguration();
 		driveMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-		driveMotorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+		driveMotorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 		driveMotorConfig.Slot0.kP = Constants.kDriveVelocityP;
 		driveMotorConfig.Slot0.kI = Constants.kDriveVelocityI;
 		driveMotorConfig.Slot0.kD = Constants.kDriveVelocityD;
@@ -118,7 +118,6 @@ public class SwerveModule {
 	}
 
 	public void setDesiredState(SwerveModuleState desiredState, boolean closedLoop) {
-		SmartDashboard.putNumber("ClosedLoopError", driveMotor.getClosedLoopError().getValue());
 		// Ensures that the module takes the optimal path towards the target angle,
 		// limiting rotation to only 90 degrees at a time.
 		desiredState = SwerveModuleState.optimize(desiredState, getAngle());

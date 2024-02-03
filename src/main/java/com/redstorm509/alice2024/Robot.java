@@ -98,14 +98,6 @@ public class Robot extends LoggedRobot {
 		// robot's periodic
 		// block in order for anything in the Command-based framework to work.
 		CommandScheduler.getInstance().run();
-
-		SmartDashboard.putNumber("Angle To Target",
-				-m_robotContainer.intakeCamera.getTY() + Constants.Vision.kIntakeCameraAngleOffset);
-		SmartDashboard.putNumber("Distance From Target",
-				Constants.Vision.kIntakeCameraHeightFromGround / Math.tan(
-						(Math.PI / 180)
-								* (-m_robotContainer.intakeCamera.getTY()
-										+ Constants.Vision.kIntakeCameraAngleOffset)));
 	}
 
 	/** This function is called once each time the robot enters Disabled mode. */

@@ -1,7 +1,6 @@
 package com.redstorm509.alice2024.commands;
 
-import java.util.function.DoubleSupplier;
-
+import java.util.function.BooleanSupplier;
 import com.redstorm509.alice2024.Constants;
 import com.redstorm509.alice2024.subsystems.Intake;
 import com.redstorm509.alice2024.subsystems.drive.SwerveDrive;
@@ -90,10 +89,8 @@ public class AutoPickup extends Command {
 		double angleToTarget = -limelight.getTY() + Constants.Vision.kIntakeCameraAngleOffset;
 		double distanceToTarget = Constants.Vision.kIntakeCameraHeightFromGround
 				/ Math.tan(Math.toRadians(angleToTarget));
-		double outputMove = -distanceToTarget * 3; // tune this
-
-		// Scales outputMove with the x angle to the target, or just sets to maxSpeed
-		if (outputMove > Constants.kMaxSpeed || (Math.abs(limelight.getTX()) < 0.5)) { // tune this second value
+		double outputMove = -distanceToTarget * 2;
+		if (outputMove > Constants.kMaxSpeed) {
 			outputMove = Constants.kMaxSpeed;
 		}
 
