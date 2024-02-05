@@ -1,6 +1,7 @@
 package com.redstorm509.alice2024.commands;
 
-import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
+
 import com.redstorm509.alice2024.Constants;
 import com.redstorm509.alice2024.subsystems.Intake;
 import com.redstorm509.alice2024.subsystems.drive.SwerveDrive;

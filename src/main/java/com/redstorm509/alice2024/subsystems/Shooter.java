@@ -2,6 +2,8 @@ package com.redstorm509.alice2024.subsystems;
 
 import com.redstorm509.alice2024.Constants;
 import com.redstorm509.alice2024.util.math.GeometryUtils;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
@@ -24,7 +26,7 @@ public class Shooter extends SubsystemBase {
 	private TalonFX shooterLeader = new TalonFX(0);
 	private TalonFX shooterFollower = new TalonFX(0);
 
-	private TalonFX indexer = new TalonFX(0);
+	private CANSparkMax indexer = new CANSparkMax(0, MotorType.kBrushed);
 
 	private TalonFX pivotLeader = new TalonFX(0);
 	private TalonFX pivotFollower = new TalonFX(0);
