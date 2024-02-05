@@ -26,7 +26,6 @@ public class RobotContainer {
 	private final SwerveDrive swerve;
 	private final Intake intake;
 	// private final Shooter shooter;
-	// private final PreCompressor preCompressor;
 	public final Limelight intakeCamera = new Limelight("limelight-intake", Constants.Vision.kIntakeCameraPose);
 	// private final Limelight shooterCamera = new Limelight("limelight-arm",
 	// Constants.Vision.kShooterCameraPose);
@@ -41,7 +40,6 @@ public class RobotContainer {
 		this.intake = new Intake();
 		this.swerve = new SwerveDrive(pigeon);
 		// this.shooter = new Shooter();
-		// this.preCompressor = new PreCompressor();
 
 		intakeCamera.setLEDMode_ForceOff();
 

@@ -48,8 +48,10 @@ public final class Constants {
 	}
 
 	public static class Vision {
-		public static final int NeuralNetworkPipeline = 0;
-		public static final int AprilTagPipeline = 1;
+		public static class Pipeline {
+			public static final int NeuralNetwork = 0;
+			public static final int AprilTags = 1;
+		};
 
 		// Replace Me!
 		public static final Pose3d kIntakeCameraPose = new Pose3d();

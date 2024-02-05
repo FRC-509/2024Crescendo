@@ -51,7 +51,6 @@ public class I2CUtil implements AutoCloseable {
 	 * is complete.
 	 *
 	 * @param data The data to write to the device.
-	 * @param size The number of data bytes to write.
 	 * @return True for success, false for aborted.
 	 */
 	public synchronized boolean write(byte[] data) {
@@ -212,11 +211,11 @@ public class I2CUtil implements AutoCloseable {
 	 * @return True for success, false for aborted.
 	 */
 	public synchronized boolean writeToAddress16bit(short registerAddress, byte[] data) {
-		byte[] buffer = new byte[2 + data.length];
+		byte[] buffer = new byte[data.length + 2];
 		buffer[0] = (byte) (registerAddress >>> 8);
 		buffer[1] = (byte) (registerAddress);
 		System.arraycopy(data, 0, buffer, 2, data.length);
-		return I2CJNI.i2CWriteB(port, devAddr, buffer, (byte) (2 + data.length)) >= 0;
+		return I2CJNI.i2CWriteB(port, devAddr, buffer, (byte) (data.length + 2)) >= 0;
 	}
 
 	@Override
