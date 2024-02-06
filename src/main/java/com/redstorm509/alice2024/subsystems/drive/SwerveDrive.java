@@ -215,14 +215,7 @@ public class SwerveDrive extends SubsystemBase {
 	}
 
 	public Pose2d getRawOdometeryPose() {
-		// if (DriverStation.isAutonomous()) {
-		// return odometry.getPoseMeters().rotateBy(Rotation2d.fromDegrees(90));
-		// }
-		Translation2d trans = odometry.getPoseMeters().getTranslation();
-		Rotation2d rot = odometry.getPoseMeters().getRotation().rotateBy(Rotation2d.fromDegrees(90));
-		// return new Pose2d(trans, rot);
-
-		return new Pose2d(trans, rot);
+		return odometry.getPoseMeters();
 	}
 
 	public void resetOdometry(Pose2d pose) {
@@ -264,6 +257,5 @@ public class SwerveDrive extends SubsystemBase {
 		SmartDashboard.putNumber("odometry-x", getRawOdometeryPose().getX());
 		SmartDashboard.putNumber("odometry-y", getRawOdometeryPose().getY());
 		SmartDashboard.putNumber("odometry-theta", getRawOdometeryPose().getRotation().getDegrees());
-
 	}
 }
