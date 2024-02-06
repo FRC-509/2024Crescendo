@@ -40,11 +40,11 @@ public final class Constants {
 	}
 
 	public static class PreCompressor {
-		public static final double kPreCompressorSpinSpeed = 0.7;
+		public static final double kPreCompressorSpinSpeed = 0.8;
 	}
 
 	public static class Intake {
-		public static final double kIntakeSpinSpeed = 0.35; // between -1.0 1.0
+		public static final double kIntakeSpinSpeed = 0.6; // between -1.0 1.0
 	}
 
 	public static class Vision {
