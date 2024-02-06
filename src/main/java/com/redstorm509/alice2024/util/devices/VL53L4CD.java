@@ -8,26 +8,40 @@ import edu.wpi.first.wpilibj.Timer;
 public class VL53L4CD {
 
 	public enum Register {
+		SOFT_RESET(0x0000),
+		I2C_SLAVE_DEVICE_ADDRESS(0x0001),
 		OSC_FREQ(0x0006),
 		VHV_CONFIG_TIMEOUT_MACROP_LOOP_BOUND(0x0008),
-		MYSTERY_1(0x000b),
+		MYSTERY_1(0x000B),
+		XTALK_PLANE_OFFSET_KCPS(0x0016),
+		XTALK_X_PLANE_GRADIENT_KCPS(0x0018),
+		XTALK_Y_PLANE_GRADIENT_KCPS(0x001A),
+		RANGE_OFFSET_MM(0x001E),
+		INNER_OFFSET_MM(0x0020),
+		OUTER_OFFSET_MM(0x0022),
 		MYSTERY_2(0x0024),
-		SYSTEM_START(0x0087),
+		I2C_FAST_MODE_PLUS(0x002D),
 		GPIO_HV_MUX_CTRL(0x0030),
 		GPIO_TIO_HV_STATUS(0x0031),
-		RANGE_CONFIG_A(0x005e),
+		SYSTEM_INTERRUPT(0x0046),
+		RANGE_CONFIG_A(0x005E),
 		RANGE_CONFIG_B(0x0061),
-		INTERMEASUREMENT_MS(0x006c),
+		RANGE_CONFIG_SIGMA_THRESH(0x0064),
+		MIN_COUNT_RATE_RTN_LIMIT_MCPS(0x0066),
+		INTERMEASUREMENT_MS(0x006C),
+		THRESH_HIGH(0x0072),
+		THRESH_LOW(0x0074),
 		SYSTEM_INTERRUPT_CLEAR(0x0086),
+		SYSTEM_START(0x0087),
 		RESULT_RANGE_STATUS(0x0089),
-		RESULT_NUM_SPADS(0x008c),
-		RESULT_SIGNAL_RATE(0x008e),
+		RESULT_SPAD_NB(0x008C),
+		RESULT_SIGNAL_RATE(0x008E),
 		RESULT_AMBIENT_RATE(0x0090),
 		RESULT_SIGMA(0x0092),
 		RESULT_DISTANCE(0x0096),
-		RESULT_OSC_CALIBRATE_VAL(0x00de),
-		SYSTEM_STATUS(0x00e5),
-		IDENTIFICATION_MODEL_ID(0x010f);
+		RESULT_OSC_CALIBRATE_VAL(0x00DE),
+		FIRMWARE_SYSTEM_STATUS(0x00E5),
+		IDENTIFICATION_MODEL_ID(0x010F);
 
 		private final short address;
 
@@ -133,16 +147,16 @@ public class VL53L4CD {
 
 	public class Measurement {
 		public Status status;
-		public short distanceMiliMeters;
+		public short distanceMillimeters;
 		public short ambientRate;
 		public short signalRate;
 		public short spadsEnabled;
 		public short sigma;
 
-		public Measurement(Status status, short distanceMiliMeters, short ambientRate, short signalRate,
+		public Measurement(Status status, short distanceMillimeters, short ambientRate, short signalRate,
 				short spadsEnabled, short sigma) {
 			this.status = status;
-			this.distanceMiliMeters = distanceMiliMeters;
+			this.distanceMillimeters = distanceMillimeters;
 			this.ambientRate = ambientRate;
 			this.signalRate = signalRate;
 			this.spadsEnabled = spadsEnabled;
@@ -341,7 +355,7 @@ public class VL53L4CD {
 
 		System.out.println("[VL53L4CD] Waiting for Boot...");
 
-		while (readByte(i2c, Register.SYSTEM_STATUS) != 0x3) {
+		while (readByte(i2c, Register.FIRMWARE_SYSTEM_STATUS) != 0x3) {
 			Timer.delay(0.001);
 		}
 
@@ -424,26 +438,20 @@ public class VL53L4CD {
 	}
 
 	public boolean hasMeasurement() {
-		byte[] buffer = new byte[1];
-		i2c.readFromAddress16bit(Register.GPIO_HV_MUX_CTRL.addr(), (byte) 1, buffer);
-		byte ctrl = buffer[0];
-		i2c.readFromAddress16bit(Register.GPIO_TIO_HV_STATUS.addr(), (byte) 1, buffer);
-		byte status = buffer[0];
-
+		byte ctrl = readByte(i2c, Register.GPIO_HV_MUX_CTRL);
+		byte status = readByte(i2c, Register.GPIO_TIO_HV_STATUS);
 		return (status & 1) != (ctrl >> 4 & 1);
 	}
 
 	public Measurement readMeasurement() {
-		byte[] buffer = new byte[1];
-		i2c.readFromAddress16bit(Register.RESULT_RANGE_STATUS.addr(), (byte) 1, buffer);
-		byte status = (byte) (buffer[0] & 0x1f);
+		byte status = (byte) (readByte(i2c, Register.RESULT_RANGE_STATUS) & 0x1f);
 
 		return new Measurement(
 				Status.fromReturn(status),
 				readWord(i2c, Register.RESULT_DISTANCE),
-				(short) (readWord(i2c, Register.RESULT_NUM_SPADS) / 256),
 				(short) (readWord(i2c, Register.RESULT_AMBIENT_RATE) * 8),
 				(short) (readWord(i2c, Register.RESULT_SIGNAL_RATE) * 8),
+				(short) (readWord(i2c, Register.RESULT_SPAD_NB) / 256),
 				(short) (readWord(i2c, Register.RESULT_SIGMA) / 4));
 	}
 
