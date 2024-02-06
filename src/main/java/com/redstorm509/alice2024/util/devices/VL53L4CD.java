@@ -1,18 +1,166 @@
 package com.redstorm509.alice2024.util.devices;
 
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.Timer;
 
 public class VL53L4CD {
 
+	public enum Register {
+		OSC_FREQ(0x0006),
+		VHV_CONFIG_TIMEOUT_MACROP_LOOP_BOUND(0x0008),
+		MYSTERY_1(0x000b),
+		MYSTERY_2(0x0024),
+		SYSTEM_START(0x0087),
+		GPIO_HV_MUX_CTRL(0x0030),
+		GPIO_TIO_HV_STATUS(0x0031),
+		RANGE_CONFIG_A(0x005e),
+		RANGE_CONFIG_B(0x0061),
+		INTERMEASUREMENT_MS(0x006c),
+		SYSTEM_INTERRUPT_CLEAR(0x0086),
+		RESULT_RANGE_STATUS(0x0089),
+		RESULT_NUM_SPADS(0x008c),
+		RESULT_SIGNAL_RATE(0x008e),
+		RESULT_AMBIENT_RATE(0x0090),
+		RESULT_SIGMA(0x0092),
+		RESULT_DISTANCE(0x0096),
+		RESULT_OSC_CALIBRATE_VAL(0x00de),
+		SYSTEM_STATUS(0x00e5),
+		IDENTIFICATION_MODEL_ID(0x010f);
+
+		private final short address;
+
+		Register(int address) {
+			this.address = (short) address;
+		}
+
+		public short addr() {
+			return address;
+		}
+
+		public byte[] asBytes() {
+			return new byte[] { (byte) (address >> 8), (byte) address };
+		}
+	}
+
+	public enum Status {
+		Valid(0),
+		SigmaAboveThreshold(1),
+		SigmaBelowThreshold(2),
+		DistanceBelowDetectionThreshold(3),
+		InvalidPhase(4),
+		HardwareFail(5),
+		NoWrapAroundCheck(6),
+		WrappedTargetPhaseMismatch(7),
+		ProcessingFail(8),
+		XTalkFail(9),
+		InterruptError(10),
+		MergedTarget(11),
+		SignalTooWeak(12),
+		Other(255);
+
+		public static Status fromReturn(byte rtn) {
+			switch (rtn) {
+				case 3:
+					return Status.HardwareFail;
+				case 4:
+				case 5:
+					return Status.SigmaBelowThreshold;
+				case 6:
+					return Status.SigmaAboveThreshold;
+				case 7:
+					return Status.WrappedTargetPhaseMismatch;
+				case 8:
+					return Status.DistanceBelowDetectionThreshold;
+				case 9:
+					return Status.Valid;
+				case 12:
+					return Status.XTalkFail;
+				case 13:
+				case 18:
+					return Status.InterruptError;
+				case 19:
+					return Status.NoWrapAroundCheck;
+				case 22:
+					return Status.MergedTarget;
+				case 23:
+					return Status.SignalTooWeak;
+				default:
+					return Status.Other;
+			}
+		}
+
+		private final byte value;
+
+		Status(int value) {
+			this.value = (byte) value;
+		}
+
+		public byte getValue() {
+			return value;
+		}
+
+		public Severity severity() {
+			switch (this) {
+				case Valid:
+					return Severity.None;
+				case SigmaAboveThreshold:
+				case SigmaBelowThreshold:
+					return Severity.Warning;
+				case DistanceBelowDetectionThreshold:
+				case InvalidPhase:
+				case HardwareFail:
+				case WrappedTargetPhaseMismatch:
+				case ProcessingFail:
+				case XTalkFail:
+				case InterruptError:
+				case MergedTarget:
+				case SignalTooWeak:
+				case Other:
+					return Severity.Error;
+				default:
+					return Severity.None;
+			}
+		}
+	};
+
+	public enum Severity {
+		None,
+		Warning,
+		Error
+	}
+
+	public class Measurement {
+		public Status status;
+		public short distanceMiliMeters;
+		public short ambientRate;
+		public short signalRate;
+		public short spadsEnabled;
+		public short sigma;
+
+		public Measurement(Status status, short distanceMiliMeters, short ambientRate, short signalRate,
+				short spadsEnabled, short sigma) {
+			this.status = status;
+			this.distanceMiliMeters = distanceMiliMeters;
+			this.ambientRate = ambientRate;
+			this.signalRate = signalRate;
+			this.spadsEnabled = spadsEnabled;
+			this.sigma = sigma;
+		}
+
+		public boolean isValid() {
+			return status == Status.Valid;
+		}
+	}
+
 	private static final class DefaultConfig {
 		private static final byte[] MESSAGE = {
-				0x00, // first byte of register to write to
-				0x2d, // second byte of register to write to
 				// value addr : description
-				0x12, // 0x2d : set bit 2 and 5 to 1 for fast plus mode (1MHz I2C), else don't touch
-				0x00, // 0x2e : bit 0 if I2C pulled up at 1.8V, else set bit 0 to 1 (pull up at AVDD)
+				0x12, // 0x2d : set bit 2 and 5 to 1 for fast plus mode (1MHz I2C), else don't
+						// touch
+				0x00, // 0x2e : bit 0 if I2C pulled up at 1.8V, else set bit 0 to 1 (pull up at
+						// AVDD)
 				0x00, // 0x2f : bit 0 if GPIO pulled up at 1.8V, else set bit 0 to 1 (pull up at AVDD)
 				0x11, // 0x30 : set bit 4 to 0 for active high interrupt and 1 for active low (bits
 						// 3:0 must be 0x1)
@@ -109,192 +257,80 @@ public class VL53L4CD {
 
 	}
 
-	public enum Register {
-		OSC_FREQ(0x0006),
-		VHV_CONFIG_TIMEOUT_MACROP_LOOP_BOUND(0x0008),
-		MYSTERY_1(0x000b),
-		MYSTERY_2(0x0024),
-		SYSTEM_START(0x0087),
-		GPIO_HV_MUX_CTRL(0x0030),
-		GPIO_TIO_HV_STATUS(0x0031),
-		RANGE_CONFIG_A(0x005e),
-		RANGE_CONFIG_B(0x0061),
-		INTERMEASUREMENT_MS(0x006c),
-		SYSTEM_INTERRUPT_CLEAR(0x0086),
-		RESULT_RANGE_STATUS(0x0089),
-		RESULT_NUM_SPADS(0x008c),
-		RESULT_SIGNAL_RATE(0x008e),
-		RESULT_AMBIENT_RATE(0x0090),
-		RESULT_SIGMA(0x0092),
-		RESULT_DISTANCE(0x0096),
-		RESULT_OSC_CALIBRATE_VAL(0x00de),
-		SYSTEM_STATUS(0x00e5),
-		IDENTIFICATION_MODEL_ID(0x010f);
+	private static final byte PERIPHERAL_ADDR = 0x29;
 
-		private final short address;
+	public static void writeWord(I2CUtil i2c, Register register, short value) {
+		byte[] bytes = new byte[2];
 
-		Register(int address) {
-			this.address = (short) address;
-		}
+		bytes[0] = (byte) ((value >> 8) & 0xFF);
+		bytes[1] = (byte) (value & 0xFF);
 
-		public short addr() {
-			return address;
-		}
-
-		public byte[] asBytes() {
-			return new byte[] { (byte) (address >> 8), (byte) address };
-		}
-	};
-
-	public enum Status {
-		Valid(0),
-		SigmaAboveThreshold(1),
-		SigmaBelowThreshold(2),
-		DistanceBelowDetectionThreshold(3),
-		InvalidPhase(4),
-		HardwareFail(5),
-		NoWrapAroundCheck(6),
-		WrappedTargetPhaseMismatch(7),
-		ProcessingFail(8),
-		XTalkFail(9),
-		InterruptError(10),
-		MergedTarget(11),
-		SignalTooWeak(12),
-		Other(255);
-
-		private final byte value;
-
-		Status(int value) {
-			this.value = (byte) value;
-		}
-
-		public byte getValue() {
-			return value;
-		}
-
-		public static Status fromReturn(byte rtn) {
-			switch (rtn) {
-				case 3:
-					return Status.HardwareFail;
-				case 4:
-				case 5:
-					return Status.SigmaBelowThreshold;
-				case 6:
-					return Status.SigmaAboveThreshold;
-				case 7:
-					return Status.WrappedTargetPhaseMismatch;
-				case 8:
-					return Status.DistanceBelowDetectionThreshold;
-				case 9:
-					return Status.Valid;
-				case 12:
-					return Status.XTalkFail;
-				case 13:
-				case 18:
-					return Status.InterruptError;
-				case 19:
-					return Status.NoWrapAroundCheck;
-				case 22:
-					return Status.MergedTarget;
-				case 23:
-					return Status.SignalTooWeak;
-				default:
-					return Status.Other;
-			}
-		}
-
-		public Severity severity() {
-			switch (this) {
-				case Valid:
-					return Severity.None;
-				case SigmaAboveThreshold:
-				case SigmaBelowThreshold:
-					return Severity.Warning;
-				case DistanceBelowDetectionThreshold:
-				case InvalidPhase:
-				case HardwareFail:
-				case WrappedTargetPhaseMismatch:
-				case ProcessingFail:
-				case XTalkFail:
-				case InterruptError:
-				case MergedTarget:
-				case SignalTooWeak:
-				case Other:
-					return Severity.Error;
-				default:
-					return Severity.None;
-			}
-		}
+		i2c.writeToAddress16bit(register.addr(), bytes);
 	}
 
-	public enum Severity {
-		None,
-		Warning,
-		Error
-	}
-
-	public class Measurement {
-		public Status status;
-		public short distanceMiliMeters;
-		public short ambientRate;
-		public short signalRate;
-		public short spadsEnabled;
-		public short sigma;
-
-		public boolean isValid() {
-			return status == Status.Valid;
-		}
-	}
-
-	private static int readDword(I2C i2c, Register address) {
+	private static int readDword(I2CUtil i2c, Register address) {
 		byte[] bytes = new byte[4];
-		i2c.read(address.addr(), 4, bytes);
+		i2c.readFromAddress16bit(address.addr(), (byte) 4, bytes);
 		return ((bytes[0] & 0xFF) << 24) |
 				((bytes[1] & 0xFF) << 16) |
 				((bytes[2] & 0xFF) << 8) |
 				(bytes[3] & 0xFF);
 	}
 
-	private static short readWord(I2C i2c, Register address) {
+	private static short readWord(I2CUtil i2c, Register address) {
 		byte[] bytes = new byte[2];
-		i2c.read(address.addr(), 2, bytes);
+		i2c.readFromAddress16bit(address.addr(), (byte) 2, bytes);
 		return (short) ((bytes[0] << 8) | (bytes[1] & 0xFF));
 	}
 
-	private static byte readByte(I2C i2c, Register address) {
+	private static byte readByte(I2CUtil i2c, Register address) {
 		byte[] bytes = new byte[1];
-		i2c.read(address.addr(), 1, bytes);
+		i2c.readFromAddress16bit(address.addr(), (byte) 1, bytes);
 		return bytes[0];
 	}
 
-	private static void writeDword(I2C i2c, Register register, int value) {
+	private static void writeDword(I2CUtil i2c, Register register, int value) {
 		byte[] bytes = new byte[4];
 		bytes[0] = (byte) ((value >> 24) & 0xFF);
 		bytes[1] = (byte) ((value >> 16) & 0xFF);
 		bytes[2] = (byte) ((value >> 8) & 0xFF);
 		bytes[3] = (byte) (value & 0xFF);
-		i2c.writeBulk(bytes);
+		i2c.writeToAddress16bit(register.addr(), bytes);
 	}
 
-	public static void writeWord(I2C i2c, Register register, short value) {
-		byte[] bytes = new byte[2];
+	private static Pair<Short, Short> rangeConfigValues(int timingBudgetUs, short oscFreq) {
+		// I didn't make these values up because I'm not a wizard.
+		// https://github.com/stm32duino/VL53L4CD/blob/b64ff4fa877c3cf156e11639e5fa305208dd3be9/src/vl53l4cd_api.cpp#L370
 
-		bytes[0] = (byte) ((value >> 8) & 0xFF);
-		bytes[1] = (byte) (value & 0xFF);
+		int macroPeriodUs = (2304 * (0x40000000 / (int) oscFreq)) >> 6;
+		timingBudgetUs <<= 12;
+		short first = calculateF(macroPeriodUs, timingBudgetUs, 16);
+		short second = calculateF(macroPeriodUs, timingBudgetUs, 12);
 
-		i2c.write(value, value);
+		return Pair.of(first, second);
 	}
 
-	private static final int PERIPHERAL_ADDR = 0x29;
+	private static short calculateF(int macroPeriodUs, int timingBudgetUs, int x) {
+		int msByte = 0;
+		int tmp = macroPeriodUs * x;
+		int lsByte = ((timingBudgetUs + (tmp >> 7)) / (tmp >> 6)) - 1;
 
-	private I2C i2c;
+		while ((lsByte & 0xffffff00) > 0) {
+			lsByte >>= 1;
+			msByte += 1;
+		}
 
-	public VL53L4CD(I2C.Port port, int deviceAddr) {
-		i2c = new I2C(port, deviceAddr);
+		return (short) ((msByte << 8) | (lsByte & 0xff));
+	}
+
+	private I2CUtil i2c;
+
+	public VL53L4CD(I2C.Port port, byte deviceAddr) {
+		i2c = new I2CUtil(port, deviceAddr);
 	}
 
 	public VL53L4CD(I2C.Port port) {
-		i2c = new I2C(port, PERIPHERAL_ADDR);
+		i2c = new I2CUtil(port, PERIPHERAL_ADDR);
 	}
 
 	public void init() {
@@ -311,21 +347,15 @@ public class VL53L4CD {
 
 		System.out.println("[VL53L4CD] Successfully Booted!");
 
-		i2c.writeBulk(DefaultConfig.MESSAGE);
+		i2c.writeToAddress16bit((short) 0x2d, DefaultConfig.MESSAGE);
 
 		startRanging();
 		stopRanging();
-		i2c.write(Register.VHV_CONFIG_TIMEOUT_MACROP_LOOP_BOUND.addr(), 0x09);
-		i2c.write(Register.MYSTERY_1.addr(), 0);
+		i2c.writeToAddress16bit(Register.VHV_CONFIG_TIMEOUT_MACROP_LOOP_BOUND.addr(), (byte) 0x09);
+		i2c.writeToAddress16bit(Register.MYSTERY_1.addr(), (byte) 0);
 		writeWord(i2c, Register.MYSTERY_2, (short) 0x500);
 
-		setRangeTiming(50, 0);
-	}
-
-	private void stopRanging() {
-	}
-
-	private void startRanging() {
+		setRangeTiming(20, 0);
 	}
 
 	public void setRangeTiming(int timingBudgetMs, int interMeasurementMs) {
@@ -358,12 +388,83 @@ public class VL53L4CD {
 			timingBudgetUs /= 2;
 		}
 
-		// let (a, b) = range_config_values(timing_budget_us, osc_freq);
-		// self.i2c.writeWord(Register::RANGE_CONFIG_A, a).await?;
-		// self.i2c.writeWord(Register::RANGE_CONFIG_B, b).await?;
+		Pair<Short, Short> ab = rangeConfigValues(timingBudgetUs, oscFreq);
+		writeWord(i2c, Register.RANGE_CONFIG_A, ab.getFirst());
+		writeWord(i2c, Register.RANGE_CONFIG_B, ab.getSecond());
 	}
 
-	public double getReading() {
-		return 0.0d;
+	public Measurement measure() {
+		waitForMeasurement();
+		Measurement measurement = readMeasurement();
+		clearInterrupt();
+		return measurement;
+	}
+
+	public void startTemperatureUpdate() {
+		i2c.writeToAddress16bit(Register.VHV_CONFIG_TIMEOUT_MACROP_LOOP_BOUND.addr(), (byte) 0x81);
+		i2c.writeToAddress16bit(Register.MYSTERY_1.addr(), (byte) 0x92);
+		i2c.writeToAddress16bit(Register.SYSTEM_START.addr(), (byte) 0x40);
+
+		waitForMeasurement();
+		clearInterrupt();
+		stopRanging();
+
+		i2c.writeToAddress16bit(Register.VHV_CONFIG_TIMEOUT_MACROP_LOOP_BOUND.addr(), (byte) 0x09);
+		i2c.writeToAddress16bit(Register.MYSTERY_1.addr(), (byte) 0);
+	}
+
+	public void waitForMeasurement() {
+		for (int i = 0; i < 1000; i++) {
+			if (hasMeasurement()) {
+				return;
+			}
+			Timer.delay(0.001);
+		}
+		DriverStation.reportError("[VL53L4CD] Timed out while waiting for a measurement.", null);
+	}
+
+	public boolean hasMeasurement() {
+		byte[] buffer = new byte[1];
+		i2c.readFromAddress16bit(Register.GPIO_HV_MUX_CTRL.addr(), (byte) 1, buffer);
+		byte ctrl = buffer[0];
+		i2c.readFromAddress16bit(Register.GPIO_TIO_HV_STATUS.addr(), (byte) 1, buffer);
+		byte status = buffer[0];
+
+		return (status & 1) != (ctrl >> 4 & 1);
+	}
+
+	public Measurement readMeasurement() {
+		byte[] buffer = new byte[1];
+		i2c.readFromAddress16bit(Register.RESULT_RANGE_STATUS.addr(), (byte) 1, buffer);
+		byte status = (byte) (buffer[0] & 0x1f);
+
+		return new Measurement(
+				Status.fromReturn(status),
+				readWord(i2c, Register.RESULT_DISTANCE),
+				(short) (readWord(i2c, Register.RESULT_NUM_SPADS) / 256),
+				(short) (readWord(i2c, Register.RESULT_AMBIENT_RATE) * 8),
+				(short) (readWord(i2c, Register.RESULT_SIGNAL_RATE) * 8),
+				(short) (readWord(i2c, Register.RESULT_SIGMA) / 4));
+	}
+
+	public void clearInterrupt() {
+		i2c.writeToAddress16bit(Register.SYSTEM_INTERRUPT_CLEAR.addr(), (byte) 0x01);
+	}
+
+	public void startRanging() {
+		if (readWord(i2c, Register.INTERMEASUREMENT_MS) == (short) 0) {
+			// autonomous mode
+			i2c.writeToAddress16bit(Register.SYSTEM_START.addr(), (byte) 0x21);
+		} else {
+			// continuous mode
+			i2c.writeToAddress16bit(Register.SYSTEM_START.addr(), (byte) 0x40);
+		}
+
+		waitForMeasurement();
+		clearInterrupt();
+	}
+
+	public void stopRanging() {
+		i2c.writeToAddress16bit(Register.SYSTEM_START.addr(), (byte) 0x00);
 	}
 }
