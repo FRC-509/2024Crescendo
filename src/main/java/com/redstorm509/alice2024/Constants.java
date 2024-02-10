@@ -35,8 +35,9 @@ public final class Constants {
 		public static final Translation3d kDefaultShootingOrigin = new Translation3d(0.019505, 0, 0.597487);
 		public static final double kPivotToShootAngleOffset = 61.0d;
 		public static final Translation3d kGoalApex = new Translation3d(0.1, 0, Units.inchesToMeters(80.5) + 0.3);
-		public static final double kMinPivot = 0.0d;
+		public static final double kMinPivot = 0.0d; // MAKE SURE ARE CORRECT
 		public static final double kMaxPivot = 130.0d;
+		public static final double kMaxPivotSpeed = 0.0d; // REPLACE MEEE
 	}
 
 	public static class PreCompressor {
@@ -57,6 +58,32 @@ public final class Constants {
 		public static final Pose3d kShooterCameraPose = new Pose3d();
 		public static final double limelightFullFOVAngle = 24.85 * 2;
 		public static final double kIntakeCameraHeightFromGround = 0.2794; // meters
+	}
+
+	public static class AprilTags {
+		// NOTE: all offsets are from the center of the april tag
+		public static class Amp {
+			public static final double BlueAllianceTagID = 6;
+			public static final double RedAllianceTagID = 5;
+		}
+
+		public static class Speaker {
+			public static final double BlueAllianceCenterTagID = 7;
+			public static final double BlueAllianceSideTagID = 8;
+			public static final double RedAllianceCenterTagID = 4;
+			public static final double RedAllianceSideTagID = 3;
+
+			public static final double kDistanceToSpeaker = .87; // meters
+			public static final double kHeightFromGround = 0.0; // Replace me if needed
+		}
+
+		public static class Trap {
+		}
+	}
+
+	public static class Climber {
+		// REPLACE ME >:((((
+		public static final double kMaxExtensionLength = 0.0;
 	}
 
 	// Replace Me!
@@ -80,7 +107,7 @@ public final class Constants {
 
 	// Tune Me!
 	public static final double kSteerAngleP = 100.0;
-	public static final double kSteerAngleI = 0.0;
+	public static final double kSteerAngleI = 0.0; // add
 	public static final double kSteerAngleD = 0.0;
 
 	// Tune Me!
@@ -101,7 +128,7 @@ public final class Constants {
 			double steerEncoderOffset) {
 	}
 
-	// Replace Me!
+	// Replace Me!, still??
 	public static final SwerveModuleConfiguration kFrontRight = new SwerveModuleConfiguration(
 			0,
 			0,

@@ -1,6 +1,6 @@
 package com.redstorm509.alice2024.commands;
 
-import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
 import com.redstorm509.alice2024.Constants;
 import com.redstorm509.alice2024.subsystems.Intake;
 import com.redstorm509.alice2024.subsystems.drive.SwerveDrive;
@@ -89,14 +89,14 @@ public class AutoPickup extends Command {
 		double angleToTarget = -limelight.getTY() + Constants.Vision.kIntakeCameraAngleOffset;
 		double distanceToTarget = Constants.Vision.kIntakeCameraHeightFromGround
 				/ Math.tan(Math.toRadians(angleToTarget));
-		double outputMove = -distanceToTarget * 2;
+		double outputMove = -distanceToTarget * 2; // make sure distanceToTarget has correct sign, fix double negatives
 		if (outputMove > Constants.kMaxSpeed) {
 			outputMove = Constants.kMaxSpeed;
 		}
 
 		swerve.drive(new Translation2d(0.0, // possibly change 0.0 to: -distanceToTarget * getTX() or scale somehow
 				outputMove),
-				Math.toRadians(-distanceToTarget * limelight.getTX() * 1.5), // tune this
+				Math.toRadians(distanceToTarget * limelight.getTX() * 1.5), // tune this
 				false, false);
 
 		if (distanceToTarget < 2 || beganIntaking) {
@@ -110,9 +110,9 @@ public class AutoPickup extends Command {
 
 	@Override
 	public boolean isFinished() {
-		// ends if the stick crosses
 		if (usesMagnitudeCondition) {
-			return stickMagnitude < startingMagnitude / 5 || stickMagnitude < 0.05;
+			// ends if the stick crosses the center, ends command
+			return stickMagnitude < startingMagnitude / 2.5 || stickMagnitude < 0.1;
 		}
 		return false; // add an || for if note sensors detect note in pipeline
 	}

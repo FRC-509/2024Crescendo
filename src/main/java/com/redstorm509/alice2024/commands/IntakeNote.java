@@ -9,6 +9,7 @@ public class IntakeNote extends Command {
 
 	public IntakeNote(Intake intake) {
 		m_Intake = intake;
+
 		addRequirements(m_Intake);
 	}
 

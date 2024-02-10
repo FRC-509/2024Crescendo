@@ -13,6 +13,7 @@ import com.redstorm509.alice2024.subsystems.vision.*;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.redstorm509.stormkit.controllers.ThrustmasterJoystick;
+import com.redstorm509.stormkit.controllers.LogitechDualAction.LogiButton;
 import com.redstorm509.stormkit.controllers.ThrustmasterJoystick.StickButton;
 import com.redstorm509.stormkit.controllers.LogitechDualAction;
 
@@ -25,7 +26,7 @@ public class RobotContainer {
 
 	private final SwerveDrive swerve;
 	private final Intake intake;
-	// private final Shooter shooter;
+	private final Shooter shooter;
 	// private final PreCompressor preCompressor;
 	public final Limelight intakeCamera = new Limelight("limelight-intake", Constants.Vision.kIntakeCameraPose);
 	// private final Limelight shooterCamera = new Limelight("limelight-arm",
@@ -40,7 +41,7 @@ public class RobotContainer {
 
 		this.intake = new Intake();
 		this.swerve = new SwerveDrive(pigeon);
-		// this.shooter = new Shooter();
+		this.shooter = new Shooter();
 		// this.preCompressor = new PreCompressor();
 
 		intakeCamera.setLEDMode_ForceOff();
@@ -63,10 +64,24 @@ public class RobotContainer {
 			pigeon.setYaw(0);
 			swerve.setTargetHeading(0);
 		}, swerve));
-		driverLeft.isPressedBind(StickButton.Left, new AutoPickup(swerve,
-				intakeCamera, intake));
-		driverLeft.isDownBind(StickButton.Trigger,
-				Commands.startEnd(() -> intake.intake(true), () -> intake.stop(), intake));
+
+		shooter.setDefaultCommand(new ShootNote(
+				shooter,
+				() -> operator.getLeftStickY(),
+				() -> operator.isPressed(LogiButton.RBTrigger),
+				() -> operator.isPressed(LogiButton.LBTrigger)));
+
+		driverLeft.isPressedBind(StickButton.Left, new AutoPickup(
+				swerve,
+				intakeCamera,
+				intake,
+				() -> MathUtil.applyDeadband(driverLeft.getX() / 2, Constants.kStickDeadband),
+				() -> MathUtil.applyDeadband(-driverLeft.getY() / 2, Constants.kStickDeadband)));
+
+		driverLeft.isDownBind(StickButton.Trigger, Commands.startEnd(
+				() -> intake.intake(true),
+				() -> intake.stop(),
+				intake));
 
 		chooser = AutoBuilder.buildAutoChooser();
 		SmartDashboard.putData("Auto Mode", chooser);

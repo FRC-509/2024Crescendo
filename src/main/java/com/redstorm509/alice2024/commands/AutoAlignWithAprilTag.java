@@ -16,15 +16,41 @@ public class AutoAlignWithAprilTag extends Command {
 	private DoubleSupplier translationYSupplier;
 	private DoubleSupplier rotationSupplier;
 	private Limelight limelight;
+	private double targetTagID;
+
+	private Translation2d targetPosition;
+	private boolean isTeleop;
+
 	private double rot;
 
-	public AutoAlignWithAprilTag(SwerveDrive swerve, DoubleSupplier translationXSupplier,
-			DoubleSupplier translationYSupplier, DoubleSupplier rotationSupplier, Limelight limelight) {
+	public AutoAlignWithAprilTag(
+			SwerveDrive swerve,
+			DoubleSupplier translationXSupplier,
+			DoubleSupplier translationYSupplier,
+			DoubleSupplier rotationSupplier,
+			Limelight limelight,
+			double targetTagID) {
 		this.swerve = swerve;
 		this.translationXSupplier = translationXSupplier;
 		this.translationYSupplier = translationYSupplier;
 		this.rotationSupplier = rotationSupplier;
 		this.limelight = limelight;
+		this.targetTagID = targetTagID;
+		isTeleop = false;
+
+		addRequirements(swerve);
+	}
+
+	public AutoAlignWithAprilTag(
+			SwerveDrive swerve,
+			Translation2d targetPosition,
+			Limelight limelight,
+			double targetTagID) {
+		this.swerve = swerve;
+		this.targetPosition = targetPosition;
+		this.limelight = limelight;
+		this.targetTagID = targetTagID;
+		isTeleop = false;
 
 		addRequirements(swerve);
 	}
@@ -50,12 +76,20 @@ public class AutoAlignWithAprilTag extends Command {
 			limelight.setLEDMode_ForceOn();
 		}
 
-		swerve.drive(
-				new Translation2d(translationXSupplier.getAsDouble(), translationYSupplier.getAsDouble())
-						.times(Constants.kMaxSpeed),
-				rot,
-				true,
-				false);
+		if (isTeleop) {
+			swerve.drive(
+					new Translation2d(translationXSupplier.getAsDouble(), translationYSupplier.getAsDouble())
+							.times(Constants.kMaxSpeed),
+					rot,
+					true,
+					false);
+		} else {
+			swerve.drive(
+					targetPosition,
+					rot,
+					true,
+					false);
+		}
 	}
 
 	@Override

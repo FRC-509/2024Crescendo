@@ -1,6 +1,7 @@
 package com.redstorm509.alice2024.subsystems;
 
 import com.redstorm509.alice2024.Constants;
+import com.redstorm509.alice2024.util.math.Conversions;
 import com.redstorm509.alice2024.util.math.GeometryUtils;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -34,6 +35,8 @@ public class Shooter extends SubsystemBase {
 	private VelocityVoltage closedLoopVelocity = new VelocityVoltage(0).withEnableFOC(false);
 	private PositionVoltage closedLoopPosition = new PositionVoltage(0).withEnableFOC(false);
 
+	// private double pivotTargetDegrees;
+
 	// TODO: Define coordinate space!
 	public Shooter() {
 		TalonFXConfiguration shootConf = new TalonFXConfiguration();
@@ -52,6 +55,11 @@ public class Shooter extends SubsystemBase {
 
 		pivotFollower.setControl(new Follower(pivotLeader.getDeviceID(), true));
 		shooterFollower.setControl(new Follower(shooterLeader.getDeviceID(), true));
+	}
+
+	public void rawShootNote(double speed) {
+		indexer.setControl(openLoop.withOutput(speed * 12.0));
+		shooterLeader.setControl(openLoop.withOutput(speed * 12.0));
 	}
 
 	// Gets the point of shooting relative to the origin of the robot.
@@ -102,7 +110,8 @@ public class Shooter extends SubsystemBase {
 		return pivotEncoder.getAbsolutePosition().getValue() * 360.0;
 	}
 
-	public void setPivotDegrees(double degrees) {
+	public void setPivotDegrees(double targetDegrees) {
+		// pivotTargetDegrees = getPivotDegrees() - targetDegrees;
 	}
 
 	public void setPivotOutput(double percentOutput) {
@@ -111,6 +120,14 @@ public class Shooter extends SubsystemBase {
 
 	@Override
 	public void periodic() {
+		/*
+		 * CLAMPS BEWTEEN MIN AND MAX WITH ONLY RAW OUTPUT
+		 * if (getPivotDegrees() > Constants.Shooter.kMaxPivot) {
+		 * setPivotOutput(0.1);
+		 * } else if (getPivotDegrees() < Constants.Shooter.kMinPivot) {
+		 * setPivotOutput(0.1);
+		 * }
+		 */
 		SmartDashboard.putNumber("PivotIntegrated", pivotLeader.getPosition().getValue());
 		SmartDashboard.putNumber("PivotAbsolute", pivotEncoder.getAbsolutePosition().getValue());
 	}
