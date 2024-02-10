@@ -63,7 +63,7 @@ public class AutoPickup extends Command {
 
 		limelight.setLEDMode_ForceOn();
 
-		limelight.setPipelineIndex(Constants.Vision.NeuralNetworkPipeline);
+		limelight.setPipelineIndex(Constants.Vision.Pipeline.NeuralNetwork);
 	}
 
 	@Override

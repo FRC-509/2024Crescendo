@@ -57,7 +57,7 @@ public class AutoAlignWithAprilTag extends Command {
 
 	@Override
 	public void initialize() {
-		limelight.setPipelineIndex(Constants.Vision.AprilTagPipeline);
+		limelight.setPipelineIndex(Constants.Vision.Pipeline.AprilTags);
 
 		limelight.setLEDMode_ForceOn();
 

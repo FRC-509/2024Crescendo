@@ -41,22 +41,24 @@ public final class Constants {
 	}
 
 	public static class PreCompressor {
-		public static final double kPreCompressorSpinSpeed = 0.7;
+		public static final double kPreCompressorSpinSpeed = 0.8;
 	}
 
 	public static class Intake {
-		public static final double kIntakeSpinSpeed = 0.35; // between -1.0 1.0
+		public static final double kIntakeSpinSpeed = 0.6; // between -1.0 1.0
 	}
 
 	public static class Vision {
-		public static final int NeuralNetworkPipeline = 0;
-		public static final int AprilTagPipeline = 1;
+		public static class Pipeline {
+			public static final int NeuralNetwork = 0;
+			public static final int AprilTags = 1;
+		};
 
 		// Replace Me!
 		public static final Pose3d kIntakeCameraPose = new Pose3d();
 		public static final double kIntakeCameraAngleOffset = 5.0;
 		public static final Pose3d kShooterCameraPose = new Pose3d();
-		public static final double limelightFullFOVAngle = 24.85 * 2;
+		public static final double kLimelightFullFOVAngle = 24.85 * 2;
 		public static final double kIntakeCameraHeightFromGround = 0.2794; // meters
 	}
 

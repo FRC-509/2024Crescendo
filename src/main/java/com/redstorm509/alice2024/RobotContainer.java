@@ -90,4 +90,8 @@ public class RobotContainer {
 	public Command getAutonomousCommand() {
 		return chooser.getSelected();
 	}
+
+	public void onTeleopEntry() {
+		swerve.setTargetHeading(pigeon.getYaw().getValue());
+	}
 }
