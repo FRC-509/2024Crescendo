@@ -10,6 +10,7 @@ import com.redstorm509.alice2024.commands.*;
 import com.redstorm509.alice2024.subsystems.*;
 import com.redstorm509.alice2024.subsystems.drive.*;
 import com.redstorm509.alice2024.subsystems.vision.*;
+import com.redstorm509.alice2024.util.devices.VL53L4CD;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.redstorm509.stormkit.controllers.ThrustmasterJoystick;
@@ -27,10 +28,12 @@ public class RobotContainer {
 	private final SwerveDrive swerve;
 	private final Intake intake;
 	private final Shooter shooter;
-	// private final PreCompressor preCompressor;
 	public final Limelight intakeCamera = new Limelight("limelight-intake", Constants.Vision.kIntakeCameraPose);
-	// private final Limelight shooterCamera = new Limelight("limelight-arm",
-	// Constants.Vision.kShooterCameraPose);
+	// SET SHOOTERCAMERA LOCALHOST TO "limelight-arm"
+	private final Limelight shooterCamera = new Limelight("limelight-arm", Constants.Vision.kShoooterCameraPose);
+
+	public static final VL53L4CD indexerLowToFSensor = new VL53L4CD(null);
+	public static final VL53L4CD indexerHighToFSensor = new VL53L4CD(null);
 
 	private SendableChooser<Command> chooser = new SendableChooser<Command>();
 
@@ -71,12 +74,14 @@ public class RobotContainer {
 				() -> operator.isPressed(LogiButton.RBTrigger),
 				() -> operator.isPressed(LogiButton.LBTrigger)));
 
-		driverLeft.isPressedBind(StickButton.Left, new AutoPickup(
+		driverLeft.isPressedBind(StickButton.Left, new AutoPickupExperimental(
 				swerve,
 				intakeCamera,
 				intake,
 				() -> MathUtil.applyDeadband(driverLeft.getX() / 2, Constants.kStickDeadband),
-				() -> MathUtil.applyDeadband(-driverLeft.getY() / 2, Constants.kStickDeadband)));
+				() -> MathUtil.applyDeadband(-driverLeft.getY() / 2, Constants.kStickDeadband),
+				indexerLowToFSensor,
+				indexerHighToFSensor));
 
 		driverLeft.isDownBind(StickButton.Trigger, Commands.startEnd(
 				() -> intake.intake(true),

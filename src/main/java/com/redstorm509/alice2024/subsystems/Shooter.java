@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Shooter extends SubsystemBase {
-	private TalonFX shooterLeader = new TalonFX(0);
+	private TalonFX shooterLeader = new TalonFX(0); // ID MEEEEEEE
 	private TalonFX shooterFollower = new TalonFX(0);
 
 	private CANSparkMax indexer = new CANSparkMax(0, MotorType.kBrushed);
@@ -60,7 +60,7 @@ public class Shooter extends SubsystemBase {
 	}
 
 	public void rawShootNote(double speed) {
-		indexer.setControl(openLoop.withOutput(speed * 12.0));
+		indexer.set(speed);
 		shooterLeader.setControl(openLoop.withOutput(speed * 12.0));
 	}
 

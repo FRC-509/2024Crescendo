@@ -54,12 +54,16 @@ public final class Constants {
 			public static final int AprilTags = 1;
 		};
 
+		public static final double kLimelightFullFOVAngle = 24.85 * 2;
+
 		// Replace Me!
 		public static final Pose3d kIntakeCameraPose = new Pose3d();
-		public static final double kIntakeCameraAngleOffset = 5.0;
-		public static final Pose3d kShooterCameraPose = new Pose3d();
-		public static final double kLimelightFullFOVAngle = 24.85 * 2;
+		public static final double kIntakeCameraAngleOffset = -5.0;
 		public static final double kIntakeCameraHeightFromGround = 0.2794; // meters
+
+		public static final Pose3d kShoooterCameraPose = new Pose3d();
+		public static final double kShoooterCameraAngleOffset = 20.0;
+		public static final double kShoooterCameraHeightFromGround = 0.0; // REPLACE ME
 	}
 
 	public static class AprilTags {
@@ -85,7 +89,11 @@ public final class Constants {
 
 	public static class Climber {
 		// REPLACE ME >:((((
-		public static final double kMaxExtensionLength = 0.0;
+		public static final double kMaxExtensionLength = 0.0; // milimeters
+	}
+
+	public static class Devices {
+		public static double kToFNoteDetectionThreshold = 0.0; // REPLACE MEEE
 	}
 
 	// Replace Me!
