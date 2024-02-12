@@ -23,26 +23,18 @@ public class AutoPickupExperimental extends Command {
 	private double startingMagnitude;
 	private boolean usesMagnitudeCondition;
 
-	private VL53L4CD initialToF;
-	private VL53L4CD secondaryToF;
-
 	public AutoPickupExperimental(
 			SwerveDrive swerve,
 			Limelight limelight,
 			Intake intake,
 			DoubleSupplier xSupplier,
-			DoubleSupplier ySupplier,
-			VL53L4CD initaialToF,
-			VL53L4CD secondaryToF) {
+			DoubleSupplier ySupplier) {
 		this.swerve = swerve;
 		this.limelight = limelight;
 		this.intake = intake;
 
 		this.xSupplier = xSupplier;
 		this.ySupplier = ySupplier;
-
-		this.initialToF = initaialToF;
-		this.secondaryToF = secondaryToF;
 
 		usesMagnitudeCondition = true;
 
@@ -52,15 +44,10 @@ public class AutoPickupExperimental extends Command {
 	public AutoPickupExperimental(
 			SwerveDrive swerve,
 			Limelight limelight,
-			Intake intake,
-			VL53L4CD initaialToF,
-			VL53L4CD secondaryToF) {
+			Intake intake) {
 		this.swerve = swerve;
 		this.limelight = limelight;
 		this.intake = intake;
-
-		this.initialToF = initaialToF;
-		this.secondaryToF = secondaryToF;
 
 		usesMagnitudeCondition = false;
 

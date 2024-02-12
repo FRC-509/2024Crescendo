@@ -24,14 +24,14 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Shooter extends SubsystemBase {
-	private TalonFX shooterLeader = new TalonFX(0); // ID MEEEEEEE
-	private TalonFX shooterFollower = new TalonFX(0);
+	private TalonFX shooterLeader = new TalonFX(15); // Labelled SHOOTERL
+	private TalonFX shooterFollower = new TalonFX(16); // Labelled SHOOTERR
 
-	private CANSparkMax indexer = new CANSparkMax(0, MotorType.kBrushed);
+	private CANSparkMax indexer = new CANSparkMax(12, MotorType.kBrushed);
 
-	private TalonFX pivotLeader = new TalonFX(0);
-	private TalonFX pivotFollower = new TalonFX(0);
-	private CANcoder pivotEncoder = new CANcoder(0);
+	private TalonFX pivotLeader = new TalonFX(13); // Labelled PIVOTL
+	private TalonFX pivotFollower = new TalonFX(14); // Labelled PIVOTR
+	private CANcoder pivotEncoder = new CANcoder(17);
 
 	private VoltageOut openLoop = new VoltageOut(0).withEnableFOC(false);
 	private VelocityVoltage closedLoopVelocity = new VelocityVoltage(0).withEnableFOC(false);

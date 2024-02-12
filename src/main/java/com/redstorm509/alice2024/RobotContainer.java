@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.I2C;
 
 import com.redstorm509.alice2024.commands.*;
 import com.redstorm509.alice2024.subsystems.*;
@@ -31,9 +32,6 @@ public class RobotContainer {
 	public final Limelight intakeCamera = new Limelight("limelight-intake", Constants.Vision.kIntakeCameraPose);
 	// SET SHOOTERCAMERA LOCALHOST TO "limelight-arm"
 	private final Limelight shooterCamera = new Limelight("limelight-arm", Constants.Vision.kShoooterCameraPose);
-
-	public static final VL53L4CD indexerLowToFSensor = new VL53L4CD(null);
-	public static final VL53L4CD indexerHighToFSensor = new VL53L4CD(null);
 
 	private SendableChooser<Command> chooser = new SendableChooser<Command>();
 
@@ -79,9 +77,7 @@ public class RobotContainer {
 				intakeCamera,
 				intake,
 				() -> MathUtil.applyDeadband(driverLeft.getX() / 2, Constants.kStickDeadband),
-				() -> MathUtil.applyDeadband(-driverLeft.getY() / 2, Constants.kStickDeadband),
-				indexerLowToFSensor,
-				indexerHighToFSensor));
+				() -> MathUtil.applyDeadband(-driverLeft.getY() / 2, Constants.kStickDeadband)));
 
 		driverLeft.isDownBind(StickButton.Trigger, Commands.startEnd(
 				() -> intake.intake(true),

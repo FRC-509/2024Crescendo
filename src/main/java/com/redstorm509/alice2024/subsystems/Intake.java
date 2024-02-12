@@ -13,8 +13,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Intake extends SubsystemBase {
 	public final TalonFX intakeMotor = new TalonFX(12);
 	private final CANSparkMax preCompressorMotors = new CANSparkMax(10, MotorType.kBrushed);
-	// private final CANSparkMax intermediateStage = new CANSparkMax(0,
-	// MotorType.kBrushless);
+	private final CANSparkMax intermediateStage = new CANSparkMax(16, MotorType.kBrushless);
 	private VoltageOut openLoopVoltage = new VoltageOut(0);
 	private double preCompressorSpeed = 0.0d;
 
