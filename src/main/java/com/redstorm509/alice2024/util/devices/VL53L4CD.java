@@ -340,6 +340,10 @@ public class VL53L4CD {
 	private I2CUtil i2c;
 
 	public VL53L4CD(I2C.Port port, byte deviceAddr) {
+		if (deviceAddr != PERIPHERAL_ADDR) {
+			I2CUtil temp = new I2CUtil(port, PERIPHERAL_ADDR);
+			temp.writeToAddress16bit(Register.I2C_SLAVE_DEVICE_ADDRESS.addr(), deviceAddr);
+		}
 		i2c = new I2CUtil(port, deviceAddr);
 	}
 
@@ -349,8 +353,9 @@ public class VL53L4CD {
 
 	public void init() {
 		short id = readWord(i2c, Register.IDENTIFICATION_MODEL_ID);
-		if (id != 0xEBAA) {
-			DriverStation.reportError("[VL53L4CD] Error: Strange Device Id", null);
+
+		if (id != -5206) {
+			DriverStation.reportError("[VL53L4CD] Error: Strange Device Id", false);
 		}
 
 		System.out.println("[VL53L4CD] Waiting for Boot...");
@@ -374,12 +379,12 @@ public class VL53L4CD {
 
 	public void setRangeTiming(int timingBudgetMs, int interMeasurementMs) {
 		if (timingBudgetMs < 10 || timingBudgetMs > 200) {
-			DriverStation.reportError("[VL53L4CD] Timing budget must be in range [10, 200]", null);
+			DriverStation.reportError("[VL53L4CD] Timing budget must be in range [10, 200]", false);
 		}
 
 		short oscFreq = readWord(i2c, Register.OSC_FREQ);
 		if (oscFreq == 0) {
-			DriverStation.reportError("[VL53L4CD] Oscillation frequency is zero.", null);
+			DriverStation.reportError("[VL53L4CD] Oscillation frequency is zero.", false);
 		}
 
 		int timingBudgetUs = timingBudgetMs * 1000;
@@ -390,7 +395,7 @@ public class VL53L4CD {
 		} else {
 			if (timingBudgetMs < interMeasurementMs) {
 				DriverStation.reportError(
-						"[VL53L4CD] Timing budget must be greater than or equal to inter-measurement.", null);
+						"[VL53L4CD] Timing budget must be greater than or equal to inter-measurement.", false);
 			}
 
 			// autonomous low power mode
@@ -434,7 +439,7 @@ public class VL53L4CD {
 			}
 			Timer.delay(0.001);
 		}
-		DriverStation.reportError("[VL53L4CD] Timed out while waiting for a measurement.", null);
+		DriverStation.reportError("[VL53L4CD] Timed out while waiting for a measurement.", false);
 	}
 
 	public boolean hasMeasurement() {
