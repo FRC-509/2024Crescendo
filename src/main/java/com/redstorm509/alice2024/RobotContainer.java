@@ -80,6 +80,7 @@ public class RobotContainer {
 				swerve,
 				intakeCamera,
 				intake,
+				shooter,
 				() -> MathUtil.applyDeadband(driverLeft.getX() / 2, Constants.kStickDeadband),
 				() -> MathUtil.applyDeadband(-driverLeft.getY() / 2, Constants.kStickDeadband)));
 

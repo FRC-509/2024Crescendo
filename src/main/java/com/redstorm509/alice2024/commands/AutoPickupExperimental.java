@@ -3,9 +3,9 @@ package com.redstorm509.alice2024.commands;
 import java.util.function.DoubleSupplier;
 import com.redstorm509.alice2024.Constants;
 import com.redstorm509.alice2024.subsystems.Intake;
+import com.redstorm509.alice2024.subsystems.Shooter;
 import com.redstorm509.alice2024.subsystems.drive.SwerveDrive;
 import com.redstorm509.alice2024.subsystems.vision.Limelight;
-import com.redstorm509.alice2024.util.devices.VL53L4CD;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -16,6 +16,7 @@ public class AutoPickupExperimental extends Command {
 	private SwerveDrive swerve;
 	private Limelight limelight;
 	private Intake intake;
+	private Shooter shooter;
 	private boolean beganIntaking;
 	private DoubleSupplier xSupplier;
 	private DoubleSupplier ySupplier;
@@ -27,11 +28,13 @@ public class AutoPickupExperimental extends Command {
 			SwerveDrive swerve,
 			Limelight limelight,
 			Intake intake,
+			Shooter shooter,
 			DoubleSupplier xSupplier,
 			DoubleSupplier ySupplier) {
 		this.swerve = swerve;
 		this.limelight = limelight;
 		this.intake = intake;
+		this.shooter = shooter;
 
 		this.xSupplier = xSupplier;
 		this.ySupplier = ySupplier;
@@ -44,10 +47,12 @@ public class AutoPickupExperimental extends Command {
 	public AutoPickupExperimental(
 			SwerveDrive swerve,
 			Limelight limelight,
-			Intake intake) {
+			Intake intake,
+			Shooter shooter) {
 		this.swerve = swerve;
 		this.limelight = limelight;
 		this.intake = intake;
+		this.shooter = shooter;
 
 		usesMagnitudeCondition = false;
 
@@ -123,7 +128,7 @@ public class AutoPickupExperimental extends Command {
 			// ends if the stick crosses the center, ends command
 			return stickMagnitude < startingMagnitude / 2.5 || stickMagnitude < 0.1;
 		}
-		return false; // add an || for if note sensors detect note in pipeline
+		return shooter.hasIntaken(); // add an || for if note sensors detect note in pipeline
 	}
 
 	@Override

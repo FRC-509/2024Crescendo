@@ -7,9 +7,6 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 
 public final class Constants {
-	// Set to true if in replay mode. Set to false if in simulation mode.
-	public static final boolean kAdvantageKitReplay = false;
-
 	public static final double kGravity = 9.80665;
 
 	public static final String kRio = "rio";
@@ -35,9 +32,15 @@ public final class Constants {
 		public static final Translation3d kDefaultShootingOrigin = new Translation3d(0.019505, 0, 0.597487);
 		public static final double kPivotToShootAngleOffset = 61.0d;
 		public static final Translation3d kGoalApex = new Translation3d(0.1, 0, Units.inchesToMeters(80.5) + 0.3);
-		public static final double kMinPivot = 0.0d; // MAKE SURE ARE CORRECT
+		public static final double kMinPivot = 0.0d;
 		public static final double kMaxPivot = 130.0d;
 		public static final double kMaxPivotSpeed = 0.0d; // REPLACE MEEE
+
+		public static final double kPivotP = 0.45 * 12.0d; // Fix later probably
+		public static final double kPivotI = 0.06 * 12.0d;
+		public static final double kPivotD = 0.02 * 12.0d;
+
+		public static final double kToFNoteDetectionThreshold = 15.0; // REPLACE MEEE
 	}
 
 	public static class PreCompressor {
@@ -92,10 +95,6 @@ public final class Constants {
 		public static final double kMaxExtensionLength = 0.0; // milimeters
 	}
 
-	public static class Devices {
-		public static double kToFNoteDetectionThreshold = 0.0; // REPLACE MEEE
-	}
-
 	// Replace Me!
 	public static final double kMaxSpeed = Conversions.falconToMPS(6380.0d / 60.0d, MK4I.kWheelCircumference,
 			MK4I.kDriveGearRatio);
@@ -105,19 +104,16 @@ public final class Constants {
 			/ (Math.hypot(Chassis.kOffsetToSwerveModule, Chassis.kOffsetToSwerveModule));
 	public static final double kMaxAngularAcceleration = 0.0;
 
-	// Tune Me!
 	public static final double kDriveVelocityS = 0.128;
 	public static final double kDriveVelocityV = 0.109;
 	public static final double kDriveVelocityA = 0.0;
 
-	// Tune Me!
 	public static final double kDriveVelocityP = 0.2;
 	public static final double kDriveVelocityI = 3.0;
 	public static final double kDriveVelocityD = 0.0;
 
-	// Tune Me!
 	public static final double kSteerAngleP = 100.0;
-	public static final double kSteerAngleI = 0.0; // add
+	public static final double kSteerAngleI = 0.0;
 	public static final double kSteerAngleD = 0.0;
 
 	// Tune Me!
@@ -138,7 +134,6 @@ public final class Constants {
 			double steerEncoderOffset) {
 	}
 
-	// Replace Me!, still??
 	public static final SwerveModuleConfiguration kFrontRight = new SwerveModuleConfiguration(
 			0,
 			0,

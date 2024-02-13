@@ -69,7 +69,8 @@ public class AutoAlignWithAprilTag extends Command {
 	@Override
 	public void execute() {
 		if (limelight.getTV()) {
-			rot = Math.toRadians(limelight.getTX() * 1.5); // tune this
+			// TODO: Verify axis!
+			double rotation = Limelight.toPose3D(limelight.getTargetPose_CameraSpace()).getRotation().getZ();
 			limelight.setLEDMode_ForceBlink();
 		} else {
 			rot = rotationSupplier.getAsDouble();
