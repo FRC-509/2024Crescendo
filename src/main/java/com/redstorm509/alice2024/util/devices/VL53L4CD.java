@@ -339,16 +339,16 @@ public class VL53L4CD {
 
 	private I2CUtil i2c;
 
-	public VL53L4CD(I2C.Port port, byte deviceAddr) {
-		if (deviceAddr != PERIPHERAL_ADDR) {
-			I2CUtil temp = new I2CUtil(port, PERIPHERAL_ADDR);
-			temp.writeToAddress16bit(Register.I2C_SLAVE_DEVICE_ADDRESS.addr(), deviceAddr);
-		}
-		i2c = new I2CUtil(port, deviceAddr);
-	}
-
 	public VL53L4CD(I2C.Port port) {
 		i2c = new I2CUtil(port, PERIPHERAL_ADDR);
+	}
+
+	public void changeDeviceAddress(byte newDeviceAddress) {
+		// Set the new device address.
+		i2c.writeToAddress16bit(Register.I2C_SLAVE_DEVICE_ADDRESS.addr(), newDeviceAddress);
+		// Re-instantiate the I2CUtil instance for the reloacted device address.
+		int port = i2c.getPort();
+		i2c = new I2CUtil(port, newDeviceAddress);
 	}
 
 	public void init() {
