@@ -46,6 +46,10 @@ public class RobotContainer {
 		// this.preCompressor = new PreCompressor();
 
 		intakeCamera.setLEDMode_ForceOff();
+		intakeCamera.setPipelineIndex(Constants.Vision.Pipeline.AprilTags);
+
+		shooterCamera.setLEDMode_ForceOff();
+		shooterCamera.setPipelineIndex(Constants.Vision.Pipeline.AprilTags);
 
 		configureButtonBindings();
 	}

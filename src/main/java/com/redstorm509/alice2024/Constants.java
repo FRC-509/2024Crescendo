@@ -51,7 +51,7 @@ public final class Constants {
 	public static class Vision {
 		public static class Pipeline {
 			public static final int NeuralNetwork = 0;
-			public static final int AprilTags = 1;
+			public static final int AprilTags = 1; // works for both, (arm ll needs to be set to pipeline 1)
 		};
 
 		public static final double kLimelightFullFOVAngle = 24.85 * 2;
