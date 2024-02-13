@@ -72,17 +72,19 @@ public class RobotContainer {
 
 		shooter.setDefaultCommand(new ShootNote(
 				shooter,
-				() -> operator.getLeftStickY(),
+				() -> MathUtil.applyDeadband(-operator.getLeftStickY(), Constants.kStickDeadband) / 10,
 				() -> operator.isPressed(LogiButton.RBTrigger),
 				() -> operator.isPressed(LogiButton.LBTrigger)));
 
-		driverLeft.isPressedBind(StickButton.Left, new AutoPickupExperimental(
-				swerve,
-				intakeCamera,
-				intake,
-				shooter,
-				() -> MathUtil.applyDeadband(driverLeft.getX() / 2, Constants.kStickDeadband),
-				() -> MathUtil.applyDeadband(-driverLeft.getY() / 2, Constants.kStickDeadband)));
+		// driverLeft.isPressedBind(StickButton.Left, new AutoPickupExperimental(
+		// swerve,
+		// intakeCamera,
+		// intake,
+		// shooter,
+		// () -> MathUtil.applyDeadband(driverLeft.getX() / 2,
+		// Constants.kStickDeadband),
+		// () -> MathUtil.applyDeadband(-driverLeft.getY() / 2,
+		// Constants.kStickDeadband)));
 
 		driverLeft.isDownBind(StickButton.Trigger, Commands.startEnd(
 				() -> intake.intake(true),

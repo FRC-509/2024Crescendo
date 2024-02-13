@@ -33,9 +33,6 @@ public class ShootNote extends Command {
 		} else if (leftBumperSupplier.getAsBoolean()) {
 			shooter.rawShootNote(-0.25); // comment out if necissary
 		}
-
-		if (Math.abs(rotationSupplier.getAsDouble()) > 0.25) { // manual deadband
-			shooter.setPivotOutput(rotationSupplier.getAsDouble());
-		}
+		shooter.setPivotOutput(rotationSupplier.getAsDouble());
 	}
 }

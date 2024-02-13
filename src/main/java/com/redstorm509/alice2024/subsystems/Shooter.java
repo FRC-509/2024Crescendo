@@ -10,6 +10,7 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
@@ -67,11 +68,17 @@ public class Shooter extends SubsystemBase {
 		pivotFollower.getConfigurator().apply(pivotConf);
 
 		CANcoderConfiguration pivotEncoderConf = new CANcoderConfiguration();
-		pivotEncoderConf.MagnetSensor.MagnetOffset = 0.0;
+		pivotEncoderConf.MagnetSensor.MagnetOffset = -325.810547 / 360.0;
+		pivotEncoderConf.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
 		pivotEncoderConf.MagnetSensor.AbsoluteSensorRange = AbsoluteSensorRangeValue.Unsigned_0To1;
+		pivotEncoder.getConfigurator().apply(pivotEncoderConf);
 
 		pivotFollower.setControl(new Follower(pivotLeader.getDeviceID(), true));
 		shooterFollower.setControl(new Follower(shooterLeader.getDeviceID(), true));
+
+		double absPosition = pivotEncoder.getAbsolutePosition().waitForUpdate(1).getValueAsDouble() * 180.0;
+		pivotLeader.setPosition(absPosition);
+		pivotFollower.setPosition(absPosition);
 	}
 
 	public void rawShootNote(double speed) {
@@ -171,7 +178,8 @@ public class Shooter extends SubsystemBase {
 			currentState = IntakingState.OuttakingNote;
 		}
 		*/
-		SmartDashboard.putNumber("PivotIntegrated", pivotLeader.getPosition().getValue());
-		SmartDashboard.putNumber("PivotAbsolute", pivotEncoder.getAbsolutePosition().getValue());
+		SmartDashboard.putNumber("PivotIntegrated", pivotLeader.getPosition().getValue() / 180.0 * 380.0);
+		SmartDashboard.putNumber("PivotIntegrated2", pivotFollower.getPosition().getValue() / 180.0 * 380.0);
+		SmartDashboard.putNumber("PivotAbsolute", pivotEncoder.getAbsolutePosition().getValue() * 360.0);
 	}
 }
