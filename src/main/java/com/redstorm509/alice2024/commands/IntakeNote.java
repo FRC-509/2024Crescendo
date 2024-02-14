@@ -23,6 +23,7 @@ public class IntakeNote extends Command {
 		}
 
 		m_Intake.intake(true);
+
 	}
 
 	@Override

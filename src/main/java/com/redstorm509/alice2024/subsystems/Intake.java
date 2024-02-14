@@ -16,6 +16,7 @@ public class Intake extends SubsystemBase {
 	private final CANSparkMax intermediateStage = new CANSparkMax(16, MotorType.kBrushless);
 	private VoltageOut openLoopVoltage = new VoltageOut(0);
 	private double preCompressorSpeed = 0.0d;
+	private double intermediateStageSpeed = 0.0d;
 
 	public Intake() {
 		TalonFXConfiguration conf = new TalonFXConfiguration();
@@ -27,15 +28,16 @@ public class Intake extends SubsystemBase {
 		preCompressorMotors.setIdleMode(IdleMode.kCoast);
 		preCompressorMotors.burnFlash();
 
-		// intermediateStage.setSmartCurrentLimit(17);
-		// intermediateStage.setIdleMode(IdleMode.kCoast);
-		// intermediateStage.burnFlash();
+		intermediateStage.setSmartCurrentLimit(17);
+		intermediateStage.setIdleMode(IdleMode.kCoast);
+		intermediateStage.burnFlash();
 	}
 
 	@Override
 	public void periodic() {
 		intakeMotor.setControl(openLoopVoltage);
 		preCompressorMotors.set(preCompressorSpeed);
+		intermediateStage.set(intermediateStageSpeed);
 	}
 
 	@Override
@@ -49,11 +51,13 @@ public class Intake extends SubsystemBase {
 		} else {
 			openLoopVoltage.Output = (Constants.Intake.kIntakeSpinSpeed * 12);
 		}
-		preCompressorSpeed = Constants.PreCompressor.kPreCompressorSpinSpeed;
+		preCompressorSpeed = Constants.Intake.kPreCompressorSpinSpeed;
+		intermediateStageSpeed = Constants.Intake.kIntermediateStageSpinSpeed;
 	}
 
 	public void stop() {
 		openLoopVoltage.Output = 0;
 		preCompressorSpeed = 0.0d;
+		intermediateStageSpeed = 0.0d;
 	}
 }

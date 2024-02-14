@@ -34,21 +34,23 @@ public final class Constants {
 		public static final Translation3d kGoalApex = new Translation3d(0.1, 0, Units.inchesToMeters(80.5) + 0.3);
 		public static final double kMinPivot = 0.0d;
 		public static final double kMaxPivot = 130.0d;
-		public static final double kMaxPivotSpeed = 0.0d; // REPLACE MEEE
+		public static final double kMaxPivotSpeed = 250.0d; // REPLACE MEEE
+		public static final double kIndexerSpinSpeed = 0.40;
+
+		public static final double kPivotMagnetOffset = -325.810547d;
 
 		public static final double kPivotP = 0.45 * 12.0d; // Fix later probably
 		public static final double kPivotI = 0.06 * 12.0d;
 		public static final double kPivotD = 0.02 * 12.0d;
 
 		public static final double kToFNoteDetectionThreshold = 15.0; // REPLACE MEEE
-	}
-
-	public static class PreCompressor {
-		public static final double kPreCompressorSpinSpeed = 0.8;
+		public static final double kPivotGearRatio = 1.0;
 	}
 
 	public static class Intake {
 		public static final double kIntakeSpinSpeed = 0.6; // between -1.0 1.0
+		public static final double kPreCompressorSpinSpeed = 0.8;
+		public static final double kIntermediateStageSpinSpeed = 0.8;
 	}
 
 	public static class Vision {

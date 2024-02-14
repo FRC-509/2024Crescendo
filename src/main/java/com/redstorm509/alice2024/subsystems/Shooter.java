@@ -5,6 +5,7 @@ import com.redstorm509.alice2024.util.devices.VL53L4CD;
 import com.redstorm509.alice2024.util.devices.VL53L4CD.Measurement;
 import com.redstorm509.alice2024.util.math.Conversions;
 import com.redstorm509.alice2024.util.math.GeometryUtils;
+import com.redstorm509.stormkit.math.PositionTarget;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -40,8 +41,8 @@ public class Shooter extends SubsystemBase {
 	private CANSparkMax indexer = new CANSparkMax(12, MotorType.kBrushed);
 	// private VL53L4CD initialToF = new VL53L4CD(I2C.Port.kMXP, (byte) 0x52);
 	// private VL53L4CD secondaryToF = new VL53L4CD(I2C.Port.kMXP, (byte) 0x7B);
-	private boolean firstPassNote = false;
-	private boolean secondPassNote = false;
+	private boolean firstInstantToF = false;
+	private boolean secondaryInstantToF = false;
 
 	private IntakingState currentState = IntakingState.Idle;
 
@@ -53,6 +54,7 @@ public class Shooter extends SubsystemBase {
 	private VelocityVoltage closedLoopVelocity = new VelocityVoltage(0).withEnableFOC(false);
 	private PositionVoltage closedLoopPosition = new PositionVoltage(0).withEnableFOC(false);
 
+	private PositionTarget pivotTarget;
 	// private double pivotTargetDegrees;
 
 	// TODO: Define coordinate space!
@@ -68,7 +70,7 @@ public class Shooter extends SubsystemBase {
 		pivotFollower.getConfigurator().apply(pivotConf);
 
 		CANcoderConfiguration pivotEncoderConf = new CANcoderConfiguration();
-		pivotEncoderConf.MagnetSensor.MagnetOffset = -325.810547 / 360.0;
+		pivotEncoderConf.MagnetSensor.MagnetOffset = Constants.Shooter.kPivotMagnetOffset / 360.0;
 		pivotEncoderConf.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
 		pivotEncoderConf.MagnetSensor.AbsoluteSensorRange = AbsoluteSensorRangeValue.Unsigned_0To1;
 		pivotEncoder.getConfigurator().apply(pivotEncoderConf);
@@ -76,13 +78,23 @@ public class Shooter extends SubsystemBase {
 		pivotFollower.setControl(new Follower(pivotLeader.getDeviceID(), true));
 		shooterFollower.setControl(new Follower(shooterLeader.getDeviceID(), true));
 
-		double absPosition = pivotEncoder.getAbsolutePosition().waitForUpdate(1).getValueAsDouble() * 180.0;
+		// THIS IS ALSO VERY WRONG
+		double absPosition = Conversions.degreesToFalcon(
+				pivotEncoder.getAbsolutePosition().waitForUpdate(1).getValueAsDouble() * 360.0,
+				Constants.Shooter.kPivotGearRatio);
 		pivotLeader.setPosition(absPosition);
 		pivotFollower.setPosition(absPosition);
+
+		pivotTarget = new PositionTarget(pivotEncoder.getAbsolutePosition().waitForUpdate(1).getValueAsDouble() * 360.0,
+				Constants.Shooter.kMinPivot, Constants.Shooter.kMaxPivot, Constants.Shooter.kMaxPivotSpeed);
 	}
 
 	public void rawShootNote(double speed) {
-		indexer.set(speed);
+		if (Math.abs(speed) <= 0.1) {
+			indexer.set(Constants.Shooter.kIndexerSpinSpeed);
+		} else {
+			indexer.set(0);
+		}
 		shooterLeader.setControl(openLoop.withOutput(speed * 12.0));
 	}
 
@@ -101,45 +113,47 @@ public class Shooter extends SubsystemBase {
 		return Math.atan2(2 * h, d);
 	}
 
-	private double getOptimalVelocityMPS(double thetaRadians, Translation2d distanceFromShooterToApexMeters) {
-		return Math.sqrt(
-				(2 * Constants.kGravity * distanceFromShooterToApexMeters.getY())
-						/ (Math.sin(thetaRadians) * Math.sin(thetaRadians)));
-	}
-
-	public void shooterMath(Pose3d robotPose) {
-		// I have no idea if this works.
-		Translation3d shootingOriginFieldSpace = robotPose.getTranslation()
-				.plus(getShootingOrigin().rotateBy(robotPose.getRotation()));
-
-		// Get "horziontal" and "vertical" distance between the shooting origin and the
-		// desired apex.
-		double zDistance = Constants.Shooter.kGoalApex.getZ() - shootingOriginFieldSpace.getZ();
-		double xyDistance = Constants.Shooter.kGoalApex.toTranslation2d()
-				.getDistance(shootingOriginFieldSpace.toTranslation2d());
-		Translation2d distanceFromShooterToApex = new Translation2d(xyDistance, zDistance);
-
-		// Get optimal target angle and set pivot to it.
-		double optimalTargetAngle = getOptimalAngleRad(distanceFromShooterToApex);
-		setPivotDegrees(MathUtil.clamp(Math.toDegrees(optimalTargetAngle) - Constants.Shooter.kPivotToShootAngleOffset,
-				Constants.Shooter.kMinPivot, Constants.Shooter.kMaxPivot));
-
-		// Get required velocity in meters per second.
-		double targetVelocity = getOptimalVelocityMPS(optimalTargetAngle, distanceFromShooterToApex);
-
-		// ??? profit
-	}
-
 	public double getPivotDegrees() {
 		return pivotEncoder.getAbsolutePosition().getValue() * 360.0;
 	}
 
 	public void setPivotDegrees(double targetDegrees) {
-		// pivotTargetDegrees = getPivotDegrees() - targetDegrees;
+		double delta = (targetDegrees - getPivotDegrees()) % 360;
+		if (delta > 180.0d) {
+			delta -= 360.0d;
+		} else if (delta < -180.0d) {
+			delta += 360.0d;
+		}
+
+		double target = getPivotDegrees() + delta;
+		double ticks = Conversions.degreesToFalcon(target, Constants.Shooter.kPivotGearRatio);
+
+		pivotLeader.setControl(closedLoopPosition.withPosition(ticks));
+
+		pivotTarget.setTarget(target);
 	}
 
 	public void setPivotOutput(double percentOutput) {
-		pivotLeader.setControl(openLoop.withOutput(percentOutput * 12.0));
+
+		double previous = pivotTarget.getTarget();
+		pivotTarget.update(percentOutput);
+
+		/*-
+		This is where we will add softstops
+		if (percentOutput < 0.0d && !isValidState(pivotTarget.getTarget(), getArmLength())) {
+			pivotTarget.setTarget(previous);
+		}*/
+
+		double delta = (pivotTarget.getTarget() - getPivotDegrees()) % 360;
+		if (delta > 180.0d) {
+			delta -= 360.0d;
+		} else if (delta < -180.0d) {
+			delta += 360.0d;
+		}
+
+		double target = getPivotDegrees() + delta;
+
+		setPivotDegrees(target);
 	}
 
 	public boolean hasIntaken() { // rename
@@ -151,35 +165,44 @@ public class Shooter extends SubsystemBase {
 		// Logic check does any of this make sense???
 		// Also there should then be a function that can tell this thing that a note has
 		// left and transitions the state to Idle.
+
 		/*-
+		// run every update
 		Measurement firstStage = initialToF.measure();
 		Measurement secondStage = secondaryToF.measure();
 		
-		boolean wasFirstPass = firstPassNote;
-		boolean wasSecondPass = secondPassNote;
+		// changed names to logic better
+		boolean firstWasToF = firstInstantToF;
+		boolean secondaryWasToF = secondaryInstantToF;
 		
+		// updates the instant ToF readings
 		if (firstStage.distanceMillimeters > Constants.Shooter.kToFNoteDetectionThreshold) {
-			firstPassNote = true;
+			firstInstantToF = true;
+		} else {
+			firstInstantToF = false;
 		}
 		if (secondStage.distanceMillimeters > Constants.Shooter.kToFNoteDetectionThreshold) {
-			secondPassNote = true;
+			firstInstantToF = true;
+		} else {
+			secondaryWasToF = false;
 		}
 		
 		// If the first pass tripped, and the second pass JUST tripped, we are intaking.
-		if (wasFirstPass && !wasSecondPass && secondPassNote) {
-			firstPassNote = false;
-			secondPassNote = false;
+		if (firstWasToF && !secondaryWasToF && secondaryInstantToF) {
 			currentState = IntakingState.IntakingNote;
-		} else if (wasSecondPass && !wasFirstPass && firstPassNote) {
-			// If the second pass tripped, and the first pass JUST tripped, we are
+		
+		} else if (secondaryWasToF && !secondaryInstantToF && firstInstantToF) { //
+			// If the second pass JUST Un-tripped, and the first pass is still tripped, we
+			// are
 			// outtaking.
-			firstPassNote = false;
-			secondPassNote = false;
 			currentState = IntakingState.OuttakingNote;
 		}
 		*/
-		SmartDashboard.putNumber("PivotIntegrated", pivotLeader.getPosition().getValue() / 180.0 * 380.0);
-		SmartDashboard.putNumber("PivotIntegrated2", pivotFollower.getPosition().getValue() / 180.0 * 380.0);
+
+		SmartDashboard.putNumber("PivotIntegrated",
+				Conversions.falconToDegrees(pivotLeader.getPosition().getValue(), Constants.Shooter.kPivotGearRatio));
+		SmartDashboard.putNumber("PivotIntegrated2",
+				Conversions.falconToDegrees(pivotFollower.getPosition().getValue(), Constants.Shooter.kPivotGearRatio));
 		SmartDashboard.putNumber("PivotAbsolute", pivotEncoder.getAbsolutePosition().getValue() * 360.0);
 	}
 }

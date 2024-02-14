@@ -1,4 +1,4 @@
-package com.redstorm509.alice2024.commands.TempNotWorking;
+package com.redstorm509.alice2024.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import com.redstorm509.alice2024.subsystems.Shooter;
