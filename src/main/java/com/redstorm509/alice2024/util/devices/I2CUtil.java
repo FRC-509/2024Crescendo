@@ -18,6 +18,21 @@ public class I2CUtil implements AutoCloseable {
 		I2CJNI.i2CInitialize(this.port);
 	}
 
+	public I2CUtil(int port, byte devAddr) {
+		this.port = port;
+		this.devAddr = devAddr;
+		I2CJNI.i2CInitialize(this.port);
+	}
+
+	/**
+	 * Returns I2C port.
+	 *
+	 * @return I2C port.
+	 */
+	public int getPort() {
+		return port;
+	}
+
 	/**
 	 * Generic transaction.
 	 *

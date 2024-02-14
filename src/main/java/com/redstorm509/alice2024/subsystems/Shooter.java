@@ -24,6 +24,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -39,8 +40,8 @@ public class Shooter extends SubsystemBase {
 	private TalonFX shooterFollower = new TalonFX(16); // Labelled SHOOTERR
 
 	private CANSparkMax indexer = new CANSparkMax(12, MotorType.kBrushed);
-	// private VL53L4CD initialToF = new VL53L4CD(I2C.Port.kMXP, (byte) 0x52);
-	// private VL53L4CD secondaryToF = new VL53L4CD(I2C.Port.kMXP, (byte) 0x7B);
+	private VL53L4CD initialToF;
+	private VL53L4CD secondaryToF;
 	private boolean firstInstantToF = false;
 	private boolean secondaryInstantToF = false;
 
@@ -87,6 +88,19 @@ public class Shooter extends SubsystemBase {
 
 		pivotTarget = new PositionTarget(pivotEncoder.getAbsolutePosition().waitForUpdate(1).getValueAsDouble() * 360.0,
 				Constants.Shooter.kMinPivot, Constants.Shooter.kMaxPivot, Constants.Shooter.kMaxPivotSpeed);
+
+		/*- 
+		// Initialize the sensors one at a time to ensure that they both get unique
+		// device addresses.
+		DigitalOutput initialTofXSHUT = new DigitalOutput(0);
+		DigitalOutput secondaryTofXSHUT = new DigitalOutput(1);
+		secondaryTofXSHUT.set(false);
+		initialTofXSHUT.set(true);
+		initialToF = new VL53L4CD(I2C.Port.kMXP);
+		initialToF.changeDeviceAddress((byte) 0x30);
+		secondaryToF = new VL53L4CD(I2C.Port.kMXP);
+		secondaryToF.changeDeviceAddress((byte) 0x31);
+		*/
 	}
 
 	public void rawShootNote(double speed) {
