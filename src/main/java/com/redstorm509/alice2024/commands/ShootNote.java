@@ -29,9 +29,11 @@ public class ShootNote extends Command {
 	@Override
 	public void execute() {
 		if (rightBumperSupplier.getAsBoolean()) {
-			shooter.rawShootNote(0.5); // change to other value
+			shooter.rawShootNote(-1.0); // change to other value //problemo
 		} else if (leftBumperSupplier.getAsBoolean()) {
-			shooter.rawShootNote(-0.25); // comment out if necissary
+			shooter.rawShootNote(0.25); // comment out if necissary
+		} else {
+			shooter.rawShootNote(0);
 		}
 		shooter.setPivotOutput(rotationSupplier.getAsDouble());
 	}

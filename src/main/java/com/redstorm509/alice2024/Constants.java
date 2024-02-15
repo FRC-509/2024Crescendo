@@ -35,20 +35,20 @@ public final class Constants {
 		public static final double kMinPivot = 0.0d;
 		public static final double kMaxPivot = 130.0d;
 		public static final double kMaxPivotSpeed = 250.0d; // REPLACE MEEE
-		public static final double kIndexerSpinSpeed = 0.40;
+		public static final double kIndexerSpinSpeed = -1.0d;
 
-		public static final double kPivotMagnetOffset = -325.810547d;
+		public static final double kPivotMagnetOffset = -324.810547d - 0.43 + 1;
 
-		public static final double kPivotP = 0.45 * 12.0d; // Fix later probably
-		public static final double kPivotI = 0.06 * 12.0d;
-		public static final double kPivotD = 0.02 * 12.0d;
+		public static final double kPivotP = 0.45 * 12; // Fix later probably
+		public static final double kPivotI = 0.06 * 12;
+		public static final double kPivotD = 0.02 * 12;
 
 		public static final double kToFNoteDetectionThreshold = 15.0; // REPLACE MEEE
-		public static final double kPivotGearRatio = 1.0;
+		public static final double kPivotGearRatio = 175.177397338;
 	}
 
 	public static class Intake {
-		public static final double kIntakeSpinSpeed = 0.6; // between -1.0 1.0
+		public static final double kIntakeSpinSpeed = 0.3; // between -1.0 1.0
 		public static final double kPreCompressorSpinSpeed = 0.8;
 		public static final double kIntermediateStageSpinSpeed = 0.8;
 	}
@@ -62,13 +62,11 @@ public final class Constants {
 		public static final double kLimelightFullFOVAngle = 24.85 * 2;
 
 		// Replace Me!
-		public static final Pose3d kIntakeCameraPose = new Pose3d();
 		public static final double kIntakeCameraAngleOffset = -5.0;
 		public static final double kIntakeCameraHeightFromGround = 0.2794; // meters
 
-		public static final Pose3d kShoooterCameraPose = new Pose3d();
 		public static final double kShoooterCameraAngleOffset = 20.0;
-		public static final double kShoooterCameraHeightFromGround = 0.0; // REPLACE ME
+		public static final double kShoooterCameraHeightFromGround = 0.38735; // REPLACE ME
 	}
 
 	public static class AprilTags {

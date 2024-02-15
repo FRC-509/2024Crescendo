@@ -12,6 +12,9 @@ import com.redstorm509.alice2024.subsystems.*;
 import com.redstorm509.alice2024.subsystems.drive.*;
 import com.redstorm509.alice2024.subsystems.vision.*;
 import com.redstorm509.alice2024.util.devices.VL53L4CD;
+
+import javax.swing.text.AbstractDocument.LeafElement;
+
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.redstorm509.stormkit.controllers.ThrustmasterJoystick;
@@ -29,9 +32,9 @@ public class RobotContainer {
 	private final SwerveDrive swerve;
 	private final Intake intake;
 	private final Shooter shooter;
-	public final Limelight intakeCamera = new Limelight("limelight-intake", Constants.Vision.kIntakeCameraPose);
+	public final Limelight intakeCamera = new Limelight("limelight-intake");
 	// SET SHOOTERCAMERA LOCALHOST TO "limelight-arm"
-	private final Limelight shooterCamera = new Limelight("limelight-arm", Constants.Vision.kShoooterCameraPose);
+	private final Limelight shooterCamera = new Limelight("limelight-arm");
 
 	private SendableChooser<Command> chooser = new SendableChooser<Command>();
 
@@ -60,9 +63,9 @@ public class RobotContainer {
 		// held down.
 		swerve.setDefaultCommand(new DriveCommand(
 				swerve,
-				() -> MathUtil.applyDeadband(driverLeft.getX() / 2, Constants.kStickDeadband),
-				() -> MathUtil.applyDeadband(-driverLeft.getY() / 2, Constants.kStickDeadband),
-				() -> MathUtil.applyDeadband(-driverRight.getX() / 2, Constants.kStickDeadband),
+				() -> MathUtil.applyDeadband(driverLeft.getX(), Constants.kStickDeadband),
+				() -> MathUtil.applyDeadband(-driverLeft.getY(), Constants.kStickDeadband),
+				() -> MathUtil.applyDeadband(-driverRight.getX(), Constants.kStickDeadband),
 				() -> !driverLeft.isDown(StickButton.Left)));
 		// Zeroes the gyroscope when the bottom button the left stick is pressed.
 		driverLeft.isPressedBind(StickButton.Bottom, Commands.runOnce(() -> {
@@ -72,9 +75,9 @@ public class RobotContainer {
 
 		shooter.setDefaultCommand(new ShootNote(
 				shooter,
-				() -> MathUtil.applyDeadband(-operator.getLeftStickY(), Constants.kStickDeadband) / 10,
-				() -> operator.isPressed(LogiButton.RBTrigger),
-				() -> operator.isPressed(LogiButton.LBTrigger)));
+				() -> MathUtil.applyDeadband(-operator.getLeftStickY(), Constants.kStickDeadband) / 5,
+				() -> operator.isDown(LogiButton.RBTrigger),
+				() -> operator.isDown(LogiButton.LBTrigger)));
 
 		// driverLeft.isPressedBind(StickButton.Left, new AutoPickupExperimental(
 		// swerve,
@@ -87,9 +90,33 @@ public class RobotContainer {
 		// Constants.kStickDeadband)));
 
 		driverLeft.isDownBind(StickButton.Trigger, Commands.startEnd(
-				() -> intake.intake(true),
-				() -> intake.stop(),
-				intake));
+				() -> {
+					intake.intake(true);
+					shooter.indexerOnly(true, true);
+				},
+				() -> {
+					intake.stop();
+					shooter.indexerOnly(false, true);
+				},
+				intake, shooter));
+
+		driverRight.isDownBind(StickButton.Trigger, Commands.startEnd(
+				() -> {
+					intake.intake(false);
+					shooter.indexerOnly(true, false);
+				},
+				() -> {
+					intake.stop();
+					shooter.indexerOnly(false, false);
+				},
+				intake, shooter));
+
+		driverRight.isDownBind(StickButton.Bottom, new AAWAA(swerve, shooter,
+				() -> MathUtil.applyDeadband(driverLeft.getX(), Constants.kStickDeadband) / 2,
+				() -> MathUtil.applyDeadband(-driverLeft.getY(), Constants.kStickDeadband) / 2,
+				() -> MathUtil.applyDeadband(-driverRight.getX(), Constants.kStickDeadband) / 2,
+				shooterCamera,
+				8));
 
 		chooser = AutoBuilder.buildAutoChooser();
 		SmartDashboard.putData("Auto Mode", chooser);

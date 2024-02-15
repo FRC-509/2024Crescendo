@@ -6,23 +6,23 @@ import com.redstorm509.alice2024.subsystems.Shooter;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class IntakeNote extends Command {
-	private final Intake m_Intake;
+	private final Intake intake;
 	private final Shooter shooter;
 
 	public IntakeNote(Intake intake, Shooter shooter) {
-		m_Intake = intake;
+		this.intake = intake;
 		this.shooter = shooter;
 
-		addRequirements(m_Intake);
+		addRequirements(intake);
 	}
 
 	@Override
 	public void execute() {
-		if (shooter.hasIntaken()) {
+		if (shooter.indexerHasNote()) {
 			end(true);
 		}
 
-		m_Intake.intake(true);
+		intake.intake(true);
 
 	}
 
@@ -33,6 +33,6 @@ public class IntakeNote extends Command {
 
 	@Override
 	public void end(boolean wasInterrupted) {
-		m_Intake.stop();
+		intake.stop();
 	}
 }

@@ -48,11 +48,14 @@ public class Intake extends SubsystemBase {
 	public void intake(boolean inwards) {
 		if (inwards) {
 			openLoopVoltage.Output = (-Constants.Intake.kIntakeSpinSpeed * 12);
+			preCompressorSpeed = Constants.Intake.kPreCompressorSpinSpeed;
+			intermediateStageSpeed = -Constants.Intake.kIntermediateStageSpinSpeed;
 		} else {
 			openLoopVoltage.Output = (Constants.Intake.kIntakeSpinSpeed * 12);
+			preCompressorSpeed = -Constants.Intake.kPreCompressorSpinSpeed;
+			intermediateStageSpeed = Constants.Intake.kIntermediateStageSpinSpeed;
 		}
-		preCompressorSpeed = Constants.Intake.kPreCompressorSpinSpeed;
-		intermediateStageSpeed = Constants.Intake.kIntermediateStageSpinSpeed;
+
 	}
 
 	public void stop() {

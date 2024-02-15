@@ -11,10 +11,15 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+
+import java.io.Console;
+
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
@@ -24,17 +29,20 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Shooter extends SubsystemBase {
-	public enum IntakingState {
+	public enum IndexerState {
 		Idle,
 		IntakingNote,
 		OuttakingNote,
 	}
+
+	private boolean hasNote = false;
 
 	private TalonFX shooterLeader = new TalonFX(15); // Labelled SHOOTERL
 	private TalonFX shooterFollower = new TalonFX(16); // Labelled SHOOTERR
@@ -45,18 +53,18 @@ public class Shooter extends SubsystemBase {
 	private boolean firstInstantToF = false;
 	private boolean secondaryInstantToF = false;
 
-	private IntakingState currentState = IntakingState.Idle;
+	private IndexerState currentState = IndexerState.Idle;
 
 	private TalonFX pivotLeader = new TalonFX(13); // Labelled PIVOTL
 	private TalonFX pivotFollower = new TalonFX(14); // Labelled PIVOTR
 	private CANcoder pivotEncoder = new CANcoder(17);
+	private DigitalInput limitSwitch = new DigitalInput(9);
 
 	private VoltageOut openLoop = new VoltageOut(0).withEnableFOC(false);
 	private VelocityVoltage closedLoopVelocity = new VelocityVoltage(0).withEnableFOC(false);
 	private PositionVoltage closedLoopPosition = new PositionVoltage(0).withEnableFOC(false);
 
 	private PositionTarget pivotTarget;
-	// private double pivotTargetDegrees;
 
 	// TODO: Define coordinate space!
 	public Shooter() {
@@ -67,6 +75,11 @@ public class Shooter extends SubsystemBase {
 		shooterFollower.getConfigurator().apply(shootConf);
 
 		TalonFXConfiguration pivotConf = new TalonFXConfiguration();
+		pivotConf.Slot0.kP = Constants.Shooter.kPivotP;
+		pivotConf.Slot0.kI = Constants.Shooter.kPivotI;
+		pivotConf.Slot0.kD = Constants.Shooter.kPivotD;
+		pivotConf.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+
 		pivotLeader.getConfigurator().apply(pivotConf);
 		pivotFollower.getConfigurator().apply(pivotConf);
 
@@ -79,21 +92,22 @@ public class Shooter extends SubsystemBase {
 		pivotFollower.setControl(new Follower(pivotLeader.getDeviceID(), true));
 		shooterFollower.setControl(new Follower(shooterLeader.getDeviceID(), true));
 
-		// THIS IS ALSO VERY WRONG
-		double absPosition = Conversions.degreesToFalcon(
-				pivotEncoder.getAbsolutePosition().waitForUpdate(1).getValueAsDouble() * 360.0,
-				Constants.Shooter.kPivotGearRatio);
-		pivotLeader.setPosition(absPosition);
-		pivotFollower.setPosition(absPosition);
-
-		pivotTarget = new PositionTarget(pivotEncoder.getAbsolutePosition().waitForUpdate(1).getValueAsDouble() * 360.0,
-				Constants.Shooter.kMinPivot, Constants.Shooter.kMaxPivot, Constants.Shooter.kMaxPivotSpeed);
+		// double absPosition = Conversions.degreesToFalcon(
+		// pivotEncoder.getPosition().waitForUpdate(1).getValueAsDouble() * 360.0,
+		// Constants.Shooter.kPivotGearRatio);
+		// pivotLeader.setPosition(absPosition);
+		// pivotFollower.setPosition(absPosition);
+		pivotLeader.setPosition(0);
+		pivotFollower.setPosition(0);
+		pivotEncoder.setPosition(0);
+		pivotTarget = new PositionTarget(0, Constants.Shooter.kMinPivot, Constants.Shooter.kMaxPivot,
+				Constants.Shooter.kMaxPivotSpeed);
 
 		/*- 
 		// Initialize the sensors one at a time to ensure that they both get unique
 		// device addresses.
-		DigitalOutput initialTofXSHUT = new DigitalOutput(0);
-		DigitalOutput secondaryTofXSHUT = new DigitalOutput(1);
+		DigitalOutput initialTofXSHUT = new DigitalOutput(7);
+		DigitalOutput secondaryTofXSHUT = new DigitalOutput(8);
 		secondaryTofXSHUT.set(false);
 		initialTofXSHUT.set(true);
 		initialToF = new VL53L4CD(I2C.Port.kMXP);
@@ -103,8 +117,16 @@ public class Shooter extends SubsystemBase {
 		*/
 	}
 
+	public void indexerOnly(boolean go, boolean inwards) {
+		if (go) {
+			double speed = (inwards ? 1 : -1) * Constants.Shooter.kIndexerSpinSpeed;
+			indexer.set(speed);
+		} else
+			indexer.set(0);
+	}
+
 	public void rawShootNote(double speed) {
-		if (Math.abs(speed) <= 0.1) {
+		if (Math.abs(speed) >= 0.1) {
 			indexer.set(Constants.Shooter.kIndexerSpinSpeed);
 		} else {
 			indexer.set(0);
@@ -128,7 +150,7 @@ public class Shooter extends SubsystemBase {
 	}
 
 	public double getPivotDegrees() {
-		return pivotEncoder.getAbsolutePosition().getValue() * 360.0;
+		return pivotEncoder.getPosition().getValue() * 360.0;
 	}
 
 	public void setPivotDegrees(double targetDegrees) {
@@ -170,17 +192,21 @@ public class Shooter extends SubsystemBase {
 		setPivotDegrees(target);
 	}
 
-	public boolean hasIntaken() { // rename
-		return currentState == IntakingState.IntakingNote;
+	public boolean indexerIsIntaking() { // rename
+		return currentState == IndexerState.IntakingNote;
+	}
+
+	public boolean indexerHasNote() {
+		return hasNote;
 	}
 
 	@Override
 	public void periodic() {
+		/*-
 		// Logic check does any of this make sense???
 		// Also there should then be a function that can tell this thing that a note has
 		// left and transitions the state to Idle.
-
-		/*-
+		
 		// run every update
 		Measurement firstStage = initialToF.measure();
 		Measurement secondStage = secondaryToF.measure();
@@ -203,20 +229,23 @@ public class Shooter extends SubsystemBase {
 		
 		// If the first pass tripped, and the second pass JUST tripped, we are intaking.
 		if (firstWasToF && !secondaryWasToF && secondaryInstantToF) {
-			currentState = IntakingState.IntakingNote;
+			SmartDashboard.putString("INDEXER STATE", "Intaking Note");
+			currentState = IndexerState.IntakingNote;
+			hasNote = true;
 		
 		} else if (secondaryWasToF && !secondaryInstantToF && firstInstantToF) { //
 			// If the second pass JUST Un-tripped, and the first pass is still tripped, we
-			// are
-			// outtaking.
-			currentState = IntakingState.OuttakingNote;
+			// are outtaking.
+			SmartDashboard.putString("INDEXER STATE", "Outtaking Note");
+			currentState = IndexerState.OuttakingNote;
+			hasNote = false;
 		}
-		*/
-
+		 */
+		SmartDashboard.putBoolean("LimitOfMyPatience", limitSwitch.get());
 		SmartDashboard.putNumber("PivotIntegrated",
 				Conversions.falconToDegrees(pivotLeader.getPosition().getValue(), Constants.Shooter.kPivotGearRatio));
 		SmartDashboard.putNumber("PivotIntegrated2",
 				Conversions.falconToDegrees(pivotFollower.getPosition().getValue(), Constants.Shooter.kPivotGearRatio));
-		SmartDashboard.putNumber("PivotAbsolute", pivotEncoder.getAbsolutePosition().getValue() * 360.0);
+		SmartDashboard.putNumber("PivotAbsolute", pivotEncoder.getPosition().getValue() * 360.0);
 	}
 }
