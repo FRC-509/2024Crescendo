@@ -71,6 +71,13 @@ public class Shooter extends SubsystemBase {
 		TalonFXConfiguration shootConf = new TalonFXConfiguration();
 		shootConf.CurrentLimits.StatorCurrentLimitEnable = true;
 		shootConf.CurrentLimits.StatorCurrentLimit = 35.0;
+		shootConf.Slot0.kP = Constants.Shooter.kFlyWheelP;
+		shootConf.Slot0.kI = Constants.Shooter.kFlyWheelI;
+		shootConf.Slot0.kD = Constants.Shooter.kFlyWheelD;
+		shootConf.Slot0.kS = Constants.Shooter.kFlyWheelS;
+		shootConf.Slot0.kV = Constants.Shooter.kFlyWheelV;
+		shootConf.Slot0.kA = Constants.Shooter.kFlyWheelA;
+		shootConf.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 		shooterLeader.getConfigurator().apply(shootConf);
 		shooterFollower.getConfigurator().apply(shootConf);
 
@@ -131,7 +138,7 @@ public class Shooter extends SubsystemBase {
 		} else {
 			indexer.set(0);
 		}
-		shooterLeader.setControl(openLoop.withOutput(speed * 12.0));
+		shooterLeader.setControl(closedLoopVelocity.withVelocity(speed * 6380.0 / 60.0));
 	}
 
 	// Gets the point of shooting relative to the origin of the robot.
