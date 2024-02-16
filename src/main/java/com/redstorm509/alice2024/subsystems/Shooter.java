@@ -7,6 +7,7 @@ import com.redstorm509.alice2024.util.math.Conversions;
 import com.redstorm509.alice2024.util.math.GeometryUtils;
 import com.redstorm509.stormkit.math.PositionTarget;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -40,6 +41,7 @@ public class Shooter extends SubsystemBase {
 		Idle,
 		IntakingNote,
 		OuttakingNote,
+		ShootingNote,
 	}
 
 	private boolean hasNote = false;
@@ -68,9 +70,13 @@ public class Shooter extends SubsystemBase {
 
 	// TODO: Define coordinate space!
 	public Shooter() {
+		indexer.setSmartCurrentLimit(15);
+		indexer.setIdleMode(IdleMode.kCoast);
+		indexer.burnFlash();
+
 		TalonFXConfiguration shootConf = new TalonFXConfiguration();
-		shootConf.CurrentLimits.StatorCurrentLimitEnable = true;
-		shootConf.CurrentLimits.StatorCurrentLimit = 35.0;
+		shootConf.CurrentLimits.SupplyCurrentLimitEnable = true;
+		shootConf.CurrentLimits.SupplyCurrentLimit = 35.0;
 		shootConf.Slot0.kP = Constants.Shooter.kFlyWheelP;
 		shootConf.Slot0.kI = Constants.Shooter.kFlyWheelI;
 		shootConf.Slot0.kD = Constants.Shooter.kFlyWheelD;
@@ -82,6 +88,8 @@ public class Shooter extends SubsystemBase {
 		shooterFollower.getConfigurator().apply(shootConf);
 
 		TalonFXConfiguration pivotConf = new TalonFXConfiguration();
+		pivotConf.CurrentLimits.SupplyCurrentLimitEnable = true;
+		pivotConf.CurrentLimits.SupplyCurrentLimit = 35.0;
 		pivotConf.Slot0.kP = Constants.Shooter.kPivotP;
 		pivotConf.Slot0.kI = Constants.Shooter.kPivotI;
 		pivotConf.Slot0.kD = Constants.Shooter.kPivotD;
@@ -110,35 +118,28 @@ public class Shooter extends SubsystemBase {
 		pivotTarget = new PositionTarget(0, Constants.Shooter.kMinPivot, Constants.Shooter.kMaxPivot,
 				Constants.Shooter.kMaxPivotSpeed);
 
-		/*- 
 		// Initialize the sensors one at a time to ensure that they both get unique
 		// device addresses.
 		DigitalOutput initialTofXSHUT = new DigitalOutput(7);
 		DigitalOutput secondaryTofXSHUT = new DigitalOutput(8);
 		secondaryTofXSHUT.set(false);
-		initialTofXSHUT.set(true);
+		initialTofXSHUT.set(false);
 		initialToF = new VL53L4CD(I2C.Port.kMXP);
-		initialToF.changeDeviceAddress((byte) 0x30);
-		secondaryToF = new VL53L4CD(I2C.Port.kMXP);
-		secondaryToF.changeDeviceAddress((byte) 0x31);
-		*/
+		// initialToF.changeDeviceAddress((byte) 0x30);
+		// secondaryToF = new VL53L4CD(I2C.Port.kMXP);
+		// secondaryToF.changeDeviceAddress((byte) 0x31);
 	}
 
-	public void indexerOnly(boolean go, boolean inwards) {
-		if (go) {
-			double speed = (inwards ? 1 : -1) * Constants.Shooter.kIndexerSpinSpeed;
-			indexer.set(speed);
-		} else
-			indexer.set(0);
+	public void rawIndexer(double speed) {
+		indexer.set(speed);
 	}
 
-	public void rawShootNote(double speed) {
-		if (Math.abs(speed) >= 0.1) {
-			indexer.set(Constants.Shooter.kIndexerSpinSpeed);
-		} else {
-			indexer.set(0);
-		}
-		shooterLeader.setControl(closedLoopVelocity.withVelocity(speed * 6380.0 / 60.0));
+	public void setShooterOutput(double speed) {
+		shooterLeader.setControl(closedLoopVelocity.withVelocity(speed * Constants.kFalconFreeSpeedRPS));
+	}
+
+	public double getShooterVelocity() {
+		return shooterLeader.getVelocity().getValueAsDouble();
 	}
 
 	// Gets the point of shooting relative to the origin of the robot.
@@ -148,12 +149,6 @@ public class Shooter extends SubsystemBase {
 		return GeometryUtils.rotatePointAboutPoint3D(Constants.Shooter.kDefaultShootingOrigin,
 				Constants.Shooter.kPointOfRotation,
 				new Rotation3d(0, Math.toRadians(-getPivotDegrees()), 0));
-	}
-
-	private double getOptimalAngleRad(Translation2d distanceFromShooterToApexMeters) {
-		double d = distanceFromShooterToApexMeters.getX();
-		double h = distanceFromShooterToApexMeters.getY();
-		return Math.atan2(2 * h, d);
 	}
 
 	public double getPivotDegrees() {
@@ -246,8 +241,19 @@ public class Shooter extends SubsystemBase {
 			SmartDashboard.putString("INDEXER STATE", "Outtaking Note");
 			currentState = IndexerState.OuttakingNote;
 			hasNote = false;
+		} else if (firstWasToF && !firstInstantToF && secondaryInstantToF) { //
+			// If the first pass JUST Un-tripped, and the second pass is still tripped, we
+			// are shooting.
+			SmartDashboard.putString("INDEXER STATE", "Shooting Note");
+			currentState = IndexerState.ShootingNote;
+			hasNote = false;
 		}
 		 */
+
+		// SmartDashboard.putNumber("i2c one",
+		// initialToF.measure().distanceMillimeters);
+		// SmartDashboard.putNumber("i2c two",
+		// secondaryToF.measure().distanceMillimeters);
 		SmartDashboard.putBoolean("LimitOfMyPatience", limitSwitch.get());
 		SmartDashboard.putNumber("PivotIntegrated",
 				Conversions.falconToDegrees(pivotLeader.getPosition().getValue(), Constants.Shooter.kPivotGearRatio));

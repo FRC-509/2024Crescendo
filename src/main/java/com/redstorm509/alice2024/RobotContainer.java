@@ -33,7 +33,6 @@ public class RobotContainer {
 	private final Intake intake;
 	private final Shooter shooter;
 	public final Limelight intakeCamera = new Limelight("limelight-intake");
-	// SET SHOOTERCAMERA LOCALHOST TO "limelight-arm"
 	private final Limelight shooterCamera = new Limelight("limelight-arm");
 
 	private SendableChooser<Command> chooser = new SendableChooser<Command>();
@@ -61,6 +60,7 @@ public class RobotContainer {
 		// Binds translation to the left stick, and rotation to the right stick.
 		// Defaults to field-oriented drive unless the left button on the left stick is
 		// held down.
+
 		swerve.setDefaultCommand(new DriveCommand(
 				swerve,
 				() -> MathUtil.applyDeadband(driverLeft.getX(), Constants.kStickDeadband),
@@ -73,11 +73,12 @@ public class RobotContainer {
 			swerve.setTargetHeading(0);
 		}, swerve));
 
-		shooter.setDefaultCommand(new ShootNote(
-				shooter,
-				() -> MathUtil.applyDeadband(-operator.getLeftStickY(), Constants.kStickDeadband) / 5,
-				() -> operator.isDown(LogiButton.RBTrigger),
-				() -> operator.isDown(LogiButton.LBTrigger)));
+		operator.isDownBind(LogiButton.RBTrigger, new ShootNote(shooter, Constants.kFalconFreeSpeedRPS));
+		operator.isDownBind(LogiButton.LBTrigger, Commands.startEnd(
+				() -> shooter.rawIndexer(-Constants.Shooter.kIndexerSpinSpeed),
+				() -> shooter.rawIndexer(0), shooter));
+		shooter.setDefaultCommand(new PivotShooter(shooter,
+				() -> MathUtil.applyDeadband(-operator.getLeftStickY(), Constants.kStickDeadband) / 5));
 
 		// driverLeft.isPressedBind(StickButton.Left, new AutoPickupExperimental(
 		// swerve,
@@ -91,23 +92,26 @@ public class RobotContainer {
 
 		driverLeft.isDownBind(StickButton.Trigger, Commands.startEnd(
 				() -> {
+					shooter.setPivotDegrees(3);
 					intake.intake(true);
-					shooter.indexerOnly(true, true);
+					// Goes INNNNNN
+					shooter.rawIndexer(Constants.Shooter.kIndexerSpinSpeed);
 				},
 				() -> {
 					intake.stop();
-					shooter.indexerOnly(false, true);
+					shooter.rawIndexer(0);
 				},
 				intake, shooter));
 
 		driverRight.isDownBind(StickButton.Trigger, Commands.startEnd(
 				() -> {
 					intake.intake(false);
-					shooter.indexerOnly(true, false);
+					// Goes OUTTTTTT
+					shooter.rawIndexer(-Constants.Shooter.kIndexerSpinSpeed);
 				},
 				() -> {
 					intake.stop();
-					shooter.indexerOnly(false, false);
+					shooter.rawIndexer(0);
 				},
 				intake, shooter));
 

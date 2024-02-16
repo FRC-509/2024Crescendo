@@ -27,19 +27,19 @@ public final class Constants {
 	// (0, 0, 0) -> Center of Drivetrain Projected Onto Ground
 	// Front of robot is the direction where the intake is pointing.
 	public static class Shooter {
-		// Replace Me!
 		public static final Translation3d kPointOfRotation = new Translation3d(-0.253997, 0, 0.581834);
 		public static final Translation3d kDefaultShootingOrigin = new Translation3d(0.019505, 0, 0.597487);
 		public static final double kPivotToShootAngleOffset = 61.0d;
+		// Replace Me!
 		public static final Translation3d kGoalApex = new Translation3d(0.1, 0, Units.inchesToMeters(80.5) + 0.3);
 		public static final double kMinPivot = 0.0d;
 		public static final double kMaxPivot = 130.0d;
-		public static final double kMaxPivotSpeed = 250.0d; // REPLACE MEEE
-		public static final double kIndexerSpinSpeed = -1.0d;
+		public static final double kMaxPivotSpeed = 250.0d;
+		public static final double kIndexerSpinSpeed = 0.7d;
 
 		public static final double kPivotMagnetOffset = -324.810547d - 0.43 + 1;
 
-		public static final double kPivotP = 0.45 * 12; // Fix later probably
+		public static final double kPivotP = 0.425 * 12; // Fix later probably
 		public static final double kPivotI = 0.06 * 12;
 		public static final double kPivotD = 0.02 * 12;
 
@@ -55,7 +55,7 @@ public final class Constants {
 	}
 
 	public static class Intake {
-		public static final double kIntakeSpinSpeed = 0.3; // between -1.0 1.0
+		public static final double kIntakeSpinSpeed = 0.3;
 		public static final double kPreCompressorSpinSpeed = 0.8;
 		public static final double kIntermediateStageSpinSpeed = 0.8;
 	}
@@ -68,12 +68,11 @@ public final class Constants {
 
 		public static final double kLimelightFullFOVAngle = 24.85 * 2;
 
-		// Replace Me!
 		public static final double kIntakeCameraAngleOffset = -5.0;
 		public static final double kIntakeCameraHeightFromGround = 0.2794; // meters
 
 		public static final double kShoooterCameraAngleOffset = 20.0;
-		public static final double kShoooterCameraHeightFromGround = 0.38735; // REPLACE ME
+		public static final double kShoooterCameraHeightFromGround = 0.38735;
 	}
 
 	public static class AprilTags {
@@ -89,7 +88,7 @@ public final class Constants {
 			public static final double RedAllianceCenterTagID = 4;
 			public static final double RedAllianceSideTagID = 3;
 
-			public static final double kDistanceToSpeaker = .87; // meters
+			public static final double kDistanceToSpeaker = 0.87; // meters
 			public static final double kHeightFromGround = 0.0; // Replace me if needed
 		}
 
@@ -102,11 +101,10 @@ public final class Constants {
 		public static final double kMaxExtensionLength = 0.0; // milimeters
 	}
 
-	// Replace Me!
-	public static final double kMaxSpeed = Conversions.falconToMPS(6380.0d / 60.0d, MK4I.kWheelCircumference,
+	public static final double kFalconFreeSpeedRPS = 6380.0d / 60.0d;
+	public static final double kMaxSpeed = Conversions.falconToMPS(kFalconFreeSpeedRPS, MK4I.kWheelCircumference,
 			MK4I.kDriveGearRatio);
 
-	// Replace Me!
 	public static final double kMaxAngularVelocity = kMaxSpeed
 			/ (Math.hypot(Chassis.kOffsetToSwerveModule, Chassis.kOffsetToSwerveModule));
 	public static final double kMaxAngularAcceleration = 0.0;

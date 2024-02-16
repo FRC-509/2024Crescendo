@@ -20,8 +20,8 @@ public class Climber extends SubsystemBase {
 
 	public Climber() {
 		TalonFXConfiguration conf = new TalonFXConfiguration();
-		conf.CurrentLimits.StatorCurrentLimitEnable = true;
-		conf.CurrentLimits.StatorCurrentLimit = 35.0;
+		conf.CurrentLimits.SupplyCurrentLimitEnable = true;
+		conf.CurrentLimits.SupplyCurrentLimit = 35.0;
 
 		leftClimbMotor.getConfigurator().apply(conf);
 		rightClimbMotor.getConfigurator().apply(conf);

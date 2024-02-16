@@ -20,15 +20,16 @@ public class Intake extends SubsystemBase {
 
 	public Intake() {
 		TalonFXConfiguration conf = new TalonFXConfiguration();
-		conf.CurrentLimits.StatorCurrentLimitEnable = true;
-		conf.CurrentLimits.StatorCurrentLimit = 35.0;
+		conf.CurrentLimits.SupplyCurrentLimitEnable = true;
+		conf.CurrentLimits.SupplyCurrentLimit = 35.0;
+
 		intakeMotor.getConfigurator().apply(conf);
 
-		preCompressorMotors.setSmartCurrentLimit(18);
+		preCompressorMotors.setSmartCurrentLimit(15);
 		preCompressorMotors.setIdleMode(IdleMode.kCoast);
 		preCompressorMotors.burnFlash();
 
-		intermediateStage.setSmartCurrentLimit(17);
+		intermediateStage.setSmartCurrentLimit(15);
 		intermediateStage.setIdleMode(IdleMode.kCoast);
 		intermediateStage.burnFlash();
 	}

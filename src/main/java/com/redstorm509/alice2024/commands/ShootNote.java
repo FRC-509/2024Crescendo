@@ -1,40 +1,48 @@
 package com.redstorm509.alice2024.commands;
 
-import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
+import com.redstorm509.alice2024.Constants;
 import com.redstorm509.alice2024.subsystems.Shooter;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class ShootNote extends Command {
-	// change to use shooterMath once tested
+	private Shooter shooter;
+	private double speedRps;
+	private boolean hasReachedVel = false;
 
-	private final Shooter shooter;
-	private final DoubleSupplier rotationSupplier;
-	private final BooleanSupplier rightBumperSupplier;
-	private final BooleanSupplier leftBumperSupplier;
-
-	public ShootNote(Shooter shooter,
-			DoubleSupplier rotationSupplier,
-			BooleanSupplier rightBumperSupplier,
-			BooleanSupplier leftBumperSupplier) {
+	public ShootNote(Shooter shooter, double speedRotationsPerSecond) {
 		this.shooter = shooter;
-		this.rotationSupplier = rotationSupplier;
-		this.rightBumperSupplier = rightBumperSupplier;
-		this.leftBumperSupplier = leftBumperSupplier;
-
+		this.speedRps = speedRotationsPerSecond;
 		addRequirements(shooter);
 	}
 
 	@Override
+	public void initialize() {
+		hasReachedVel = false;
+		shooter.rawIndexer(0);
+		shooter.setShooterOutput(speedRps / Constants.kFalconFreeSpeedRPS);
+	}
+
+	@Override
 	public void execute() {
-		if (rightBumperSupplier.getAsBoolean()) {
-			shooter.rawShootNote(-1.0); // change to other value //problemo
-		} else if (leftBumperSupplier.getAsBoolean()) {
-			shooter.rawShootNote(0.25); // comment out if necissary
-		} else {
-			shooter.rawShootNote(0);
+		if (Math.abs(shooter.getShooterVelocity() - speedRps) <= 10.0d) {
+			hasReachedVel = true;
 		}
-		shooter.setPivotOutput(rotationSupplier.getAsDouble());
+		if (hasReachedVel) {
+			shooter.rawIndexer(Constants.Shooter.kIndexerSpinSpeed);
+		}
+	}
+
+	@Override
+	public void end(boolean wasInterrupted) {
+		hasReachedVel = false;
+		shooter.setShooterOutput(0);
+		shooter.rawIndexer(0);
+	}
+
+	@Override
+	public boolean isFinished() {
+		return false;
 	}
 }

@@ -63,6 +63,8 @@ public class SwerveModule {
 		steerMotorConfig.Slot0.kP = Constants.kSteerAngleP;
 		steerMotorConfig.Slot0.kI = Constants.kSteerAngleI;
 		steerMotorConfig.Slot0.kD = Constants.kSteerAngleD;
+		steerMotorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+		steerMotorConfig.CurrentLimits.SupplyCurrentLimit = 35;
 		// Since we've just configured the steer motors to use data from the absolute
 		// encoders, we don't need to divide the steer motor's position by the gear
 		// ratio ourselves.
@@ -74,17 +76,18 @@ public class SwerveModule {
 		TalonFXConfiguration driveMotorConfig = new TalonFXConfiguration();
 		driveMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 		driveMotorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+		driveMotorConfig.MotorOutput.DutyCycleNeutralDeadband = 0.05;
 		driveMotorConfig.Slot0.kP = Constants.kDriveVelocityP;
 		driveMotorConfig.Slot0.kI = Constants.kDriveVelocityI;
 		driveMotorConfig.Slot0.kD = Constants.kDriveVelocityD;
 		driveMotorConfig.Slot0.kS = Constants.kDriveVelocityS;
 		driveMotorConfig.Slot0.kV = Constants.kDriveVelocityV;
+		driveMotorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+		driveMotorConfig.CurrentLimits.SupplyCurrentLimit = 35;
 		this.driveMotor = new TalonFX(configs.driveMotorId(), Constants.kCANIvore);
 		this.driveMotor.getConfigurator().apply(driveMotorConfig);
 
 		this.driveMotor.setPosition(0);
-
-		// TODO: Add current limits
 
 		// We wait 1.0s for a sensor reading on startup to ensure its validity.
 		this.lastSteerAngleDeg = steerMotor.getPosition().waitForUpdate(1.0).getValueAsDouble() * 360.0;
