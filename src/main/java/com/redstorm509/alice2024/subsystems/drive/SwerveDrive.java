@@ -204,7 +204,9 @@ public class SwerveDrive extends SubsystemBase {
 	// Used strictly for PathPlanner in autonomous
 	public void setChassisSpeeds(ChassisSpeeds robotRelativeSpeeds) {
 		ChassisSpeeds targetSpeeds = ChassisSpeeds.discretize(robotRelativeSpeeds, 0.02);
-		SwerveModuleState[] targetStates = kinematics.toSwerveModuleStates(targetSpeeds);
+		ChassisSpeeds flippedSpeeds = new ChassisSpeeds(-targetSpeeds.vyMetersPerSecond, targetSpeeds.vxMetersPerSecond,
+				targetSpeeds.omegaRadiansPerSecond);
+		SwerveModuleState[] targetStates = kinematics.toSwerveModuleStates(flippedSpeeds);
 		SwerveDriveKinematics.desaturateWheelSpeeds(targetStates, Constants.kMaxSpeed);
 
 		for (SwerveModule mod : swerveModules) {
