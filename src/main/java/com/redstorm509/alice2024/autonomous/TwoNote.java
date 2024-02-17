@@ -43,12 +43,14 @@ public class TwoNote extends SequentialCommandGroup {
 				AutoBuilder.followPath(PathPlannerPath.fromPathFile("DriveToNoteShort")),
 				AutoBuilder.followPath(PathPlannerPath.fromPathFile("DriveToNoteShortRev")),
 				Commands.runOnce(() -> swerve.stopModules(), swerve));
+		// addCommands(paths);
+
 		addCommands(
 				new SequentialCommandGroup(
-						new ShootNote(shooter, 100.0).withTimeout(2),
+						new ShootNote(shooter, 100.0, true).withTimeout(2),
 						new ParallelCommandGroup(
 								paths,
-								new IntakeNote(intake, shooter).withTimeout(1)),
-						new ShootNote(shooter, 100.0).withTimeout(2)));
+								new IntakeNote(intake, shooter).withTimeout(2)),
+						new ShootNote(shooter, 100.0, true).withTimeout(2)));
 	}
 }

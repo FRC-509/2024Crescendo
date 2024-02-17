@@ -76,7 +76,7 @@ public class RobotContainer {
 			swerve.setTargetHeading(0);
 		}, swerve));
 
-		operator.isDownBind(LogiButton.RBTrigger, new ShootNote(shooter, 0.6 * Constants.kFalconFreeSpeedRPS));
+		operator.isDownBind(LogiButton.RBTrigger, new ShootNote(shooter, 0.5 * Constants.kFalconFreeSpeedRPS, false));
 		operator.isDownBind(LogiButton.LBTrigger, Commands.startEnd(
 				() -> shooter.rawIndexer(Constants.Shooter.kIndexerSpinSpeed),
 				() -> shooter.rawIndexer(0), shooter));
@@ -128,7 +128,7 @@ public class RobotContainer {
 		chooser = new SendableChooser<Command>();
 		chooser.addOption("Two Note", new TwoNote(swerve, shooter, intake));
 		chooser.addOption("One Note and Taxi",
-				new SequentialCommandGroup(new ShootNote(shooter, 0.5 * Constants.kFalconFreeSpeedRPS),
+				new SequentialCommandGroup(new ShootNote(shooter, 0.5 * Constants.kFalconFreeSpeedRPS, true),
 						new DefaultDriveCommand(swerve, 0.0, 0.7d, 0.0d, true).withTimeout(1)));
 		chooser.addOption("Null", new InstantCommand());
 		SmartDashboard.putData("Auto Mode", chooser);

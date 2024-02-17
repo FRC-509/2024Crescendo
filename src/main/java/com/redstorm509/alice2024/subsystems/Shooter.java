@@ -124,13 +124,18 @@ public class Shooter extends SubsystemBase {
 		// device addresses.
 		// DigitalOutput initialTofXSHUT = new DigitalOutput(7);
 		// DigitalOutput secondaryTofXSHUT = new DigitalOutput(8);
-		// secondaryTofXSHUT.set(false);
-		// initialTofXSHUT.set(false);
+		// secondaryTofXSHUT.set(true);
+		// initialTofXSHUT.set(true);
+
+		// secondaryTofXSHUT.set(true);
 		// initialToF = new VL53L4CD(I2C.Port.kMXP);
 		// initialToF.changeDeviceAddress((byte) 0x30);
+		// initialToF.init();
+
+		// secondaryTofXSHUT.set(true);
 		// secondaryToF = new VL53L4CD(I2C.Port.kMXP);
+		// secondaryToF.init();
 		// secondaryToF.changeDeviceAddress((byte) 0x31);
-		// initialTof.init();
 	}
 
 	public void resetIntegratedToAbsolute(boolean waitForUpdate) {

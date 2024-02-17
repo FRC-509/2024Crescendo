@@ -60,6 +60,7 @@ public class SwerveDrive extends SubsystemBase {
 			Constants.kHeadingPassiveD);
 	private PIDController headingAggressive = new PIDController(Constants.kHeadingAggressiveP,
 			Constants.kHeadingAggressiveI, Constants.kHeadingAggressiveD);
+	private Translation2d initialPoseFromPathPlanner = new Translation2d();
 
 	public SwerveDrive(Pigeon2 pigeon) {
 		this.timer = new Timer();
@@ -83,8 +84,8 @@ public class SwerveDrive extends SubsystemBase {
 		odometry = new SwerveDriveOdometry(kinematics, getYaw(), getModulePositions());
 
 		HolonomicPathFollowerConfig pathFollowerConfig = new HolonomicPathFollowerConfig(
-				new PIDConstants(5.0, 0, 0), // Translation constants
-				new PIDConstants(5.0, 0, 0), // Rotation constants
+				new PIDConstants(0.0, 0, 0), // Translation constants
+				new PIDConstants(0.0, 0, 0), // Rotation constants
 				Constants.kMaxSpeed,
 				Constants.Chassis.kOffsetToSwerveModule * Math.sqrt(2),
 				new ReplanningConfig(false, false));
@@ -198,7 +199,10 @@ public class SwerveDrive extends SubsystemBase {
 	}
 
 	public ChassisSpeeds getChassisSpeeds() {
-		return kinematics.toChassisSpeeds(getModuleStates());
+		ChassisSpeeds ourSpeeds = kinematics.toChassisSpeeds(getModuleStates());
+		// ChassisSpeeds flippedForPP = new ChassisSpeeds(ourSpeeds.vyMetersPerSecond,
+		// -ourSpeeds.vxMetersPerSecond, ourSpeeds.omegaRadiansPerSecond);
+		return ourSpeeds;
 	}
 
 	// Used strictly for PathPlanner in autonomous
@@ -215,10 +219,18 @@ public class SwerveDrive extends SubsystemBase {
 	}
 
 	public Pose2d getRawOdometeryPose() {
-		return odometry.getPoseMeters();
+		Pose2d rawPose = odometry.getPoseMeters();
+		/*-
+		Pose2d flippedForPP = new Pose2d(rawPose.getY(), -rawPose.getX(), rawPose.getRotation());
+		Translation2d flippedAndMoved = flippedForPP.getTranslation().plus(initialPoseFromPathPlanner);
+		return new Pose2d(flippedAndMoved, rawPose.getRotation());
+		*/
+		return rawPose;
 	}
 
 	public void resetOdometry(Pose2d pose) {
+		// initialPoseFromPathPlanner = pose.getTranslation();
+		// Pose2d flipped = new Pose2d(-pose.getY(), pose.getX(), pose.getRotation());
 		odometry.resetPosition(getYaw(), getModulePositions(), pose);
 	}
 
