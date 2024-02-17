@@ -6,6 +6,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.GeometryUtil;
 import com.redstorm509.alice2024.commands.IntakeNote;
+import com.redstorm509.alice2024.commands.SetPivot;
 import com.redstorm509.alice2024.commands.ShootNote;
 import com.redstorm509.alice2024.subsystems.Intake;
 import com.redstorm509.alice2024.subsystems.Shooter;
@@ -47,10 +48,13 @@ public class TwoNote extends SequentialCommandGroup {
 
 		addCommands(
 				new SequentialCommandGroup(
-						new ShootNote(shooter, 100.0, true).withTimeout(2),
+						new SetPivot(shooter, 2.0),
+						new ShootNote(shooter, 100.0, true, () -> false).withTimeout(2),
+						new SetPivot(shooter, 0),
 						new ParallelCommandGroup(
 								paths,
-								new IntakeNote(intake, shooter).withTimeout(2)),
-						new ShootNote(shooter, 100.0, true).withTimeout(2)));
+								new IntakeNote(intake, shooter).withTimeout(4)),
+						new SetPivot(shooter, 2.0),
+						new ShootNote(shooter, 100.0, true, () -> false).withTimeout(2)));
 	}
 }

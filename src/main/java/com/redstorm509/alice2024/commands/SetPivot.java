@@ -21,6 +21,6 @@ public class SetPivot extends Command {
 
 	@Override
 	public boolean isFinished() {
-		return Math.abs(shooter.getPivotDegrees() - targetAngle) <= 1.0;
+		return Math.abs(shooter.getPivotDegrees() - targetAngle) <= 2.0;
 	}
 }

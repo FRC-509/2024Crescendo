@@ -71,18 +71,19 @@ public class RobotContainer {
 				() -> MathUtil.applyDeadband(-driverRight.getX(), Constants.kStickDeadband),
 				() -> !driverLeft.isDown(StickButton.Left)));
 		// Zeroes the gyroscope when the bottom button the left stick is pressed.
-		driverLeft.isPressedBind(StickButton.Bottom, Commands.runOnce(() -> {
+		driverLeft.isPressedBind(StickButton.Left, Commands.runOnce(() -> {
 			pigeon.setYaw(0);
 			swerve.setTargetHeading(0);
 		}, swerve));
 
-		operator.isDownBind(LogiButton.RBTrigger, new ShootNote(shooter, 0.5 * Constants.kFalconFreeSpeedRPS, false));
+		operator.isDownBind(LogiButton.RBTrigger, new ShootNote(shooter, 0.5 * Constants.kFalconFreeSpeedRPS, false,
+				() -> driverRight.isDown(StickButton.Right)));
 		operator.isDownBind(LogiButton.LBTrigger, Commands.startEnd(
 				() -> shooter.rawIndexer(Constants.Shooter.kIndexerSpinSpeed),
 				() -> shooter.rawIndexer(0), shooter));
 		shooter.setDefaultCommand(new DefaultPivotShooter(shooter,
 				() -> MathUtil.applyDeadband(-operator.getLeftStickY(), Constants.kStickDeadband) / 5));
-
+		operator.isPressedBind(LogiButton.A, new SetPivot(shooter, 110));
 		// driverLeft.isPressedBind(StickButton.Left, new AutoPickupExperimental(
 		// swerve,
 		// intakeCamera,
@@ -105,7 +106,6 @@ public class RobotContainer {
 					shooter.rawIndexer(0);
 				},
 				intake, shooter));
-
 		driverRight.isDownBind(StickButton.Trigger, Commands.startEnd(
 				() -> {
 					intake.intake(false);
@@ -118,6 +118,17 @@ public class RobotContainer {
 				},
 				intake, shooter));
 
+		driverLeft.isDownBind(StickButton.Right, Commands.startEnd(() -> {
+			shooter.rawIndexer(-Constants.Shooter.kIndexerSpinSpeed);
+		}, () -> {
+			shooter.rawIndexer(0);
+		}, shooter));
+		driverRight.isDownBind(StickButton.Left, Commands.startEnd(() -> {
+			shooter.rawIndexer(Constants.Shooter.kIndexerSpinSpeed);
+		}, () -> {
+			shooter.rawIndexer(0);
+		}, shooter));
+
 		driverRight.isDownBind(StickButton.Bottom, new AAWAA(swerve, shooter,
 				() -> MathUtil.applyDeadband(driverLeft.getX(), Constants.kStickDeadband) / 2,
 				() -> MathUtil.applyDeadband(-driverLeft.getY(), Constants.kStickDeadband) / 2,
@@ -128,7 +139,8 @@ public class RobotContainer {
 		chooser = new SendableChooser<Command>();
 		chooser.addOption("Two Note", new TwoNote(swerve, shooter, intake));
 		chooser.addOption("One Note and Taxi",
-				new SequentialCommandGroup(new ShootNote(shooter, 0.5 * Constants.kFalconFreeSpeedRPS, true),
+				new SequentialCommandGroup(
+						new ShootNote(shooter, 0.5 * Constants.kFalconFreeSpeedRPS, true, () -> false),
 						new DefaultDriveCommand(swerve, 0.0, 0.7d, 0.0d, true).withTimeout(1)));
 		chooser.addOption("Null", new InstantCommand());
 		SmartDashboard.putData("Auto Mode", chooser);

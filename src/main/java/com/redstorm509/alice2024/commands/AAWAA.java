@@ -64,7 +64,8 @@ public class AAWAA extends Command {
 	public void execute() {
 		if (limelight.getTV()) {
 			// TODO: Verify axis!
-			rot = -Math.toRadians(limelight.getTX()) * 5;
+			// rot = -Math.toRadians(limelight.getTX()) * 5;
+			rot = rotationSupplier.getAsDouble();
 			limelight.setLEDMode_ForceBlink();
 		} else {
 			rot = rotationSupplier.getAsDouble();
@@ -73,7 +74,6 @@ public class AAWAA extends Command {
 
 		if (isTeleop) {
 			if (limelight.getTV()) {
-
 				Pose3d pose = Limelight.toPose3D(limelight.getTargetPose_RobotSpace());
 				double distance = Math.hypot(pose.getX(), pose.getZ()) + Units.inchesToMeters(10);
 				double height = Math.abs(pose.getY()) + Units.inchesToMeters(30);
@@ -81,7 +81,7 @@ public class AAWAA extends Command {
 						- Constants.Shooter.kPivotToShootAngleOffset;
 
 				// setPivotDegrees() not working so really bad solution for now (fightin issues)
-				// shooter.setPivotDegrees(MathUtil.clamp(targetAngle, 0.0, 130.0));
+				shooter.setPivotDegrees(MathUtil.clamp(targetAngle, 0.0, 130.0));
 
 				SmartDashboard.putNumber("CurrentArmPivot", shooter.getPivotDegrees());
 				SmartDashboard.putNumber("Pivot Target Angle", targetAngle);
