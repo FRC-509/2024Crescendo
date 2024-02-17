@@ -37,7 +37,7 @@ public final class Constants {
 		public static final double kMaxPivotSpeed = 250.0d;
 		public static final double kIndexerSpinSpeed = 0.7d;
 
-		public static final double kPivotMagnetOffset = -324.810547d - 0.43 + 1;
+		public static final double kPivotMagnetOffset = -325.1946d;
 
 		public static final double kPivotP = 0.425 * 12; // Fix later probably
 		public static final double kPivotI = 0.06 * 12;

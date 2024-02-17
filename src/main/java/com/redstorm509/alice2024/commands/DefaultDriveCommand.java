@@ -27,6 +27,17 @@ public class DefaultDriveCommand extends Command {
 		addRequirements(swerve);
 	}
 
+	public DefaultDriveCommand(SwerveDrive swerve, double xSpeed, double ySpeed,
+			double omegaSpeed, boolean fieldRelative) {
+		this.swerve = swerve;
+		this.translationXSupplier = () -> xSpeed;
+		this.translationYSupplier = () -> ySpeed;
+		this.rotationSupplier = () -> omegaSpeed;
+		this.fieldRelativeSupplier = () -> fieldRelative;
+
+		addRequirements(swerve);
+	}
+
 	@Override
 	public void execute() {
 		// evaluate created members for x,y,theta, run drive command

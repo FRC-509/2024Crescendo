@@ -3,6 +3,7 @@ package com.redstorm509.alice2024;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -75,7 +76,7 @@ public class RobotContainer {
 			swerve.setTargetHeading(0);
 		}, swerve));
 
-		operator.isDownBind(LogiButton.RBTrigger, new ShootNote(shooter, Constants.kFalconFreeSpeedRPS));
+		operator.isDownBind(LogiButton.RBTrigger, new ShootNote(shooter, 0.6 * Constants.kFalconFreeSpeedRPS));
 		operator.isDownBind(LogiButton.LBTrigger, Commands.startEnd(
 				() -> shooter.rawIndexer(Constants.Shooter.kIndexerSpinSpeed),
 				() -> shooter.rawIndexer(0), shooter));
@@ -94,7 +95,7 @@ public class RobotContainer {
 
 		driverLeft.isDownBind(StickButton.Trigger, Commands.startEnd(
 				() -> {
-					shooter.setPivotDegrees(3);
+					shooter.setPivotDegrees(1);
 					intake.intake(true);
 					// Goes INNNNNN
 					shooter.rawIndexer(-Constants.Shooter.kIndexerSpinSpeed);
@@ -125,7 +126,10 @@ public class RobotContainer {
 				8));
 
 		chooser = new SendableChooser<Command>();
-		chooser.addOption("Ahh", new TwoNote(swerve, shooter, intake));
+		chooser.addOption("Two Note", new TwoNote(swerve, shooter, intake));
+		chooser.addOption("One Note and Taxi",
+				new SequentialCommandGroup(new ShootNote(shooter, 0.5 * Constants.kFalconFreeSpeedRPS),
+						new DefaultDriveCommand(swerve, 0.0, 0.7d, 0.0d, true).withTimeout(1)));
 		chooser.addOption("Null", new InstantCommand());
 		SmartDashboard.putData("Auto Mode", chooser);
 	}

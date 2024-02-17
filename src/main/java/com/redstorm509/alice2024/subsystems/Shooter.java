@@ -44,7 +44,7 @@ public class Shooter extends SubsystemBase {
 		ShootingNote,
 	}
 
-	private static final double kAbsOffsetOffset = 50.0;
+	private static final double kAbsOffsetOffset = 0.0;
 
 	private boolean hasNote = false;
 
@@ -110,12 +110,14 @@ public class Shooter extends SubsystemBase {
 		shooterFollower.setControl(new Follower(shooterLeader.getDeviceID(), true));
 
 		resetIntegratedToAbsolute(true);
-		/*
-		 * pivotLeader.setPosition(0);
-		 * pivotFollower.setPosition(0);
-		 * pivotEncoder.setPosition(0);
-		 */
-		pivotTarget = new PositionTarget(0, Constants.Shooter.kMinPivot, Constants.Shooter.kMaxPivot,
+
+		if (pivotEncoder.getPosition().getValueAsDouble() * 360.0d >= 350.0d) {
+			pivotEncoder.setPosition(0);
+			pivotLeader.setPosition(0);
+			pivotFollower.setPosition(0);
+		}
+		double angle = pivotEncoder.getPosition().getValueAsDouble() * 360.0d;
+		pivotTarget = new PositionTarget(angle, Constants.Shooter.kMinPivot, Constants.Shooter.kMaxPivot,
 				Constants.Shooter.kMaxPivotSpeed);
 
 		// Initialize the sensors one at a time to ensure that they both get unique
@@ -134,13 +136,13 @@ public class Shooter extends SubsystemBase {
 	public void resetIntegratedToAbsolute(boolean waitForUpdate) {
 		if (waitForUpdate) {
 			double absPosition = Conversions.degreesToFalcon(
-					pivotEncoder.getAbsolutePosition().waitForUpdate(1).getValueAsDouble() * 360.0 - kAbsOffsetOffset,
+					pivotEncoder.getPosition().waitForUpdate(1).getValueAsDouble() * 360.0 - kAbsOffsetOffset,
 					Constants.Shooter.kPivotGearRatio);
 			pivotLeader.setPosition(absPosition);
 			pivotFollower.setPosition(absPosition);
 		} else {
 			double absPosition = Conversions.degreesToFalcon(
-					pivotEncoder.getAbsolutePosition().getValueAsDouble() * 360.0 - kAbsOffsetOffset,
+					pivotEncoder.getPosition().getValueAsDouble() * 360.0 - kAbsOffsetOffset,
 					Constants.Shooter.kPivotGearRatio);
 			pivotLeader.setPosition(absPosition);
 			pivotFollower.setPosition(absPosition);
@@ -169,7 +171,7 @@ public class Shooter extends SubsystemBase {
 	}
 
 	public double getPivotDegrees() {
-		return pivotEncoder.getAbsolutePosition().getValue() * 360.0 - kAbsOffsetOffset;
+		return pivotEncoder.getPosition().getValue() * 360.0 - kAbsOffsetOffset;
 	}
 
 	public void setPivotDegrees(double targetDegrees) {
@@ -193,10 +195,12 @@ public class Shooter extends SubsystemBase {
 		double previous = pivotTarget.getTarget();
 		pivotTarget.update(percentOutput);
 
-		if (percentOutput < 0.0d && getPivotDegrees() < 3.0d) {
+		if (percentOutput <= 0.0d && getPivotDegrees() < 3.0d) {
 			if (!limitSwitch.get()) {
-				pivotLeader.setControl(openLoop.withOutput(percentOutput * 12.0));
+				pivotLeader.setControl(openLoop.withOutput(percentOutput));
 			}
+		} else if (percentOutput <= 0 && getPivotDegrees() < 0) {
+			pivotLeader.setControl(openLoop.withOutput(percentOutput * 0.075));
 		} else {
 			/*-
 			This is where we will add softstops
@@ -274,7 +278,7 @@ public class Shooter extends SubsystemBase {
 		 */
 		if (limitSwitch.get()) {
 			// pivotEncoder.setPosition(kAbsOffsetOffset);
-			// resetIntegratedToAbsolute(false);
+			resetIntegratedToAbsolute(false);
 		}
 		// SmartDashboard.putNumber("i2c one",
 		// initialToF.measure().distanceMillimeters);
@@ -286,6 +290,6 @@ public class Shooter extends SubsystemBase {
 		SmartDashboard.putNumber("PivotIntegrated2",
 				Conversions.falconToDegrees(pivotFollower.getPosition().getValue(), Constants.Shooter.kPivotGearRatio));
 		SmartDashboard.putNumber("PivotAbsolute",
-				pivotEncoder.getAbsolutePosition().getValue() * 360.0 - kAbsOffsetOffset);
+				pivotEncoder.getPosition().getValue() * 360.0 - kAbsOffsetOffset);
 	}
 }
