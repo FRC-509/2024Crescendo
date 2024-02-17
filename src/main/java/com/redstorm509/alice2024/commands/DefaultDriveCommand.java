@@ -11,8 +11,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 public class DefaultDriveCommand extends Command {
 	private final SwerveDrive swerve;
+	// How much the robot should move FORWARD (towards the OPPOSING ALLIANCE WALL if
+	// field-relative)
 	private final DoubleSupplier translationXSupplier;
+	// How much the robot should move to the LEFT
 	private final DoubleSupplier translationYSupplier;
+	// How much the robot should rotate COUNTER-CLOCKWISE
 	private final DoubleSupplier rotationSupplier;
 	private final BooleanSupplier fieldRelativeSupplier;
 

@@ -66,8 +66,8 @@ public class RobotContainer {
 
 		swerve.setDefaultCommand(new DefaultDriveCommand(
 				swerve,
-				() -> MathUtil.applyDeadband(driverLeft.getX(), Constants.kStickDeadband),
 				() -> MathUtil.applyDeadband(-driverLeft.getY(), Constants.kStickDeadband),
+				() -> MathUtil.applyDeadband(-driverLeft.getX(), Constants.kStickDeadband),
 				() -> MathUtil.applyDeadband(-driverRight.getX(), Constants.kStickDeadband),
 				() -> !driverLeft.isDown(StickButton.Left)));
 		// Zeroes the gyroscope when the bottom button the left stick is pressed.
@@ -141,7 +141,7 @@ public class RobotContainer {
 		chooser.addOption("One Note and Taxi",
 				new SequentialCommandGroup(
 						new ShootNote(shooter, 0.5 * Constants.kFalconFreeSpeedRPS, true, () -> false),
-						new DefaultDriveCommand(swerve, 0.0, 0.7d, 0.0d, true).withTimeout(1)));
+						new DefaultDriveCommand(swerve, 0.7d, 0.0d, 0.0d, true).withTimeout(1)));
 		chooser.addOption("Null", new InstantCommand());
 		SmartDashboard.putData("Auto Mode", chooser);
 	}

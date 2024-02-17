@@ -34,16 +34,19 @@ public class SwerveDrive extends SubsystemBase {
 
 	/*
 	 * The order of each vector corresponds to the index of the swerve module inside
-	 * the swerveModules array.
-	 * 
-	 * module 1 (-, +) |--f--| module 0 (+, +)
-	 * module 2 (-, -) |--b--| module 3 (+, -)
+	 * the swerveModules array. Everything looks weird because WPILib does
+	 * everything like this:
+	 * ^
+	 * | X+
+	 * ----> Y-
+	 * module 1 (+, +) |--f--| module 0 (+, -)
+	 * module 2 (-, +) |--b--| module 3 (-, -)
 	 */
 	private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
+			new Translation2d(+Chassis.kOffsetToSwerveModule, -Chassis.kOffsetToSwerveModule),
 			new Translation2d(+Chassis.kOffsetToSwerveModule, +Chassis.kOffsetToSwerveModule),
 			new Translation2d(-Chassis.kOffsetToSwerveModule, +Chassis.kOffsetToSwerveModule),
-			new Translation2d(-Chassis.kOffsetToSwerveModule, -Chassis.kOffsetToSwerveModule),
-			new Translation2d(+Chassis.kOffsetToSwerveModule, -Chassis.kOffsetToSwerveModule));
+			new Translation2d(-Chassis.kOffsetToSwerveModule, -Chassis.kOffsetToSwerveModule));
 
 	public SwerveModule[] swerveModules;
 	public SwerveDriveOdometry odometry;
@@ -60,7 +63,6 @@ public class SwerveDrive extends SubsystemBase {
 			Constants.kHeadingPassiveD);
 	private PIDController headingAggressive = new PIDController(Constants.kHeadingAggressiveP,
 			Constants.kHeadingAggressiveI, Constants.kHeadingAggressiveD);
-	private Translation2d initialPoseFromPathPlanner = new Translation2d();
 
 	public SwerveDrive(Pigeon2 pigeon) {
 		this.timer = new Timer();
@@ -199,18 +201,13 @@ public class SwerveDrive extends SubsystemBase {
 	}
 
 	public ChassisSpeeds getChassisSpeeds() {
-		ChassisSpeeds ourSpeeds = kinematics.toChassisSpeeds(getModuleStates());
-		// ChassisSpeeds flippedForPP = new ChassisSpeeds(ourSpeeds.vyMetersPerSecond,
-		// -ourSpeeds.vxMetersPerSecond, ourSpeeds.omegaRadiansPerSecond);
-		return ourSpeeds;
+		return kinematics.toChassisSpeeds(getModuleStates());
 	}
 
 	// Used strictly for PathPlanner in autonomous
 	public void setChassisSpeeds(ChassisSpeeds robotRelativeSpeeds) {
 		ChassisSpeeds targetSpeeds = ChassisSpeeds.discretize(robotRelativeSpeeds, 0.02);
-		ChassisSpeeds flippedSpeeds = new ChassisSpeeds(-targetSpeeds.vyMetersPerSecond, targetSpeeds.vxMetersPerSecond,
-				targetSpeeds.omegaRadiansPerSecond);
-		SwerveModuleState[] targetStates = kinematics.toSwerveModuleStates(flippedSpeeds);
+		SwerveModuleState[] targetStates = kinematics.toSwerveModuleStates(targetSpeeds);
 		SwerveDriveKinematics.desaturateWheelSpeeds(targetStates, Constants.kMaxSpeed);
 
 		for (SwerveModule mod : swerveModules) {
@@ -219,18 +216,10 @@ public class SwerveDrive extends SubsystemBase {
 	}
 
 	public Pose2d getRawOdometeryPose() {
-		Pose2d rawPose = odometry.getPoseMeters();
-		/*-
-		Pose2d flippedForPP = new Pose2d(rawPose.getY(), -rawPose.getX(), rawPose.getRotation());
-		Translation2d flippedAndMoved = flippedForPP.getTranslation().plus(initialPoseFromPathPlanner);
-		return new Pose2d(flippedAndMoved, rawPose.getRotation());
-		*/
-		return rawPose;
+		return odometry.getPoseMeters();
 	}
 
 	public void resetOdometry(Pose2d pose) {
-		// initialPoseFromPathPlanner = pose.getTranslation();
-		// Pose2d flipped = new Pose2d(-pose.getY(), pose.getX(), pose.getRotation());
 		odometry.resetPosition(getYaw(), getModulePositions(), pose);
 	}
 
