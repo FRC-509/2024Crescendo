@@ -2,11 +2,13 @@ package com.redstorm509.alice2024;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.I2C;
 
+import com.redstorm509.alice2024.autonomous.TwoNote;
 import com.redstorm509.alice2024.commands.*;
 import com.redstorm509.alice2024.subsystems.*;
 import com.redstorm509.alice2024.subsystems.drive.*;
@@ -61,7 +63,7 @@ public class RobotContainer {
 		// Defaults to field-oriented drive unless the left button on the left stick is
 		// held down.
 
-		swerve.setDefaultCommand(new DriveCommand(
+		swerve.setDefaultCommand(new DefaultDriveCommand(
 				swerve,
 				() -> MathUtil.applyDeadband(driverLeft.getX(), Constants.kStickDeadband),
 				() -> MathUtil.applyDeadband(-driverLeft.getY(), Constants.kStickDeadband),
@@ -75,9 +77,9 @@ public class RobotContainer {
 
 		operator.isDownBind(LogiButton.RBTrigger, new ShootNote(shooter, Constants.kFalconFreeSpeedRPS));
 		operator.isDownBind(LogiButton.LBTrigger, Commands.startEnd(
-				() -> shooter.rawIndexer(-Constants.Shooter.kIndexerSpinSpeed),
+				() -> shooter.rawIndexer(Constants.Shooter.kIndexerSpinSpeed),
 				() -> shooter.rawIndexer(0), shooter));
-		shooter.setDefaultCommand(new PivotShooter(shooter,
+		shooter.setDefaultCommand(new DefaultPivotShooter(shooter,
 				() -> MathUtil.applyDeadband(-operator.getLeftStickY(), Constants.kStickDeadband) / 5));
 
 		// driverLeft.isPressedBind(StickButton.Left, new AutoPickupExperimental(
@@ -95,7 +97,7 @@ public class RobotContainer {
 					shooter.setPivotDegrees(3);
 					intake.intake(true);
 					// Goes INNNNNN
-					shooter.rawIndexer(Constants.Shooter.kIndexerSpinSpeed);
+					shooter.rawIndexer(-Constants.Shooter.kIndexerSpinSpeed);
 				},
 				() -> {
 					intake.stop();
@@ -107,7 +109,7 @@ public class RobotContainer {
 				() -> {
 					intake.intake(false);
 					// Goes OUTTTTTT
-					shooter.rawIndexer(-Constants.Shooter.kIndexerSpinSpeed);
+					shooter.rawIndexer(Constants.Shooter.kIndexerSpinSpeed);
 				},
 				() -> {
 					intake.stop();
@@ -122,7 +124,9 @@ public class RobotContainer {
 				shooterCamera,
 				8));
 
-		chooser = AutoBuilder.buildAutoChooser();
+		chooser = new SendableChooser<Command>();
+		chooser.addOption("Ahh", new TwoNote(swerve, shooter, intake));
+		chooser.addOption("Null", new InstantCommand());
 		SmartDashboard.putData("Auto Mode", chooser);
 	}
 

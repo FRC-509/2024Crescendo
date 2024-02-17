@@ -21,7 +21,7 @@ public class ShootNote extends Command {
 	public void initialize() {
 		hasReachedVel = false;
 		shooter.rawIndexer(0);
-		shooter.setShooterOutput(speedRps / Constants.kFalconFreeSpeedRPS);
+		shooter.setShooterOutput(-speedRps / Constants.kFalconFreeSpeedRPS);
 	}
 
 	@Override
@@ -30,7 +30,7 @@ public class ShootNote extends Command {
 			hasReachedVel = true;
 		}
 		if (hasReachedVel) {
-			shooter.rawIndexer(Constants.Shooter.kIndexerSpinSpeed);
+			shooter.rawIndexer(-Constants.Shooter.kIndexerSpinSpeed);
 		}
 	}
 

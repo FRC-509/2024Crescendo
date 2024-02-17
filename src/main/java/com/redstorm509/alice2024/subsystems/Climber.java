@@ -10,8 +10,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Climber extends SubsystemBase {
 	// definitely not working
 
-	private TalonFX leftClimbMotor = new TalonFX(0); // ID This
-	private TalonFX rightClimbMotor = new TalonFX(0); // ID This
+	private TalonFX leftClimbMotor = new TalonFX(17); // ID This
+	private TalonFX rightClimbMotor = new TalonFX(18); // ID This
 
 	private VoltageOut openLoopVoltage = new VoltageOut(0);
 

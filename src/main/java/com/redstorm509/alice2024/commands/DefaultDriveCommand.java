@@ -9,14 +9,14 @@ import java.util.function.DoubleSupplier;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 
-public class DriveCommand extends Command {
+public class DefaultDriveCommand extends Command {
 	private final SwerveDrive swerve;
 	private final DoubleSupplier translationXSupplier;
 	private final DoubleSupplier translationYSupplier;
 	private final DoubleSupplier rotationSupplier;
 	private final BooleanSupplier fieldRelativeSupplier;
 
-	public DriveCommand(SwerveDrive swerve, DoubleSupplier xSupplier, DoubleSupplier ySupplier,
+	public DefaultDriveCommand(SwerveDrive swerve, DoubleSupplier xSupplier, DoubleSupplier ySupplier,
 			DoubleSupplier omegaSupplier, BooleanSupplier fieldRelativeSupplier) {
 		this.swerve = swerve;
 		this.translationXSupplier = xSupplier;

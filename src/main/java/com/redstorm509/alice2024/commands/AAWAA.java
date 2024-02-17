@@ -80,11 +80,7 @@ public class AAWAA extends Command {
 						- Constants.Shooter.kPivotToShootAngleOffset;
 
 				// setPivotDegrees() not working so really bad solution for now (fightin issues)
-				if ((shooter.getPivotDegrees() < targetAngle)
-						|| !(shooter.getPivotDegrees() > targetAngle)) {
-					shooter.setPivotOutput((targetAngle / Constants.Shooter.kMaxPivotSpeed) * 2);
-				}
-				// shooter.setPivotDegrees(MathUtil.clamp(targetAngle, 0.0, 130.0));
+				shooter.setPivotDegrees(MathUtil.clamp(targetAngle, 0.0, 130.0));
 
 				SmartDashboard.putNumber("CurrentArmPivot", shooter.getPivotDegrees());
 				SmartDashboard.putNumber("Pivot Target Angle", targetAngle);

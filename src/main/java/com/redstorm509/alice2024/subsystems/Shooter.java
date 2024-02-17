@@ -44,14 +44,16 @@ public class Shooter extends SubsystemBase {
 		ShootingNote,
 	}
 
+	private static final double kAbsOffsetOffset = 50.0;
+
 	private boolean hasNote = false;
 
 	private TalonFX shooterLeader = new TalonFX(15); // Labelled SHOOTERL
 	private TalonFX shooterFollower = new TalonFX(16); // Labelled SHOOTERR
 
 	private CANSparkMax indexer = new CANSparkMax(12, MotorType.kBrushed);
-	private VL53L4CD initialToF;
-	private VL53L4CD secondaryToF;
+	// private VL53L4CD initialToF;
+	// private VL53L4CD secondaryToF;
 	private boolean firstInstantToF = false;
 	private boolean secondaryInstantToF = false;
 
@@ -60,7 +62,7 @@ public class Shooter extends SubsystemBase {
 	private TalonFX pivotLeader = new TalonFX(13); // Labelled PIVOTL
 	private TalonFX pivotFollower = new TalonFX(14); // Labelled PIVOTR
 	private CANcoder pivotEncoder = new CANcoder(17);
-	private DigitalInput limitSwitch = new DigitalInput(9);
+	private DigitalInput limitSwitch = new DigitalInput(0);
 
 	private VoltageOut openLoop = new VoltageOut(0).withEnableFOC(false);
 	private VelocityVoltage closedLoopVelocity = new VelocityVoltage(0).withEnableFOC(false);
@@ -93,13 +95,13 @@ public class Shooter extends SubsystemBase {
 		pivotConf.Slot0.kP = Constants.Shooter.kPivotP;
 		pivotConf.Slot0.kI = Constants.Shooter.kPivotI;
 		pivotConf.Slot0.kD = Constants.Shooter.kPivotD;
-		pivotConf.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+		pivotConf.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
 		pivotLeader.getConfigurator().apply(pivotConf);
 		pivotFollower.getConfigurator().apply(pivotConf);
 
 		CANcoderConfiguration pivotEncoderConf = new CANcoderConfiguration();
-		pivotEncoderConf.MagnetSensor.MagnetOffset = Constants.Shooter.kPivotMagnetOffset / 360.0;
+		pivotEncoderConf.MagnetSensor.MagnetOffset = (Constants.Shooter.kPivotMagnetOffset + kAbsOffsetOffset) / 360.0;
 		pivotEncoderConf.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
 		pivotEncoderConf.MagnetSensor.AbsoluteSensorRange = AbsoluteSensorRangeValue.Unsigned_0To1;
 		pivotEncoder.getConfigurator().apply(pivotEncoderConf);
@@ -107,27 +109,42 @@ public class Shooter extends SubsystemBase {
 		pivotFollower.setControl(new Follower(pivotLeader.getDeviceID(), true));
 		shooterFollower.setControl(new Follower(shooterLeader.getDeviceID(), true));
 
-		// double absPosition = Conversions.degreesToFalcon(
-		// pivotEncoder.getPosition().waitForUpdate(1).getValueAsDouble() * 360.0,
-		// Constants.Shooter.kPivotGearRatio);
-		// pivotLeader.setPosition(absPosition);
-		// pivotFollower.setPosition(absPosition);
-		pivotLeader.setPosition(0);
-		pivotFollower.setPosition(0);
-		pivotEncoder.setPosition(0);
+		resetIntegratedToAbsolute(true);
+		/*
+		 * pivotLeader.setPosition(0);
+		 * pivotFollower.setPosition(0);
+		 * pivotEncoder.setPosition(0);
+		 */
 		pivotTarget = new PositionTarget(0, Constants.Shooter.kMinPivot, Constants.Shooter.kMaxPivot,
 				Constants.Shooter.kMaxPivotSpeed);
 
 		// Initialize the sensors one at a time to ensure that they both get unique
 		// device addresses.
-		DigitalOutput initialTofXSHUT = new DigitalOutput(7);
-		DigitalOutput secondaryTofXSHUT = new DigitalOutput(8);
-		secondaryTofXSHUT.set(false);
-		initialTofXSHUT.set(false);
-		initialToF = new VL53L4CD(I2C.Port.kMXP);
+		// DigitalOutput initialTofXSHUT = new DigitalOutput(7);
+		// DigitalOutput secondaryTofXSHUT = new DigitalOutput(8);
+		// secondaryTofXSHUT.set(false);
+		// initialTofXSHUT.set(false);
+		// initialToF = new VL53L4CD(I2C.Port.kMXP);
 		// initialToF.changeDeviceAddress((byte) 0x30);
 		// secondaryToF = new VL53L4CD(I2C.Port.kMXP);
 		// secondaryToF.changeDeviceAddress((byte) 0x31);
+		// initialTof.init();
+	}
+
+	public void resetIntegratedToAbsolute(boolean waitForUpdate) {
+		if (waitForUpdate) {
+			double absPosition = Conversions.degreesToFalcon(
+					pivotEncoder.getAbsolutePosition().waitForUpdate(1).getValueAsDouble() * 360.0 - kAbsOffsetOffset,
+					Constants.Shooter.kPivotGearRatio);
+			pivotLeader.setPosition(absPosition);
+			pivotFollower.setPosition(absPosition);
+		} else {
+			double absPosition = Conversions.degreesToFalcon(
+					pivotEncoder.getAbsolutePosition().getValueAsDouble() * 360.0 - kAbsOffsetOffset,
+					Constants.Shooter.kPivotGearRatio);
+			pivotLeader.setPosition(absPosition);
+			pivotFollower.setPosition(absPosition);
+		}
 	}
 
 	public void rawIndexer(double speed) {
@@ -152,7 +169,7 @@ public class Shooter extends SubsystemBase {
 	}
 
 	public double getPivotDegrees() {
-		return pivotEncoder.getPosition().getValue() * 360.0;
+		return pivotEncoder.getAbsolutePosition().getValue() * 360.0 - kAbsOffsetOffset;
 	}
 
 	public void setPivotDegrees(double targetDegrees) {
@@ -176,22 +193,28 @@ public class Shooter extends SubsystemBase {
 		double previous = pivotTarget.getTarget();
 		pivotTarget.update(percentOutput);
 
-		/*-
-		This is where we will add softstops
-		if (percentOutput < 0.0d && !isValidState(pivotTarget.getTarget(), getArmLength())) {
-			pivotTarget.setTarget(previous);
-		}*/
+		if (percentOutput < 0.0d && getPivotDegrees() < 3.0d) {
+			if (!limitSwitch.get()) {
+				pivotLeader.setControl(openLoop.withOutput(percentOutput * 12.0));
+			}
+		} else {
+			/*-
+			This is where we will add softstops
+			if (percentOutput < 0.0d && !isValidState(pivotTarget.getTarget(), getArmLength())) {
+				pivotTarget.setTarget(previous);
+			}*/
 
-		double delta = (pivotTarget.getTarget() - getPivotDegrees()) % 360;
-		if (delta > 180.0d) {
-			delta -= 360.0d;
-		} else if (delta < -180.0d) {
-			delta += 360.0d;
+			double delta = (pivotTarget.getTarget() - getPivotDegrees()) % 360;
+			if (delta > 180.0d) {
+				delta -= 360.0d;
+			} else if (delta < -180.0d) {
+				delta += 360.0d;
+			}
+
+			double target = getPivotDegrees() + delta;
+
+			setPivotDegrees(target);
 		}
-
-		double target = getPivotDegrees() + delta;
-
-		setPivotDegrees(target);
 	}
 
 	public boolean indexerIsIntaking() { // rename
@@ -249,7 +272,10 @@ public class Shooter extends SubsystemBase {
 			hasNote = false;
 		}
 		 */
-
+		if (limitSwitch.get()) {
+			// pivotEncoder.setPosition(kAbsOffsetOffset);
+			// resetIntegratedToAbsolute(false);
+		}
 		// SmartDashboard.putNumber("i2c one",
 		// initialToF.measure().distanceMillimeters);
 		// SmartDashboard.putNumber("i2c two",
@@ -259,6 +285,7 @@ public class Shooter extends SubsystemBase {
 				Conversions.falconToDegrees(pivotLeader.getPosition().getValue(), Constants.Shooter.kPivotGearRatio));
 		SmartDashboard.putNumber("PivotIntegrated2",
 				Conversions.falconToDegrees(pivotFollower.getPosition().getValue(), Constants.Shooter.kPivotGearRatio));
-		SmartDashboard.putNumber("PivotAbsolute", pivotEncoder.getPosition().getValue() * 360.0);
+		SmartDashboard.putNumber("PivotAbsolute",
+				pivotEncoder.getAbsolutePosition().getValue() * 360.0 - kAbsOffsetOffset);
 	}
 }
