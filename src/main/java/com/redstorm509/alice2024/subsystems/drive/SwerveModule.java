@@ -39,7 +39,7 @@ public class SwerveModule {
 
 		// Angle Encoder Config
 		CANcoderConfiguration canCoderConfiguration = new CANcoderConfiguration();
-		canCoderConfiguration.MagnetSensor.MagnetOffset = (configs.steerEncoderOffset() + 90) / 360.0d;
+		canCoderConfiguration.MagnetSensor.MagnetOffset = configs.steerEncoderOffset() / 360.0d;
 		this.steerEncoder = new CANcoder(configs.steerEncoderId(), Constants.kCANIvore);
 		this.steerEncoder.getConfigurator().apply(canCoderConfiguration);
 
