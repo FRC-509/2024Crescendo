@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.I2C;
 
-import com.redstorm509.alice2024.autonomous.TwoNote;
+import com.redstorm509.alice2024.autonomous.ThreeNote;
 import com.redstorm509.alice2024.commands.*;
 import com.redstorm509.alice2024.subsystems.*;
 import com.redstorm509.alice2024.subsystems.drive.*;
@@ -137,7 +137,7 @@ public class RobotContainer {
 				8));
 
 		chooser = new SendableChooser<Command>();
-		chooser.addOption("Two Note", new TwoNote(swerve, shooter, intake));
+		chooser.addOption("Two Note", new ThreeNote(swerve, shooter, intake));
 		chooser.addOption("One Note and Taxi",
 				new SequentialCommandGroup(
 						new ShootNote(shooter, 0.5 * Constants.kFalconFreeSpeedRPS, true, () -> false),

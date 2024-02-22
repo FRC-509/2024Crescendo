@@ -20,32 +20,26 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
-public class TwoNote extends SequentialCommandGroup {
-	private static Command resetOdometryCmd(SwerveDrive swerve, Pose2d pose) {
-		return Commands.runOnce(
-				() -> {
-					boolean flip = false;
-					Optional<Alliance> alliance = DriverStation.getAlliance();
-					if (alliance.isPresent()) {
-						flip = alliance.get() == DriverStation.Alliance.Red;
-					}
-					if (flip) {
-						swerve.resetOdometry(GeometryUtil.flipFieldPose(pose));
-					} else {
-						swerve.resetOdometry(pose);
-					}
-				}, swerve);
-	}
+public class ThreeNote extends SequentialCommandGroup {
 
-	public TwoNote(SwerveDrive swerve, Shooter shooter, Intake intake) {
-		Pose2d startPose = new Pose2d(1.24, 5.56, Rotation2d.fromDegrees(0));
+	public ThreeNote(SwerveDrive swerve, Shooter shooter, Intake intake) {
+		Pose2d startPose = new Pose2d(0.63, 6.62, Rotation2d.fromDegrees(59.47));
 		Command paths = Commands.sequence(
-				resetOdometryCmd(swerve, startPose),
-				AutoBuilder.followPath(PathPlannerPath.fromPathFile("DriveToNoteShort")),
-				AutoBuilder.followPath(PathPlannerPath.fromPathFile("DriveToNoteShortRev")),
+				SwerveDrive.resetOdometryCmd(swerve, startPose),
+				AutoBuilder.followPath(PathPlannerPath.fromPathFile("DriveToNote")),
+				AutoBuilder.followPath(PathPlannerPath.fromPathFile("DriveToNoteRev"),
+				AutoBuilder.followPath(PathPlannerPath.fromPathFile("DriveToSecondNote"),
+				AutoBuilder.followPath(PathPlannerPath.fromPathFile("DriveToSecondNoteRev")
+				),
 				Commands.runOnce(() -> swerve.stopModules(), swerve));
 		// addCommands(paths);
+		addCommands(SwerveDrive.resetOdometryCmd(swerve, startPose),
+			new ShootNote(shooter, 100, true, () -> false).withTimeout(1),
+			Commands.runOnce(() -> intake.intake(true), intake),
+			new IntakeNote(intake, shooter).withTimeout(1.5),
+			AutoBuilder.followPath(PathPlannerPath.fromPathFile("DriveToNote"))),
 
+			);
 		addCommands(
 				new SequentialCommandGroup(
 						new SetPivot(shooter, 2.0),

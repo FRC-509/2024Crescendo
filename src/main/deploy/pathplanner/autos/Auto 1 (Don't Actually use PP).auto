@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.36,
-      "y": 6.31
+      "x": 0.63,
+      "y": 6.62
     },
-    "rotation": 0
+    "rotation": 59.47
   },
   "command": {
     "type": "sequential",
@@ -27,6 +27,18 @@
           "type": "path",
           "data": {
             "pathName": "DriveToNoteRev"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "DriveToSecondNote"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "DriveToSecondNoteRev"
           }
         }
       ]
