@@ -2,6 +2,7 @@ package com.redstorm509.alice2024.commands;
 
 import com.redstorm509.alice2024.subsystems.Intake;
 import com.redstorm509.alice2024.subsystems.Shooter;
+import com.redstorm509.alice2024.subsystems.Shooter.IndexerState;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -18,12 +19,12 @@ public class IntakeNote extends Command {
 
 	@Override
 	public void execute() {
-		if (shooter.indexerHasNote()) {
+		// DO ALL LOGIC FOR NOTE HERE
+		if (shooter.indexingNoteState() == IndexerState.HasNote) {
 			end(true);
 		}
 
 		intake.intake(true);
-
 	}
 
 	@Override
