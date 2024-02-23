@@ -9,20 +9,35 @@ import java.util.function.DoubleSupplier;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 
-public class DriveCommand extends Command {
+public class DefaultDriveCommand extends Command {
 	private final SwerveDrive swerve;
+	// How much the robot should move FORWARD (towards the OPPOSING ALLIANCE WALL if
+	// field-relative)
 	private final DoubleSupplier translationXSupplier;
+	// How much the robot should move to the LEFT
 	private final DoubleSupplier translationYSupplier;
+	// How much the robot should rotate COUNTER-CLOCKWISE
 	private final DoubleSupplier rotationSupplier;
 	private final BooleanSupplier fieldRelativeSupplier;
 
-	public DriveCommand(SwerveDrive swerve, DoubleSupplier xSupplier, DoubleSupplier ySupplier,
+	public DefaultDriveCommand(SwerveDrive swerve, DoubleSupplier xSupplier, DoubleSupplier ySupplier,
 			DoubleSupplier omegaSupplier, BooleanSupplier fieldRelativeSupplier) {
 		this.swerve = swerve;
 		this.translationXSupplier = xSupplier;
 		this.translationYSupplier = ySupplier;
 		this.rotationSupplier = omegaSupplier;
 		this.fieldRelativeSupplier = fieldRelativeSupplier;
+
+		addRequirements(swerve);
+	}
+
+	public DefaultDriveCommand(SwerveDrive swerve, double xSpeed, double ySpeed,
+			double omegaSpeed, boolean fieldRelative) {
+		this.swerve = swerve;
+		this.translationXSupplier = () -> xSpeed;
+		this.translationYSupplier = () -> ySpeed;
+		this.rotationSupplier = () -> omegaSpeed;
+		this.fieldRelativeSupplier = () -> fieldRelative;
 
 		addRequirements(swerve);
 	}

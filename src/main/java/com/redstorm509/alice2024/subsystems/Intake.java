@@ -16,26 +16,29 @@ public class Intake extends SubsystemBase {
 	private final CANSparkMax intermediateStage = new CANSparkMax(16, MotorType.kBrushless);
 	private VoltageOut openLoopVoltage = new VoltageOut(0);
 	private double preCompressorSpeed = 0.0d;
+	private double intermediateStageSpeed = 0.0d;
 
 	public Intake() {
 		TalonFXConfiguration conf = new TalonFXConfiguration();
-		conf.CurrentLimits.StatorCurrentLimitEnable = true;
-		conf.CurrentLimits.StatorCurrentLimit = 35.0;
+		conf.CurrentLimits.SupplyCurrentLimitEnable = true;
+		conf.CurrentLimits.SupplyCurrentLimit = 35.0;
+
 		intakeMotor.getConfigurator().apply(conf);
 
-		preCompressorMotors.setSmartCurrentLimit(18);
+		preCompressorMotors.setSmartCurrentLimit(15);
 		preCompressorMotors.setIdleMode(IdleMode.kCoast);
 		preCompressorMotors.burnFlash();
 
-		// intermediateStage.setSmartCurrentLimit(17);
-		// intermediateStage.setIdleMode(IdleMode.kCoast);
-		// intermediateStage.burnFlash();
+		intermediateStage.setSmartCurrentLimit(15);
+		intermediateStage.setIdleMode(IdleMode.kCoast);
+		intermediateStage.burnFlash();
 	}
 
 	@Override
 	public void periodic() {
 		intakeMotor.setControl(openLoopVoltage);
 		preCompressorMotors.set(preCompressorSpeed);
+		intermediateStage.set(intermediateStageSpeed);
 	}
 
 	@Override
@@ -46,14 +49,19 @@ public class Intake extends SubsystemBase {
 	public void intake(boolean inwards) {
 		if (inwards) {
 			openLoopVoltage.Output = (-Constants.Intake.kIntakeSpinSpeed * 12);
+			preCompressorSpeed = Constants.Intake.kPreCompressorSpinSpeed;
+			intermediateStageSpeed = -Constants.Intake.kIntermediateStageSpinSpeed;
 		} else {
 			openLoopVoltage.Output = (Constants.Intake.kIntakeSpinSpeed * 12);
+			preCompressorSpeed = -Constants.Intake.kPreCompressorSpinSpeed;
+			intermediateStageSpeed = Constants.Intake.kIntermediateStageSpinSpeed;
 		}
-		preCompressorSpeed = Constants.PreCompressor.kPreCompressorSpinSpeed;
+
 	}
 
 	public void stop() {
 		openLoopVoltage.Output = 0;
 		preCompressorSpeed = 0.0d;
+		intermediateStageSpeed = 0.0d;
 	}
 }

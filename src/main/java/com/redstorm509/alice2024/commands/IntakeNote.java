@@ -2,27 +2,29 @@ package com.redstorm509.alice2024.commands;
 
 import com.redstorm509.alice2024.subsystems.Intake;
 import com.redstorm509.alice2024.subsystems.Shooter;
+import com.redstorm509.alice2024.subsystems.Shooter.IndexerState;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class IntakeNote extends Command {
-	private final Intake m_Intake;
+	private final Intake intake;
 	private final Shooter shooter;
 
 	public IntakeNote(Intake intake, Shooter shooter) {
-		m_Intake = intake;
+		this.intake = intake;
 		this.shooter = shooter;
 
-		addRequirements(m_Intake);
+		addRequirements(intake);
 	}
 
 	@Override
 	public void execute() {
-		if (shooter.hasIntaken()) {
+		// DO ALL LOGIC FOR NOTE HERE
+		if (shooter.indexingNoteState() == IndexerState.HasNote) {
 			end(true);
 		}
 
-		m_Intake.intake(true);
+		intake.intake(true);
 	}
 
 	@Override
@@ -32,6 +34,6 @@ public class IntakeNote extends Command {
 
 	@Override
 	public void end(boolean wasInterrupted) {
-		m_Intake.stop();
+		intake.stop();
 	}
 }

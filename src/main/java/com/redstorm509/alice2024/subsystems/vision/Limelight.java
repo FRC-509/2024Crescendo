@@ -27,12 +27,8 @@ public class Limelight {
 
 	private String name;
 
-	public Limelight(String limelightName, Pose3d cameraPoseInRobotSpace) {
+	public Limelight(String limelightName) {
 		name = limelightName;
-		Translation3d trans = cameraPoseInRobotSpace.getTranslation();
-		Rotation3d rot = cameraPoseInRobotSpace.getRotation();
-		setCameraPose_RobotSpace(trans.getX(), trans.getY(), trans.getZ(),
-				rot.getX(), rot.getY(), rot.getZ());
 	}
 
 	public class LimelightTarget_Retro {

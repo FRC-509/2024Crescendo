@@ -16,6 +16,8 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.redstorm509.alice2024.Constants;
 import com.redstorm509.alice2024.Constants.Chassis;
@@ -24,6 +26,7 @@ import java.util.Optional;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.util.GeometryUtil;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.PathPlannerLogging;
@@ -34,16 +37,19 @@ public class SwerveDrive extends SubsystemBase {
 
 	/*
 	 * The order of each vector corresponds to the index of the swerve module inside
-	 * the swerveModules array.
-	 * 
-	 * module 1 (-, +) |--f--| module 0 (+, +)
-	 * module 2 (-, -) |--b--| module 3 (+, -)
+	 * the swerveModules array. Everything looks weird because WPILib does
+	 * everything like this:
+	 * ^
+	 * | X+
+	 * ----> Y-
+	 * module 1 (+, +) |--f--| module 0 (+, -)
+	 * module 2 (-, +) |--b--| module 3 (-, -)
 	 */
 	private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
+			new Translation2d(+Chassis.kOffsetToSwerveModule, -Chassis.kOffsetToSwerveModule),
 			new Translation2d(+Chassis.kOffsetToSwerveModule, +Chassis.kOffsetToSwerveModule),
 			new Translation2d(-Chassis.kOffsetToSwerveModule, +Chassis.kOffsetToSwerveModule),
-			new Translation2d(-Chassis.kOffsetToSwerveModule, -Chassis.kOffsetToSwerveModule),
-			new Translation2d(+Chassis.kOffsetToSwerveModule, -Chassis.kOffsetToSwerveModule));
+			new Translation2d(-Chassis.kOffsetToSwerveModule, -Chassis.kOffsetToSwerveModule));
 
 	public SwerveModule[] swerveModules;
 	public SwerveDriveOdometry odometry;
@@ -83,8 +89,8 @@ public class SwerveDrive extends SubsystemBase {
 		odometry = new SwerveDriveOdometry(kinematics, getYaw(), getModulePositions());
 
 		HolonomicPathFollowerConfig pathFollowerConfig = new HolonomicPathFollowerConfig(
-				new PIDConstants(5.0, 0, 0), // Translation constants
-				new PIDConstants(5.0, 0, 0), // Rotation constants
+				new PIDConstants(0.0, 0, 0), // Translation constants
+				new PIDConstants(0.0, 0, 0), // Rotation constants
 				Constants.kMaxSpeed,
 				Constants.Chassis.kOffsetToSwerveModule * Math.sqrt(2),
 				new ReplanningConfig(false, false));
@@ -210,6 +216,22 @@ public class SwerveDrive extends SubsystemBase {
 		for (SwerveModule mod : swerveModules) {
 			mod.setDesiredState(targetStates[mod.moduleNumber], true);
 		}
+	}
+
+	public static Command resetOdometryCmd(SwerveDrive swerve, Pose2d pose) {
+		return Commands.runOnce(
+				() -> {
+					boolean flip = false;
+					Optional<Alliance> alliance = DriverStation.getAlliance();
+					if (alliance.isPresent()) {
+						flip = alliance.get() == DriverStation.Alliance.Red;
+					}
+					if (flip) {
+						swerve.resetOdometry(GeometryUtil.flipFieldPose(pose));
+					} else {
+						swerve.resetOdometry(pose);
+					}
+				}, swerve);
 	}
 
 	public Pose2d getRawOdometeryPose() {
