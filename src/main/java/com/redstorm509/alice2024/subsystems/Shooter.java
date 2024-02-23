@@ -52,9 +52,9 @@ public class Shooter extends SubsystemBase {
 	private TalonFX shooterFollower = new TalonFX(16); // Labelled SHOOTERR
 
 	private CANSparkMax indexer = new CANSparkMax(12, MotorType.kBrushed);
-	private DigitalInput shooterBB = new DigitalInput(0); // CHANGE TO REAL PORTS
-	private DigitalInput indexerBB = new DigitalInput(0);
-	private DigitalInput imStageBB = new DigitalInput(0);
+	private DigitalInput shooterBB = new DigitalInput(1); // CHANGE TO REAL PORTS
+	private DigitalInput indexerBB = new DigitalInput(2);
+	private DigitalInput imStageBB = new DigitalInput(3);
 
 	private IndexerState currentState = IndexerState.Noteless;
 
@@ -118,10 +118,6 @@ public class Shooter extends SubsystemBase {
 		double angle = pivotEncoder.getPosition().getValueAsDouble() * 360.0d;
 		pivotTarget = new PositionTarget(angle, Constants.Shooter.kMinPivot, Constants.Shooter.kMaxPivot,
 				Constants.Shooter.kMaxPivotSpeed);
-
-		DigitalInput shooterBB = new DigitalInput(0);
-		DigitalInput indexerBB = new DigitalInput(0);
-		DigitalInput imStageBB = new DigitalInput(0);
 	}
 
 	public void resetIntegratedToAbsolute(boolean waitForUpdate) {

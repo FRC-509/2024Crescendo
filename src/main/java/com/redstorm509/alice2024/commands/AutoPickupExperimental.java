@@ -128,7 +128,7 @@ public class AutoPickupExperimental extends Command {
 			// ends if the stick crosses the center, ends command
 			return stickMagnitude < startingMagnitude / 2.5 || stickMagnitude < 0.1;
 		}
-		return shooter.indexerHasNote(); // add an || for if note sensors detect note in pipeline
+		return false; // add an || for if note sensors detect note in pipeline
 	}
 
 	@Override

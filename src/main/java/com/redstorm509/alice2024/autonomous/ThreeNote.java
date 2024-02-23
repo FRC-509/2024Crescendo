@@ -27,28 +27,10 @@ public class ThreeNote extends SequentialCommandGroup {
 		Command paths = Commands.sequence(
 				SwerveDrive.resetOdometryCmd(swerve, startPose),
 				AutoBuilder.followPath(PathPlannerPath.fromPathFile("DriveToNote")),
-				AutoBuilder.followPath(PathPlannerPath.fromPathFile("DriveToNoteRev"),
-				AutoBuilder.followPath(PathPlannerPath.fromPathFile("DriveToSecondNote"),
-				AutoBuilder.followPath(PathPlannerPath.fromPathFile("DriveToSecondNoteRev")
-				),
+				AutoBuilder.followPath(PathPlannerPath.fromPathFile("DriveToNoteRev")),
+				AutoBuilder.followPath(PathPlannerPath.fromPathFile("DriveToSecondNote")),
+				AutoBuilder.followPath(PathPlannerPath.fromPathFile("DriveToSecondNoteRev")),
 				Commands.runOnce(() -> swerve.stopModules(), swerve));
-		// addCommands(paths);
-		addCommands(SwerveDrive.resetOdometryCmd(swerve, startPose),
-			new ShootNote(shooter, 100, true, () -> false).withTimeout(1),
-			Commands.runOnce(() -> intake.intake(true), intake),
-			new IntakeNote(intake, shooter).withTimeout(1.5),
-			AutoBuilder.followPath(PathPlannerPath.fromPathFile("DriveToNote"))),
-
-			);
-		addCommands(
-				new SequentialCommandGroup(
-						new SetPivot(shooter, 2.0),
-						new ShootNote(shooter, 100.0, true, () -> false).withTimeout(2),
-						new SetPivot(shooter, 0),
-						new ParallelCommandGroup(
-								paths,
-								new IntakeNote(intake, shooter).withTimeout(4)),
-						new SetPivot(shooter, 2.0),
-						new ShootNote(shooter, 100.0, true, () -> false).withTimeout(2)));
+		addCommands(paths);
 	}
 }

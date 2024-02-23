@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -30,7 +31,7 @@ public class RobotContainer {
 
 	private ThrustmasterJoystick driverLeft = new ThrustmasterJoystick(0);
 	private ThrustmasterJoystick driverRight = new ThrustmasterJoystick(1);
-	private LogitechDualAction operator = new LogitechDualAction(2);
+	private CommandXboxController operator = new CommandXboxController(2);
 
 	private final SwerveDrive swerve;
 	private final Intake intake;
@@ -76,14 +77,14 @@ public class RobotContainer {
 			swerve.setTargetHeading(0);
 		}, swerve));
 
-		operator.isDownBind(LogiButton.RBTrigger, new ShootNote(shooter, 0.5 * Constants.kFalconFreeSpeedRPS, false,
+		operator.rightBumper().whileTrue(new ShootNote(shooter, 0.5 * Constants.kFalconFreeSpeedRPS, false,
 				() -> driverRight.isDown(StickButton.Right)));
-		operator.isDownBind(LogiButton.LBTrigger, Commands.startEnd(
+		operator.leftBumper().whileTrue(Commands.startEnd(
 				() -> shooter.rawIndexer(Constants.Shooter.kIndexerSpinSpeed),
 				() -> shooter.rawIndexer(0), shooter));
 		shooter.setDefaultCommand(new DefaultPivotShooter(shooter,
-				() -> MathUtil.applyDeadband(-operator.getLeftStickY(), Constants.kStickDeadband) / 5));
-		operator.isPressedBind(LogiButton.A, new SetPivot(shooter, 110));
+				() -> MathUtil.applyDeadband(-operator.getLeftY(), Constants.kStickDeadband) / 5));
+		operator.a().onTrue(new SetPivot(shooter, 110));
 		// driverLeft.isPressedBind(StickButton.Left, new AutoPickupExperimental(
 		// swerve,
 		// intakeCamera,
@@ -96,7 +97,7 @@ public class RobotContainer {
 
 		driverLeft.isDownBind(StickButton.Trigger, Commands.startEnd(
 				() -> {
-					shooter.setPivotDegrees(1);
+					// shooter.setPivotDegrees(1);
 					intake.intake(true);
 					// Goes INNNNNN
 					shooter.rawIndexer(-Constants.Shooter.kIndexerSpinSpeed);
@@ -122,6 +123,7 @@ public class RobotContainer {
 			shooter.rawIndexer(-Constants.Shooter.kIndexerSpinSpeed);
 		}, () -> {
 			shooter.rawIndexer(0);
+
 		}, shooter));
 		driverRight.isDownBind(StickButton.Left, Commands.startEnd(() -> {
 			shooter.rawIndexer(Constants.Shooter.kIndexerSpinSpeed);
