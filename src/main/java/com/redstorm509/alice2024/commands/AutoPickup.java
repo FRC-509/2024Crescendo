@@ -16,6 +16,7 @@ public class AutoPickup extends Command {
 	private Intake intake;
 	private boolean beganIntaking;
 
+	@Deprecated
 	public AutoPickup(SwerveDrive swerve, Limelight limelight, Intake intake) {
 		this.swerve = swerve;
 		this.limelight = limelight;

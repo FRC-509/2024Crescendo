@@ -22,8 +22,6 @@ public class AAWAA extends Command {
 	private DoubleSupplier translationYSupplier;
 	private DoubleSupplier rotationSupplier;
 	private Limelight limelight;
-	private double targetTagID;
-
 	private Translation2d targetPosition;
 	private boolean isTeleop;
 
@@ -43,7 +41,6 @@ public class AAWAA extends Command {
 		this.translationYSupplier = translationYSupplier;
 		this.rotationSupplier = rotationSupplier;
 		this.limelight = limelight;
-		this.targetTagID = targetTagID;
 		isTeleop = true;
 
 		addRequirements(swerve, shooter);
@@ -53,7 +50,7 @@ public class AAWAA extends Command {
 	public void initialize() {
 		limelight.setPipelineIndex(Constants.Vision.Pipeline.AprilTags);
 
-		limelight.setLEDMode_ForceOn();
+		limelight.setLEDMode_ForceBlink();
 
 		if (!limelight.getTV()) {
 			end(true);
@@ -66,10 +63,10 @@ public class AAWAA extends Command {
 			// TODO: Verify axis!
 			// rot = -Math.toRadians(limelight.getTX()) * 5;
 			rot = rotationSupplier.getAsDouble();
-			limelight.setLEDMode_ForceBlink();
+			limelight.setLEDMode_ForceOn();
 		} else {
 			rot = rotationSupplier.getAsDouble();
-			limelight.setLEDMode_ForceOn();
+			limelight.setLEDMode_ForceBlink();
 		}
 
 		if (isTeleop) {

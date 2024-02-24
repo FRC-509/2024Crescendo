@@ -1,5 +1,6 @@
 package com.redstorm509.alice2024.commands;
 
+import com.redstorm509.alice2024.Constants;
 import com.redstorm509.alice2024.subsystems.Intake;
 import com.redstorm509.alice2024.subsystems.Shooter;
 import com.redstorm509.alice2024.subsystems.Shooter.IndexerState;
@@ -19,12 +20,27 @@ public class IntakeNote extends Command {
 
 	@Override
 	public void execute() {
-		// DO ALL LOGIC FOR NOTE HERE
-		if (shooter.indexingNoteState() == IndexerState.HasNote) {
-			end(true);
-		}
+		IndexerState indexerState = shooter.indexingNoteState();
 
-		intake.intake(true);
+		// negative indexer is towards shooter
+		if (indexerState == IndexerState.HasNote) {
+			end(true);
+		} else if (indexerState == IndexerState.Noteless) {
+			shooter.rawIndexer(-Constants.Shooter.kIndexerSpinSpeed);
+			intake.intake(true);
+		} else if (indexerState == IndexerState.NoteTooShooter) {
+			shooter.rawIndexer(Constants.Shooter.kIndexerSpinSpeed * 0.5); // increase if needed
+			intake.stop();
+		} else if (indexerState == IndexerState.NoteTooShooterExtreme) {
+			shooter.rawIndexer(Constants.Shooter.kIndexerSpinSpeed);
+			intake.stop();
+		} else if (indexerState == IndexerState.NoteTooIntake) {
+			shooter.rawIndexer(-Constants.Shooter.kIndexerSpinSpeed * 0.5); // increase if needed
+			intake.stop();
+		} else if (indexerState == IndexerState.NoteTooIntakeExtreme) {
+			shooter.rawIndexer(-Constants.Shooter.kIndexerSpinSpeed);
+			intake.intake(true);
+		}
 	}
 
 	@Override
@@ -34,6 +50,7 @@ public class IntakeNote extends Command {
 
 	@Override
 	public void end(boolean wasInterrupted) {
+		shooter.rawIndexer(0.0);
 		intake.stop();
 	}
 }

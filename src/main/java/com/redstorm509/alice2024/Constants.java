@@ -73,27 +73,9 @@ public final class Constants {
 
 		public static final double kShoooterCameraAngleOffset = 20.0;
 		public static final double kShoooterCameraHeightFromGround = 0.38735;
-	}
 
-	public static class AprilTags {
-		// NOTE: all offsets are from the center of the april tag
-		public static class Amp {
-			public static final double BlueAllianceTagID = 6;
-			public static final double RedAllianceTagID = 5;
-		}
-
-		public static class Speaker {
-			public static final double BlueAllianceCenterTagID = 7;
-			public static final double BlueAllianceSideTagID = 8;
-			public static final double RedAllianceCenterTagID = 4;
-			public static final double RedAllianceSideTagID = 3;
-
-			public static final double kDistanceToSpeaker = 0.87; // meters
-			public static final double kHeightFromGround = 0.0; // Replace me if needed
-		}
-
-		public static class Trap {
-		}
+		public static final double kAlignmentTranslationTolerance = 0.0; // meters
+		public static final double kAlignmentRotationTolerance = 0.0; // degrees
 	}
 
 	public static class Climber {

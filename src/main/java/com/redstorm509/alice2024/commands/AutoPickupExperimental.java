@@ -4,6 +4,7 @@ import java.util.function.DoubleSupplier;
 import com.redstorm509.alice2024.Constants;
 import com.redstorm509.alice2024.subsystems.Intake;
 import com.redstorm509.alice2024.subsystems.Shooter;
+import com.redstorm509.alice2024.subsystems.Shooter.IndexerState;
 import com.redstorm509.alice2024.subsystems.drive.SwerveDrive;
 import com.redstorm509.alice2024.subsystems.vision.Limelight;
 
@@ -20,9 +21,7 @@ public class AutoPickupExperimental extends Command {
 	private boolean beganIntaking;
 	private DoubleSupplier xSupplier;
 	private DoubleSupplier ySupplier;
-	private double stickMagnitude;
-	private double startingMagnitude;
-	private boolean usesMagnitudeCondition;
+	private DoubleSupplier rotationSupplier;
 
 	public AutoPickupExperimental(
 			SwerveDrive swerve,
@@ -30,7 +29,8 @@ public class AutoPickupExperimental extends Command {
 			Intake intake,
 			Shooter shooter,
 			DoubleSupplier xSupplier,
-			DoubleSupplier ySupplier) {
+			DoubleSupplier ySupplier,
+			DoubleSupplier rotationSupplier) {
 		this.swerve = swerve;
 		this.limelight = limelight;
 		this.intake = intake;
@@ -38,65 +38,29 @@ public class AutoPickupExperimental extends Command {
 
 		this.xSupplier = xSupplier;
 		this.ySupplier = ySupplier;
-
-		usesMagnitudeCondition = true;
+		this.rotationSupplier = rotationSupplier;
 
 		addRequirements(swerve, intake);
 	}
 
-	public AutoPickupExperimental(
-			SwerveDrive swerve,
-			Limelight limelight,
-			Intake intake,
-			Shooter shooter) {
-		this.swerve = swerve;
-		this.limelight = limelight;
-		this.intake = intake;
-		this.shooter = shooter;
-
-		usesMagnitudeCondition = false;
-
-		addRequirements(swerve);
-	}
-
 	@Override
 	public void initialize() {
-		if (!limelight.getTV()) {
-			end(true);
-		}
 		beganIntaking = false;
 
-		// sets the starting magnitude to the
-		if (usesMagnitudeCondition) {
-			if (Math.abs(ySupplier.getAsDouble()) >= Math.abs(xSupplier.getAsDouble())) {
-				startingMagnitude = Math.abs(ySupplier.getAsDouble());
-			} else {
-				startingMagnitude = Math.abs(xSupplier.getAsDouble());
-			}
-		}
-
-		limelight.setLEDMode_ForceOn();
-
+		limelight.setLEDMode_ForceBlink();
 		limelight.setPipelineIndex(Constants.Vision.Pipeline.NeuralNetwork);
 	}
 
 	@Override
 	public void execute() {
-		// Checks if limelight has a target
-		if (!limelight.getTV()) {
-			limelight.setLEDMode_ForceBlink();
-			return;
-		} else {
+		if (!limelight.getTV() && !beganIntaking) {
 			limelight.setLEDMode_ForceOn();
-		}
-
-		// sets the Stick magnitude to the highest value
-		if (usesMagnitudeCondition) {
-			if (Math.abs(ySupplier.getAsDouble()) >= Math.abs(xSupplier.getAsDouble())) {
-				stickMagnitude = Math.abs(ySupplier.getAsDouble());
-			} else {
-				stickMagnitude = Math.abs(xSupplier.getAsDouble());
-			}
+			swerve.drive(new Translation2d(xSupplier.getAsDouble(), ySupplier.getAsDouble()).times(Constants.kMaxSpeed),
+					rotationSupplier.getAsDouble(),
+					true,
+					false);
+		} else {
+			limelight.setLEDMode_ForceBlink();
 		}
 
 		// Finds distance to target and how much to move
@@ -108,14 +72,36 @@ public class AutoPickupExperimental extends Command {
 			outputMove = Constants.kMaxSpeed;
 		}
 
-		swerve.drive(new Translation2d(0.0, // possibly change 0.0 to: -distanceToTarget * getTX() or scale somehow
-				outputMove),
-				Math.toRadians(distanceToTarget * limelight.getTX() * 1.5), // tune this
-				false, false);
+		if (limelight.getTV()) {
+			swerve.drive(new Translation2d(0.0, // possibly change 0.0 to: -distanceToTarget * getTX() or scale somehow
+					outputMove),
+					Math.toRadians(distanceToTarget * limelight.getTX() * 1.5), // tune this
+					false, false);
+		}
 
 		if (distanceToTarget < 2 || beganIntaking) {
 			beganIntaking = true;
-			intake.intake(true);
+
+			// has note logic using beam breaks
+			IndexerState indexerState = shooter.indexingNoteState();
+			if (indexerState == IndexerState.HasNote) {
+				end(true);
+			} else if (indexerState == IndexerState.Noteless) {
+				shooter.rawIndexer(-Constants.Shooter.kIndexerSpinSpeed);
+				intake.intake(true);
+			} else if (indexerState == IndexerState.NoteTooShooter) {
+				shooter.rawIndexer(Constants.Shooter.kIndexerSpinSpeed * 0.5); // increase if needed
+				intake.stop();
+			} else if (indexerState == IndexerState.NoteTooShooterExtreme) {
+				shooter.rawIndexer(Constants.Shooter.kIndexerSpinSpeed);
+				intake.stop();
+			} else if (indexerState == IndexerState.NoteTooIntake) {
+				shooter.rawIndexer(-Constants.Shooter.kIndexerSpinSpeed * 0.5); // increase if needed
+				intake.stop();
+			} else if (indexerState == IndexerState.NoteTooIntakeExtreme) {
+				shooter.rawIndexer(-Constants.Shooter.kIndexerSpinSpeed);
+				intake.intake(true);
+			}
 		}
 
 		SmartDashboard.putNumber("Angle To Target", angleToTarget);
@@ -124,10 +110,6 @@ public class AutoPickupExperimental extends Command {
 
 	@Override
 	public boolean isFinished() {
-		if (usesMagnitudeCondition) {
-			// ends if the stick crosses the center, ends command
-			return stickMagnitude < startingMagnitude / 2.5 || stickMagnitude < 0.1;
-		}
 		return false; // add an || for if note sensors detect note in pipeline
 	}
 
@@ -136,5 +118,6 @@ public class AutoPickupExperimental extends Command {
 		swerve.drive(new Translation2d(0, 0), 0, true, false);
 		limelight.setLEDMode_ForceOff();
 		intake.stop();
+		shooter.rawIndexer(0.0);
 	}
 }
