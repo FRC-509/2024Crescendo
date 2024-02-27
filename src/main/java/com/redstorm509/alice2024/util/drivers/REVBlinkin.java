@@ -1,4 +1,4 @@
-package com.redstorm509.alice2024.util.devices;
+package com.redstorm509.alice2024.util.drivers;
 
 import edu.wpi.first.wpilibj.PWM;
 

@@ -223,11 +223,15 @@ public class Shooter extends SubsystemBase {
 			// pivotEncoder.setPosition(kAbsOffsetOffset);
 			resetIntegratedToAbsolute(false);
 		}
-		SmartDashboard.putBoolean("LimitOfMyPatience", limitSwitch.get());
-		SmartDashboard.putNumber("PivotIntegrated",
+		SmartDashboard.putBoolean("PivotLimitSwitch", limitSwitch.get());
+		SmartDashboard.putNumber("PivotLIntegrated",
 				Conversions.falconToDegrees(pivotLeader.getPosition().getValue(), Constants.Shooter.kPivotGearRatio));
-		SmartDashboard.putNumber("PivotIntegrated2",
+		SmartDashboard.putNumber("PivotFIntegrated",
 				Conversions.falconToDegrees(pivotFollower.getPosition().getValue(), Constants.Shooter.kPivotGearRatio));
 		SmartDashboard.putNumber("PivotAbsolute", pivotEncoder.getPosition().getValue() * 360.0 - kAbsOffsetOffset);
+		SmartDashboard.putNumber("ShooterVelocity (r/s)", shooterLeader.getVelocity().getValue());
+		SmartDashboard.putNumber("ShooterVelocity (m/s)",
+				Constants.Shooter.kFlyWheelCircumference * shooterLeader.getVelocity().getValue());
+
 	}
 }

@@ -1,10 +1,14 @@
-package com.redstorm509.alice2024.util.devices;
+package com.redstorm509.alice2024.util.drivers;
 
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.Timer;
 
+/**
+ * A driver for the Adafruit VL53L4CD Time-of-Flight Distance Sensor, adapted
+ * from this Rust implementation: https://github.com/akeamc/vl53l4cd
+ */
 public class VL53L4CD {
 
 	public enum Register {
