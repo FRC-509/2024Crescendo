@@ -22,6 +22,7 @@ public class AutoPickupExperimental extends Command {
 	private DoubleSupplier xSupplier;
 	private DoubleSupplier ySupplier;
 	private DoubleSupplier rotationSupplier;
+	private boolean isFinished = false;
 
 	public AutoPickupExperimental(
 			SwerveDrive swerve,
@@ -40,12 +41,13 @@ public class AutoPickupExperimental extends Command {
 		this.ySupplier = ySupplier;
 		this.rotationSupplier = rotationSupplier;
 
-		addRequirements(swerve, intake);
+		addRequirements(swerve, intake, shooter);
 	}
 
 	@Override
 	public void initialize() {
 		beganIntaking = false;
+		isFinished = false;
 
 		limelight.setLEDMode_ForceBlink();
 		limelight.setPipelineIndex(Constants.Vision.Pipeline.NeuralNetwork);
@@ -85,7 +87,7 @@ public class AutoPickupExperimental extends Command {
 			// has note logic using beam breaks
 			IndexerState indexerState = shooter.indexingNoteState();
 			if (indexerState == IndexerState.HasNote) {
-				end(true);
+				isFinished = true;
 			} else if (indexerState == IndexerState.Noteless) {
 				shooter.rawIndexer(-Constants.Shooter.kIndexerSpinSpeed);
 				intake.intake(true);
@@ -110,7 +112,7 @@ public class AutoPickupExperimental extends Command {
 
 	@Override
 	public boolean isFinished() {
-		return false; // add an || for if note sensors detect note in pipeline
+		return isFinished;
 	}
 
 	@Override

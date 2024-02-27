@@ -22,6 +22,7 @@ public class AimForSpeaker extends Command {
 	private DoubleSupplier translationYSupplier;
 	private DoubleSupplier rotationSupplier;
 	private Limelight limelight;
+	private boolean shouldAbort;
 
 	public AimForSpeaker(
 			SwerveDrive swerve,
@@ -46,9 +47,7 @@ public class AimForSpeaker extends Command {
 
 		limelight.setLEDMode_ForceBlink();
 
-		if (!limelight.getTV()) {
-			end(true);
-		}
+		shouldAbort = !limelight.getTV();
 	}
 
 	@Override
@@ -85,7 +84,7 @@ public class AimForSpeaker extends Command {
 
 	@Override
 	public boolean isFinished() {
-		return false;
+		return shouldAbort;
 	}
 
 	@Override

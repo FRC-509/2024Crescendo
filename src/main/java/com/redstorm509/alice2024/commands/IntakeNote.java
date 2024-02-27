@@ -10,12 +10,18 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class IntakeNote extends Command {
 	private final Intake intake;
 	private final Shooter shooter;
+	private boolean isFinished = false;
 
 	public IntakeNote(Intake intake, Shooter shooter) {
 		this.intake = intake;
 		this.shooter = shooter;
 
-		addRequirements(intake);
+		addRequirements(intake, shooter);
+	}
+
+	@Override
+	public void initialize() {
+		isFinished = false;
 	}
 
 	@Override
@@ -24,7 +30,7 @@ public class IntakeNote extends Command {
 
 		// negative indexer is towards shooter
 		if (indexerState == IndexerState.HasNote) {
-			end(true);
+			isFinished = true;
 		} else if (indexerState == IndexerState.Noteless) {
 			shooter.rawIndexer(-Constants.Shooter.kIndexerSpinSpeed);
 			intake.intake(true);
@@ -45,7 +51,7 @@ public class IntakeNote extends Command {
 
 	@Override
 	public boolean isFinished() {
-		return false;
+		return isFinished;
 	}
 
 	@Override
