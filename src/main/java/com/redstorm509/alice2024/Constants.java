@@ -49,7 +49,6 @@ public final class Constants {
 		public static final double kFlyWheelV = 0.11;
 		public static final double kFlyWheelA = 0.0;
 
-		public static final double kToFNoteDetectionThreshold = 15.0; // REPLACE MEEE
 		public static final double kPivotGearRatio = 175.177397338;
 	}
 

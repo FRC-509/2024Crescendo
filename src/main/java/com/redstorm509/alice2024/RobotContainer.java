@@ -30,20 +30,17 @@ public class RobotContainer {
 	private final SwerveDrive swerve;
 	private final Intake intake;
 	private final Shooter shooter;
+	private final Climber climber;
 	public final Limelight intakeCamera = new Limelight("limelight-intake");
 	private final Limelight shooterCamera = new Limelight("limelight-arm");
 
 	private SendableChooser<Command> chooser = new SendableChooser<Command>();
 
 	public RobotContainer() {
-		// Pigeon2Configuration conf = new Pigeon2Configuration();
-		// conf.MountPose.MountPoseYaw = 180.0;
-		// pigeon.getConfigurator().apply(conf);
-
-		this.intake = new Intake();
 		this.swerve = new SwerveDrive(pigeon);
+		this.intake = new Intake();
 		this.shooter = new Shooter();
-		// this.preCompressor = new PreCompressor();
+		this.climber = new Climber();
 
 		intakeCamera.setLEDMode_ForceOff();
 		intakeCamera.setPipelineIndex(Constants.Vision.Pipeline.AprilTags);
@@ -72,23 +69,11 @@ public class RobotContainer {
 			swerve.setTargetHeading(0);
 		}, swerve));
 
-		operator.rightBumper().whileTrue(new ShootNote(shooter, 0.5 * Constants.kFalconFreeSpeedRPS, false,
-				() -> driverRight.isDown(StickButton.Right)));
-		operator.leftBumper().whileTrue(Commands.startEnd(
-				() -> shooter.rawIndexer(Constants.Shooter.kIndexerSpinSpeed),
-				() -> shooter.rawIndexer(0), shooter));
-		shooter.setDefaultCommand(new DefaultPivotShooter(shooter,
-				() -> MathUtil.applyDeadband(-operator.getLeftY(), Constants.kStickDeadband) / 5));
-		operator.a().onTrue(new SetPivot(shooter, 110));
-		// driverLeft.isPressedBind(StickButton.Left, new AutoPickupExperimental(
-		// swerve,
-		// intakeCamera,
-		// intake,
-		// shooter,
-		// () -> MathUtil.applyDeadband(driverLeft.getX() / 2,
-		// Constants.kStickDeadband),
-		// () -> MathUtil.applyDeadband(-driverLeft.getY() / 2,
-		// Constants.kStickDeadband)));
+		driverRight.isDownBind(StickButton.Bottom, new AimForSpeaker(swerve, shooter,
+				() -> MathUtil.applyDeadband(-driverLeft.getY(), Constants.kStickDeadband),
+				() -> MathUtil.applyDeadband(-driverLeft.getX(), Constants.kStickDeadband),
+				() -> MathUtil.applyDeadband(-driverRight.getX(), Constants.kStickDeadband),
+				shooterCamera));
 
 		driverLeft.isDownBind(StickButton.Trigger, Commands.startEnd(
 				() -> {
@@ -126,11 +111,17 @@ public class RobotContainer {
 			shooter.rawIndexer(0);
 		}, shooter));
 
-		driverRight.isDownBind(StickButton.Bottom, new AimForSpeaker(swerve, shooter,
-				() -> MathUtil.applyDeadband(-driverLeft.getY(), Constants.kStickDeadband),
-				() -> MathUtil.applyDeadband(-driverLeft.getX(), Constants.kStickDeadband),
-				() -> MathUtil.applyDeadband(-driverRight.getX(), Constants.kStickDeadband),
-				shooterCamera));
+		operator.rightBumper().whileTrue(new ShootNote(shooter, 0.5 * Constants.kFalconFreeSpeedRPS, false,
+				() -> driverRight.isDown(StickButton.Right)));
+		operator.leftBumper().whileTrue(Commands.startEnd(
+				() -> shooter.rawIndexer(Constants.Shooter.kIndexerSpinSpeed),
+				() -> shooter.rawIndexer(0), shooter));
+		operator.a().onTrue(new SetPivot(shooter, 110));
+
+		shooter.setDefaultCommand(new DefaultPivotCommand(shooter,
+				() -> MathUtil.applyDeadband(-operator.getLeftY(), Constants.kStickDeadband) / 5));
+		climber.setDefaultCommand(new DefaultClimbCommand(climber, () -> operator.getLeftTriggerAxis(),
+				() -> operator.getRightTriggerAxis(), () -> operator.y().getAsBoolean()));
 	}
 
 	private void addAutonomousRoutines() {

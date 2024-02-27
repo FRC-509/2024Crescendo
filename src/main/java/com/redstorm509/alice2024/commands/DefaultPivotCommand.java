@@ -6,18 +6,18 @@ import com.redstorm509.alice2024.subsystems.Shooter;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
-public class DefaultPivotShooter extends Command {
+public class DefaultPivotCommand extends Command {
 	private final Shooter shooter;
-	private final DoubleSupplier zoomyZoom;
+	private final DoubleSupplier pivotOutputSup;
 
-	public DefaultPivotShooter(Shooter shooter, DoubleSupplier zoomyZoom) {
+	public DefaultPivotCommand(Shooter shooter, DoubleSupplier pivotOutputSup) {
 		this.shooter = shooter;
-		this.zoomyZoom = zoomyZoom;
+		this.pivotOutputSup = pivotOutputSup;
 		addRequirements(shooter);
 	}
 
 	@Override
 	public void execute() {
-		shooter.setPivotOutput(zoomyZoom.getAsDouble());
+		shooter.setPivotOutput(pivotOutputSup.getAsDouble());
 	}
 }
