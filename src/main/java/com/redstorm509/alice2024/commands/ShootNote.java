@@ -1,12 +1,10 @@
 package com.redstorm509.alice2024.commands;
 
 import java.util.function.BooleanSupplier;
-import java.util.function.DoubleSupplier;
 
 import com.redstorm509.alice2024.Constants;
 import com.redstorm509.alice2024.subsystems.Shooter;
 
-import edu.wpi.first.networktables.BooleanSubscriber;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;

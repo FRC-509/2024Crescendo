@@ -4,7 +4,6 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -18,9 +17,6 @@ public class Climber extends SubsystemBase {
 	private VoltageOut openLoopVoltage = new VoltageOut(0);
 	private Solenoid left = new Solenoid(PneumaticsModuleType.CTREPCM, 6);
 	private Solenoid right = new Solenoid(PneumaticsModuleType.CTREPCM, 7);
-
-	// private DigitalInput leftLimitSwitch = new DigitalInput(0); // ID This
-	// private DigitalInput rightLimitSwitch = new DigitalInput(0); // ID This
 
 	public Climber() {
 		TalonFXConfiguration conf = new TalonFXConfiguration();

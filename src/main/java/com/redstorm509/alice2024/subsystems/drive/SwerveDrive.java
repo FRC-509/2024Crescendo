@@ -10,6 +10,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 
@@ -29,7 +30,6 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.GeometryUtil;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
-import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.ReplanningConfig;
 import com.redstorm509.stormkit.math.Interpolator;
 
@@ -67,6 +67,10 @@ public class SwerveDrive extends SubsystemBase {
 	private PIDController headingAggressive = new PIDController(Constants.kHeadingAggressiveP,
 			Constants.kHeadingAggressiveI, Constants.kHeadingAggressiveD);
 
+	private double simHeading = 0.0d;
+	private double prevRotOutput = 0.0d;
+	private SwerveM2D visualizer;
+
 	public SwerveDrive(Pigeon2 pigeon) {
 		this.timer = new Timer();
 		timer.start();
@@ -89,8 +93,8 @@ public class SwerveDrive extends SubsystemBase {
 		odometry = new SwerveDriveOdometry(kinematics, getYaw(), getModulePositions());
 
 		HolonomicPathFollowerConfig pathFollowerConfig = new HolonomicPathFollowerConfig(
-				new PIDConstants(0.0, 0, 0), // Translation constants
-				new PIDConstants(0.0, 0, 0), // Rotation constants
+				new PIDConstants(5.0, 0, 0), // Translation constants
+				new PIDConstants(5.0, 0, 0), // Rotation constants
 				Constants.kMaxSpeed,
 				Constants.Chassis.kOffsetToSwerveModule * Math.sqrt(2),
 				new ReplanningConfig(false, false));
@@ -114,8 +118,10 @@ public class SwerveDrive extends SubsystemBase {
 					return false;
 				},
 				this);
-		PathPlannerLogging.setLogActivePathCallback((poses) -> field2d.getObject("path").setPoses(poses));
+		// PathPlannerLogging.setLogActivePathCallback((poses) ->
+		// field2d.getObject("path").setPoses(poses));
 		Shuffleboard.getTab("Robot Field Position").add(field2d);
+		visualizer = new SwerveM2D();
 	}
 
 	public void drive(Translation2d translationMetersPerSecond, double rotationRadiansPerSecond, boolean fieldRelative,
@@ -143,10 +149,10 @@ public class SwerveDrive extends SubsystemBase {
 
 		if ((speed != 0 && speed < Constants.kMinHeadingCorrectionSpeed) || omitRotationCorrection || hasRotationInput
 				|| timer.get() < Constants.kHeadingTimeout) {
-			setTargetHeading(pigeon.getYaw().getValue());
+			setTargetHeading(getYaw().getDegrees());
 			rotationOutput = interpolatedRotation;
 		} else {
-			double delta = pigeon.getYaw().getValue() - targetHeading;
+			double delta = getYaw().getDegrees() - targetHeading;
 			if (delta > 180.0d) {
 				delta -= 360.0d;
 			}
@@ -160,6 +166,7 @@ public class SwerveDrive extends SubsystemBase {
 			rotationOutput = Math.toRadians(outputDegrees);
 		}
 
+		prevRotOutput = rotationOutput;
 		SwerveModuleState[] moduleStates;
 
 		if (fieldRelative) {
@@ -212,12 +219,17 @@ public class SwerveDrive extends SubsystemBase {
 		ChassisSpeeds targetSpeeds = ChassisSpeeds.discretize(robotRelativeSpeeds, 0.02);
 		SwerveModuleState[] targetStates = kinematics.toSwerveModuleStates(targetSpeeds);
 		SwerveDriveKinematics.desaturateWheelSpeeds(targetStates, Constants.kMaxSpeed);
+		prevRotOutput = targetSpeeds.omegaRadiansPerSecond;
 
 		for (SwerveModule mod : swerveModules) {
 			mod.setDesiredState(targetStates[mod.moduleNumber], true);
 		}
 	}
 
+	/**
+	 * Generates a command to reset the odometer to the given pose. Must be relative
+	 * to the BLUE ALLIANCE origin!
+	 */
 	public static Command resetOdometryCmd(SwerveDrive swerve, Pose2d pose) {
 		return Commands.runOnce(
 				() -> {
@@ -263,11 +275,32 @@ public class SwerveDrive extends SubsystemBase {
 	}
 
 	public Rotation2d getYaw() {
+		if (RobotBase.isSimulation()) {
+			return Rotation2d.fromRadians(simHeading);
+		}
 		return pigeon.getRotation2d();
+	}
+
+	public void resetSimState() {
+		simHeading = 0.0d;
+		targetHeading = 0.0d;
+		resetOdometry(new Pose2d());
+		for (SwerveModule mod : swerveModules) {
+			mod.resetSimState();
+		}
+	}
+
+	@Override
+	public void simulationPeriodic() {
+		simHeading += prevRotOutput * 0.02;
+		for (SwerveModule mod : swerveModules) {
+			mod.simPeriodic();
+		}
 	}
 
 	@Override
 	public void periodic() {
+		visualizer.update(getModuleStates());
 		odometry.update(getYaw(), getModulePositions());
 
 		field2d.setRobotPose(getRawOdometeryPose());

@@ -3,6 +3,7 @@ package com.redstorm509.alice2024.subsystems.drive;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.RobotBase;
 
 import com.redstorm509.alice2024.Constants;
 import com.redstorm509.alice2024.util.math.Conversions;
@@ -32,6 +33,8 @@ public class SwerveModule {
 
 	// The previously set steer angle.
 	private double lastSteerAngleDeg;
+	private SwerveModuleState lastSet = new SwerveModuleState();
+	private SwerveModulePosition simulated = new SwerveModulePosition();
 
 	// Construct a new Swerve Module using a preset Configuration
 	public SwerveModule(Constants.SwerveModuleConfiguration configs) {
@@ -98,6 +101,9 @@ public class SwerveModule {
 	}
 
 	public SwerveModulePosition getPosition() {
+		if (RobotBase.isSimulation()) {
+			return simulated;
+		}
 		// Accounts for coupling; rotation of the angle motor causing the actual drive
 		// wheel to rotate slightly.
 		double drivePosition = driveMotor.getPosition().getValue()
@@ -111,6 +117,9 @@ public class SwerveModule {
 	}
 
 	public SwerveModuleState getState() {
+		if (RobotBase.isSimulation()) {
+			return new SwerveModuleState(lastSet.speedMetersPerSecond, simulated.angle);
+		}
 		return new SwerveModuleState(
 				Conversions.falconToMPS(
 						driveMotor.getVelocity().getValue(),
@@ -120,6 +129,7 @@ public class SwerveModule {
 	}
 
 	public void setDesiredState(SwerveModuleState desiredState, boolean closedLoop) {
+		lastSet = desiredState;
 		// Ensures that the module takes the optimal path towards the target angle,
 		// limiting rotation to only 90 degrees at a time.
 		desiredState = SwerveModuleState.optimize(desiredState, getAngle());
@@ -155,5 +165,18 @@ public class SwerveModule {
 					Constants.MK4I.kDriveGearRatio) / Constants.kMaxSpeed * 12.0;
 			driveMotor.setControl(openLoopDriveRequest.withOutput(voltage));
 		}
+	}
+
+	public void simPeriodic() {
+		double error = (lastSet.angle.getRotations() - simulated.angle.getRotations()) / Constants.MK4I.kAngleGearRatio;
+		double rotationsPerSecond = Constants.kFalconFreeSpeedRPS * error * Constants.kSteerAngleP / 12.0;
+
+		simulated.angle = Rotation2d.fromRotations(simulated.angle.getRotations() + rotationsPerSecond * 0.02);
+		simulated.distanceMeters += lastSet.speedMetersPerSecond * 0.02;
+	}
+
+	public void resetSimState() {
+		simulated.angle = Rotation2d.fromDegrees(0);
+		simulated.distanceMeters = 0.0d;
 	}
 }

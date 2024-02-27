@@ -8,23 +8,17 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.I2C;
+import edu.wpi.first.wpilibj.RobotBase;
 
 import com.redstorm509.alice2024.autonomous.ThreeNote;
 import com.redstorm509.alice2024.commands.*;
 import com.redstorm509.alice2024.subsystems.*;
 import com.redstorm509.alice2024.subsystems.drive.*;
 import com.redstorm509.alice2024.subsystems.vision.*;
-import com.redstorm509.alice2024.util.devices.VL53L4CD;
-
-import javax.swing.text.AbstractDocument.LeafElement;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
-import com.pathplanner.lib.auto.AutoBuilder;
 import com.redstorm509.stormkit.controllers.ThrustmasterJoystick;
-import com.redstorm509.stormkit.controllers.LogitechDualAction.LogiButton;
 import com.redstorm509.stormkit.controllers.ThrustmasterJoystick.StickButton;
-import com.redstorm509.stormkit.controllers.LogitechDualAction;
 
 public class RobotContainer {
 	private final Pigeon2 pigeon = new Pigeon2(30, Constants.kCANIvore);
@@ -147,6 +141,10 @@ public class RobotContainer {
 						new DefaultDriveCommand(swerve, 0.7d, 0.0d, 0.0d, true).withTimeout(1)));
 		chooser.addOption("Null", new InstantCommand());
 		SmartDashboard.putData("Auto Mode", chooser);
+
+		if (RobotBase.isSimulation()) {
+			SmartDashboard.putData("Reset Swerve", Commands.runOnce(swerve::resetSimState, swerve));
+		}
 	}
 
 	public Command getAutonomousCommand() {

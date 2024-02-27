@@ -1,10 +1,7 @@
 package com.redstorm509.alice2024.subsystems;
 
 import com.redstorm509.alice2024.Constants;
-import com.redstorm509.alice2024.util.devices.VL53L4CD;
-import com.redstorm509.alice2024.util.devices.VL53L4CD.Measurement;
 import com.redstorm509.alice2024.util.math.Conversions;
-import com.redstorm509.alice2024.util.math.GeometryUtils;
 import com.redstorm509.stormkit.math.PositionTarget;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkBase.IdleMode;
@@ -15,24 +12,14 @@ import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 
-import java.io.Console;
-
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DigitalOutput;
-import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -149,15 +136,6 @@ public class Shooter extends SubsystemBase {
 		return shooterLeader.getVelocity().getValueAsDouble();
 	}
 
-	// Gets the point of shooting relative to the origin of the robot.
-	private Translation3d getShootingOrigin() {
-		// I don't understand why a negative sign is needed; its probably because 3D
-		// rotations need to pay attention to an AoR's direction.
-		return GeometryUtils.rotatePointAboutPoint3D(Constants.Shooter.kDefaultShootingOrigin,
-				Constants.Shooter.kPointOfRotation,
-				new Rotation3d(0, Math.toRadians(-getPivotDegrees()), 0));
-	}
-
 	public double getPivotDegrees() {
 		return pivotEncoder.getPosition().getValue() * 360.0 - kAbsOffsetOffset;
 	}
@@ -180,7 +158,7 @@ public class Shooter extends SubsystemBase {
 
 	public void setPivotOutput(double percentOutput) {
 
-		double previous = pivotTarget.getTarget();
+		// double previous = pivotTarget.getTarget();
 		pivotTarget.update(percentOutput);
 
 		if (percentOutput <= 0.0d && getPivotDegrees() < 3.0d) {
