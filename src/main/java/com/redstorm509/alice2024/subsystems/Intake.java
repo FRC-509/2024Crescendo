@@ -27,6 +27,7 @@ public class Intake extends SubsystemBase {
 
 		preCompressorMotors.setSmartCurrentLimit(15);
 		preCompressorMotors.setIdleMode(IdleMode.kCoast);
+		preCompressorMotors.setInverted(true);
 		preCompressorMotors.burnFlash();
 
 		intermediateStage.setSmartCurrentLimit(15);
@@ -43,12 +44,12 @@ public class Intake extends SubsystemBase {
 
 	public void intake(boolean inwards) {
 		if (inwards) {
-			openLoopVoltage.Output = (-Constants.Intake.kIntakeSpinSpeed * 12);
-			preCompressorSpeed = Constants.Intake.kPreCompressorSpinSpeed;
+			openLoopVoltage.Output = -Constants.Intake.kIntakeSpinSpeed * 12;
+			preCompressorSpeed = -Constants.Intake.kPreCompressorSpinSpeed;
 			intermediateStageSpeed = -Constants.Intake.kIntermediateStageSpinSpeed;
 		} else {
-			openLoopVoltage.Output = (Constants.Intake.kIntakeSpinSpeed * 12);
-			preCompressorSpeed = -Constants.Intake.kPreCompressorSpinSpeed;
+			openLoopVoltage.Output = Constants.Intake.kIntakeSpinSpeed * 12;
+			preCompressorSpeed = Constants.Intake.kPreCompressorSpinSpeed;
 			intermediateStageSpeed = Constants.Intake.kIntermediateStageSpinSpeed;
 		}
 
