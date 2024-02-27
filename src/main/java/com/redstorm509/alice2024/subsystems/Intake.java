@@ -41,11 +41,6 @@ public class Intake extends SubsystemBase {
 		intermediateStage.set(intermediateStageSpeed);
 	}
 
-	@Override
-	public void simulationPeriodic() {
-		// This method will be called once per scheduler run during simulation
-	}
-
 	public void intake(boolean inwards) {
 		if (inwards) {
 			openLoopVoltage.Output = (-Constants.Intake.kIntakeSpinSpeed * 12);

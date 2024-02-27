@@ -58,6 +58,7 @@ public class RobotContainer {
 		shooterCamera.setPipelineIndex(Constants.Vision.Pipeline.AprilTags);
 
 		configureButtonBindings();
+		addAutonomousRoutines();
 	}
 
 	private void configureButtonBindings() {
@@ -131,14 +132,14 @@ public class RobotContainer {
 			shooter.rawIndexer(0);
 		}, shooter));
 
-		driverRight.isDownBind(StickButton.Bottom, new AAWAA(swerve, shooter,
-				() -> MathUtil.applyDeadband(driverLeft.getX(), Constants.kStickDeadband) / 2,
-				() -> MathUtil.applyDeadband(-driverLeft.getY(), Constants.kStickDeadband) / 2,
-				() -> MathUtil.applyDeadband(-driverRight.getX(), Constants.kStickDeadband) / 2,
-				shooterCamera,
-				8));
+		driverRight.isDownBind(StickButton.Bottom, new AimForSpeaker(swerve, shooter,
+				() -> MathUtil.applyDeadband(-driverLeft.getY(), Constants.kStickDeadband),
+				() -> MathUtil.applyDeadband(-driverLeft.getX(), Constants.kStickDeadband),
+				() -> MathUtil.applyDeadband(-driverRight.getX(), Constants.kStickDeadband),
+				shooterCamera));
+	}
 
-		chooser = new SendableChooser<Command>();
+	private void addAutonomousRoutines() {
 		chooser.addOption("Two Note", new ThreeNote(swerve, shooter, intake));
 		chooser.addOption("One Note and Taxi",
 				new SequentialCommandGroup(

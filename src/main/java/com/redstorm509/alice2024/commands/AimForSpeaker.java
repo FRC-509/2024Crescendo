@@ -14,7 +14,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
-public class AAWAA extends Command {
+public class AimForSpeaker extends Command {
 
 	private SwerveDrive swerve;
 	private Shooter shooter;
@@ -22,26 +22,20 @@ public class AAWAA extends Command {
 	private DoubleSupplier translationYSupplier;
 	private DoubleSupplier rotationSupplier;
 	private Limelight limelight;
-	private Translation2d targetPosition;
-	private boolean isTeleop;
 
-	private double rot;
-
-	public AAWAA(
+	public AimForSpeaker(
 			SwerveDrive swerve,
 			Shooter shooter,
 			DoubleSupplier translationXSupplier,
 			DoubleSupplier translationYSupplier,
 			DoubleSupplier rotationSupplier,
-			Limelight limelight,
-			double targetTagID) {
+			Limelight limelight) {
 		this.swerve = swerve;
 		this.shooter = shooter;
 		this.translationXSupplier = translationXSupplier;
 		this.translationYSupplier = translationYSupplier;
 		this.rotationSupplier = rotationSupplier;
 		this.limelight = limelight;
-		isTeleop = true;
 
 		addRequirements(swerve, shooter);
 	}
@@ -59,44 +53,33 @@ public class AAWAA extends Command {
 
 	@Override
 	public void execute() {
+		double rot = rotationSupplier.getAsDouble();
 		if (limelight.getTV()) {
-			// TODO: Verify axis!
 			// rot = -Math.toRadians(limelight.getTX()) * 5;
-			rot = rotationSupplier.getAsDouble();
 			limelight.setLEDMode_ForceOn();
 		} else {
 			rot = rotationSupplier.getAsDouble();
 			limelight.setLEDMode_ForceBlink();
 		}
+		if (limelight.getTV()) {
+			Pose3d pose = Limelight.toPose3D(limelight.getTargetPose_RobotSpace());
+			double distance = Math.hypot(pose.getX(), pose.getZ()) + Units.inchesToMeters(10);
+			double height = Math.abs(pose.getY()) + Units.inchesToMeters(30);
+			double targetAngle = Math.toDegrees(Math.atan(2 * height / distance))
+					- Constants.Shooter.kPivotToShootAngleOffset;
 
-		if (isTeleop) {
-			if (limelight.getTV()) {
-				Pose3d pose = Limelight.toPose3D(limelight.getTargetPose_RobotSpace());
-				double distance = Math.hypot(pose.getX(), pose.getZ()) + Units.inchesToMeters(10);
-				double height = Math.abs(pose.getY()) + Units.inchesToMeters(30);
-				double targetAngle = Math.toDegrees(Math.atan(2 * height / distance))
-						- Constants.Shooter.kPivotToShootAngleOffset;
+			// setPivotDegrees() not working so really bad solution for now (fightin issues)
+			shooter.setPivotDegrees(MathUtil.clamp(targetAngle, 0.0, Constants.Shooter.kMaxPivot));
 
-				// setPivotDegrees() not working so really bad solution for now (fightin issues)
-				shooter.setPivotDegrees(MathUtil.clamp(targetAngle, 0.0, 130.0));
-
-				SmartDashboard.putNumber("CurrentArmPivot", shooter.getPivotDegrees());
-				SmartDashboard.putNumber("Pivot Target Angle", targetAngle);
-			}
-			swerve.drive(
-					new Translation2d(translationXSupplier.getAsDouble(), translationYSupplier.getAsDouble())
-
-							.times(Constants.kMaxSpeed),
-					rot,
-					true,
-					false);
-		} else {
-			swerve.drive(
-					targetPosition,
-					rot,
-					true,
-					false);
+			SmartDashboard.putNumber("Pivot Target Angle", targetAngle);
 		}
+		swerve.drive(
+				new Translation2d(translationXSupplier.getAsDouble(), translationYSupplier.getAsDouble())
+
+						.times(Constants.kMaxSpeed),
+				rot,
+				true,
+				false);
 		SmartDashboard.putNumber("TX FOR ARM CAMERA", limelight.getTX());
 	}
 

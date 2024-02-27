@@ -33,6 +33,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.I2C;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -239,65 +240,16 @@ public class Shooter extends SubsystemBase {
 
 	@Override
 	public void periodic() {
-		/*-
-		// Logic check does any of this make sense???
-		// Also there should then be a function that can tell this thing that a note has
-		// left and transitions the state to Idle.
-		
-		// run every update
-		Measurement firstStage = initialToF.measure();
-		Measurement secondStage = secondaryToF.measure();
-		
-		// changed names to logic better
-		boolean firstWasToF = firstInstantToF;
-		boolean secondaryWasToF = secondaryInstantToF;
-		
-		// updates the instant ToF readings
-		if (firstStage.distanceMillimeters > Constants.Shooter.kToFNoteDetectionThreshold) {
-			firstInstantToF = true;
-		} else {
-			firstInstantToF = false;
-		}
-		if (secondStage.distanceMillimeters > Constants.Shooter.kToFNoteDetectionThreshold) {
-			firstInstantToF = true;
-		} else {
-			secondaryWasToF = false;
-		}
-		
-		// If the first pass tripped, and the second pass JUST tripped, we are intaking.
-		if (firstWasToF && !secondaryWasToF && secondaryInstantToF) {
-			SmartDashboard.putString("INDEXER STATE", "Intaking Note");
-			currentState = IndexerState.IntakingNote;
-			hasNote = true;
-		
-		} else if (secondaryWasToF && !secondaryInstantToF && firstInstantToF) { //
-			// If the second pass JUST Un-tripped, and the first pass is still tripped, we
-			// are outtaking.
-			SmartDashboard.putString("INDEXER STATE", "Outtaking Note");
-			currentState = IndexerState.OuttakingNote;
-			hasNote = false;
-		} else if (firstWasToF && !firstInstantToF && secondaryInstantToF) { //
-			// If the first pass JUST Un-tripped, and the second pass is still tripped, we
-			// are shooting.
-			SmartDashboard.putString("INDEXER STATE", "Shooting Note");
-			currentState = IndexerState.ShootingNote;
-			hasNote = false;
-		}
-		 */
-		if (limitSwitch.get()) {
+		// DIO channels default to high in sim so we dont run this code if we're in sim.
+		if (!RobotBase.isSimulation() && limitSwitch.get()) {
 			// pivotEncoder.setPosition(kAbsOffsetOffset);
 			resetIntegratedToAbsolute(false);
 		}
-		// SmartDashboard.putNumber("i2c one",
-		// initialToF.measure().distanceMillimeters);
-		// SmartDashboard.putNumber("i2c two",
-		// secondaryToF.measure().distanceMillimeters);
 		SmartDashboard.putBoolean("LimitOfMyPatience", limitSwitch.get());
 		SmartDashboard.putNumber("PivotIntegrated",
 				Conversions.falconToDegrees(pivotLeader.getPosition().getValue(), Constants.Shooter.kPivotGearRatio));
 		SmartDashboard.putNumber("PivotIntegrated2",
 				Conversions.falconToDegrees(pivotFollower.getPosition().getValue(), Constants.Shooter.kPivotGearRatio));
-		SmartDashboard.putNumber("PivotAbsolute",
-				pivotEncoder.getPosition().getValue() * 360.0 - kAbsOffsetOffset);
+		SmartDashboard.putNumber("PivotAbsolute", pivotEncoder.getPosition().getValue() * 360.0 - kAbsOffsetOffset);
 	}
 }
