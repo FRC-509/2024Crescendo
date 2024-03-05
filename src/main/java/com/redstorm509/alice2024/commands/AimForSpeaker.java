@@ -22,6 +22,7 @@ public class AimForSpeaker extends Command {
 	private DoubleSupplier translationYSupplier;
 	private DoubleSupplier rotationSupplier;
 	private Limelight limelight;
+	private boolean shouldAbort;
 
 	public AimForSpeaker(
 			SwerveDrive swerve,
@@ -45,6 +46,8 @@ public class AimForSpeaker extends Command {
 		limelight.setPipelineIndex(Constants.Vision.Pipeline.AprilTags);
 
 		limelight.setLEDMode_ForceBlink();
+
+		shouldAbort = !limelight.getTV();
 	}
 
 	@Override
@@ -77,7 +80,7 @@ public class AimForSpeaker extends Command {
 
 	@Override
 	public boolean isFinished() {
-		return false;
+		return shouldAbort;
 	}
 
 	@Override

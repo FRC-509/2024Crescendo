@@ -47,7 +47,6 @@ public class ShootNote extends Command {
 		if (hasReachedVel && runIndexer) {
 			shooter.rawIndexer(-Constants.Shooter.kIndexerSpinSpeed);
 		}
-		SmartDashboard.putNumber("SHOOTER SPEEED", shooter.getShooterVelocity());
 	}
 
 	@Override

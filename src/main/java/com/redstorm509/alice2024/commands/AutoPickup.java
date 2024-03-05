@@ -15,6 +15,7 @@ public class AutoPickup extends Command {
 	private Limelight limelight;
 	private Intake intake;
 	private boolean beganIntaking;
+	private boolean shouldAbort;
 
 	@Deprecated
 	public AutoPickup(SwerveDrive swerve, Limelight limelight, Intake intake) {
@@ -27,9 +28,8 @@ public class AutoPickup extends Command {
 
 	@Override
 	public void initialize() {
-		if (!limelight.getTV()) {
-			end(true);
-		}
+		shouldAbort = !limelight.getTV();
+
 		beganIntaking = false;
 
 		limelight.setLEDMode_ForceOn();
@@ -67,7 +67,7 @@ public class AutoPickup extends Command {
 
 	@Override
 	public boolean isFinished() {
-		return false;
+		return shouldAbort;
 	}
 
 	@Override
