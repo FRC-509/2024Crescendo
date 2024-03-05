@@ -15,7 +15,7 @@ public class IntakeNote extends Command {
 		this.intake = intake;
 		this.shooter = shooter;
 
-		addRequirements(intake);
+		addRequirements(intake, shooter);
 	}
 
 	@Override
@@ -23,9 +23,7 @@ public class IntakeNote extends Command {
 		IndexerState indexerState = shooter.indexingNoteState();
 
 		// negative indexer is towards shooter
-		if (indexerState == IndexerState.HasNote) {
-			end(true);
-		} else if (indexerState == IndexerState.Noteless) {
+		if (indexerState == IndexerState.Noteless) {
 			shooter.rawIndexer(-Constants.Shooter.kIndexerSpinSpeed);
 			intake.intake(true);
 		} else if (indexerState == IndexerState.NoteTooShooter) {
@@ -45,7 +43,7 @@ public class IntakeNote extends Command {
 
 	@Override
 	public boolean isFinished() {
-		return false;
+		return shooter.indexingNoteState() == IndexerState.HasNote;
 	}
 
 	@Override

@@ -8,6 +8,7 @@ import com.redstorm509.alice2024.subsystems.Shooter.IndexerState;
 import com.redstorm509.alice2024.subsystems.drive.SwerveDrive;
 import com.redstorm509.alice2024.subsystems.vision.Limelight;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -57,7 +58,7 @@ public class AutoPickupExperimental extends Command {
 			limelight.setLEDMode_ForceOn();
 			swerve.drive(new Translation2d(xSupplier.getAsDouble(), ySupplier.getAsDouble()).times(Constants.kMaxSpeed),
 					rotationSupplier.getAsDouble(),
-					true,
+					false,
 					false);
 		} else {
 			limelight.setLEDMode_ForceBlink();
@@ -67,10 +68,8 @@ public class AutoPickupExperimental extends Command {
 		double angleToTarget = -limelight.getTY() + -Constants.Vision.kIntakeCameraAngleOffset;
 		double distanceToTarget = Constants.Vision.kIntakeCameraHeightFromGround
 				/ Math.tan(Math.toRadians(angleToTarget));
-		double outputMove = -distanceToTarget * 2; // make sure distanceToTarget has correct sign, fix double negatives
-		if (outputMove > Constants.kMaxSpeed) {
-			outputMove = Constants.kMaxSpeed;
-		}
+		// double check correct sign, double negatives l
+		double outputMove = MathUtil.clamp(-distanceToTarget * 2, -Constants.kMaxSpeed, Constants.kMaxSpeed);
 
 		if (limelight.getTV()) {
 			swerve.drive(new Translation2d(0.0, // possibly change 0.0 to: -distanceToTarget * getTX() or scale somehow
@@ -84,9 +83,8 @@ public class AutoPickupExperimental extends Command {
 
 			// has note logic using beam breaks
 			IndexerState indexerState = shooter.indexingNoteState();
-			if (indexerState == IndexerState.HasNote) {
-				end(true);
-			} else if (indexerState == IndexerState.Noteless) {
+
+			if (indexerState == IndexerState.Noteless) {
 				shooter.rawIndexer(-Constants.Shooter.kIndexerSpinSpeed);
 				intake.intake(true);
 			} else if (indexerState == IndexerState.NoteTooShooter) {
@@ -110,7 +108,7 @@ public class AutoPickupExperimental extends Command {
 
 	@Override
 	public boolean isFinished() {
-		return false; // add an || for if note sensors detect note in pipeline
+		return shooter.indexingNoteState() == IndexerState.HasNote;
 	}
 
 	@Override

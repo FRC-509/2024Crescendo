@@ -45,23 +45,13 @@ public class AimForSpeaker extends Command {
 		limelight.setPipelineIndex(Constants.Vision.Pipeline.AprilTags);
 
 		limelight.setLEDMode_ForceBlink();
-
-		if (!limelight.getTV()) {
-			end(true);
-		}
 	}
 
 	@Override
 	public void execute() {
 		double rot = rotationSupplier.getAsDouble();
 		if (limelight.getTV()) {
-			// rot = -Math.toRadians(limelight.getTX()) * 5;
 			limelight.setLEDMode_ForceOn();
-		} else {
-			rot = rotationSupplier.getAsDouble();
-			limelight.setLEDMode_ForceBlink();
-		}
-		if (limelight.getTV()) {
 			Pose3d pose = Limelight.toPose3D(limelight.getTargetPose_RobotSpace());
 			double distance = Math.hypot(pose.getX(), pose.getZ()) + Units.inchesToMeters(10);
 			double height = Math.abs(pose.getY()) + Units.inchesToMeters(30);
@@ -72,6 +62,8 @@ public class AimForSpeaker extends Command {
 			shooter.setPivotDegrees(MathUtil.clamp(targetAngle, 0.0, Constants.Shooter.kMaxPivot));
 
 			SmartDashboard.putNumber("Pivot Target Angle", targetAngle);
+		} else {
+			limelight.setLEDMode_ForceBlink();
 		}
 		swerve.drive(
 				new Translation2d(translationXSupplier.getAsDouble(), translationYSupplier.getAsDouble())
