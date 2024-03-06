@@ -3,7 +3,7 @@ package com.redstorm509.alice2024.commands;
 import java.util.function.DoubleSupplier;
 
 import com.redstorm509.alice2024.Constants;
-import com.redstorm509.alice2024.subsystems.Shooter;
+import com.redstorm509.alice2024.subsystems.Arm;
 import com.redstorm509.alice2024.subsystems.drive.SwerveDrive;
 import com.redstorm509.alice2024.subsystems.vision.Limelight;
 
@@ -17,28 +17,29 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class AimForSpeaker extends Command {
 
 	private SwerveDrive swerve;
-	private Shooter shooter;
+	private Arm arm;
 	private DoubleSupplier translationXSupplier;
 	private DoubleSupplier translationYSupplier;
 	private DoubleSupplier rotationSupplier;
 	private Limelight limelight;
 	private boolean shouldAbort;
 
+	@Deprecated
 	public AimForSpeaker(
 			SwerveDrive swerve,
-			Shooter shooter,
+			Arm arm,
 			DoubleSupplier translationXSupplier,
 			DoubleSupplier translationYSupplier,
 			DoubleSupplier rotationSupplier,
 			Limelight limelight) {
 		this.swerve = swerve;
-		this.shooter = shooter;
+		this.arm = arm;
 		this.translationXSupplier = translationXSupplier;
 		this.translationYSupplier = translationYSupplier;
 		this.rotationSupplier = rotationSupplier;
 		this.limelight = limelight;
 
-		addRequirements(swerve, shooter);
+		addRequirements(swerve, arm);
 	}
 
 	@Override
@@ -62,7 +63,7 @@ public class AimForSpeaker extends Command {
 					- Constants.Shooter.kPivotToShootAngleOffset;
 
 			// setPivotDegrees() not working so really bad solution for now (fightin issues)
-			shooter.setPivotDegrees(MathUtil.clamp(targetAngle, 0.0, Constants.Shooter.kMaxPivot));
+			arm.setPivotDegrees(MathUtil.clamp(targetAngle, 0.0, Constants.Shooter.kMaxPivot));
 
 			SmartDashboard.putNumber("Pivot Target Angle", targetAngle);
 		} else {

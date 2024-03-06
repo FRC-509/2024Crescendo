@@ -1,10 +1,8 @@
 package com.redstorm509.alice2024.commands;
 
-import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
-import com.fasterxml.jackson.databind.ser.std.NumberSerializers.DoubleSerializer;
 import com.redstorm509.alice2024.Constants;
 import com.redstorm509.alice2024.subsystems.Climber;
 

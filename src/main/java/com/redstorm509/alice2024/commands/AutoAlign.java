@@ -12,14 +12,14 @@ import edu.wpi.first.wpilibj2.command.Command;
 import java.util.function.DoubleSupplier;
 
 import com.redstorm509.alice2024.Constants;
-import com.redstorm509.alice2024.subsystems.Shooter;
+import com.redstorm509.alice2024.subsystems.Arm;
 import com.redstorm509.alice2024.subsystems.drive.SwerveDrive;
 import com.redstorm509.alice2024.subsystems.vision.Limelight;
 
 public class AutoAlign extends Command {
 
 	private SwerveDrive swerve;
-	private Shooter shooter;
+	private Arm arm;
 	private Limelight limelight;
 	private DoubleSupplier xSupplier;
 	private DoubleSupplier ySupplier;
@@ -35,31 +35,31 @@ public class AutoAlign extends Command {
 	// Meant to be an "isDownBind" command
 	public AutoAlign(
 			SwerveDrive swerve,
-			Shooter shooter,
+			Arm arm,
 			Limelight limelight,
 			DoubleSupplier xSupplier,
 			DoubleSupplier ySupplier,
 			DoubleSupplier rotationSupplier) {
 		this.swerve = swerve;
-		this.shooter = shooter;
+		this.arm = arm;
 		this.limelight = limelight;
 		this.xSupplier = xSupplier;
 		this.ySupplier = ySupplier;
 		this.rotationSupplier = rotationSupplier;
 
-		addRequirements(swerve, shooter);
+		addRequirements(swerve, arm);
 	}
 
 	public AutoAlign(
 			int alignmentTagID,
 			SwerveDrive swerve,
-			Shooter shooter,
+			Arm arm,
 			Limelight limelight,
 			DoubleSupplier xSupplier,
 			DoubleSupplier ySupplier,
 			DoubleSupplier rotationSupplier) {
 		this.swerve = swerve;
-		this.shooter = shooter;
+		this.arm = arm;
 		this.limelight = limelight;
 		this.xSupplier = xSupplier;
 		this.ySupplier = ySupplier;
@@ -67,7 +67,7 @@ public class AutoAlign extends Command {
 
 		this.targetTagID = alignmentTagID;
 
-		addRequirements(swerve);
+		addRequirements(swerve, arm);
 	}
 
 	public Pose2d getAlignmentOffset(int TagID) {
@@ -171,7 +171,7 @@ public class AutoAlign extends Command {
 						false);
 			}
 
-			shooter.setPivotDegrees(
+			arm.setPivotDegrees(
 					MathUtil.clamp(desiredArmPivot, Constants.Shooter.kMinPivot, Constants.Shooter.kMaxPivot));
 		} else {
 			// if valid tag but no translation, sets desired rotation with operator

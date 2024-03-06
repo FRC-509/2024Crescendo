@@ -1,10 +1,11 @@
 package com.redstorm509.alice2024.commands;
 
 import java.util.function.DoubleSupplier;
+
 import com.redstorm509.alice2024.Constants;
+import com.redstorm509.alice2024.subsystems.Indexer;
 import com.redstorm509.alice2024.subsystems.Intake;
-import com.redstorm509.alice2024.subsystems.Shooter;
-import com.redstorm509.alice2024.subsystems.Shooter.IndexerState;
+import com.redstorm509.alice2024.subsystems.Indexer.IndexerState;
 import com.redstorm509.alice2024.subsystems.drive.SwerveDrive;
 import com.redstorm509.alice2024.subsystems.vision.Limelight;
 
@@ -18,7 +19,7 @@ public class AutoPickupExperimental extends Command {
 	private SwerveDrive swerve;
 	private Limelight limelight;
 	private Intake intake;
-	private Shooter shooter;
+	private Indexer indexer;
 	private boolean beganIntaking;
 	private DoubleSupplier xSupplier;
 	private DoubleSupplier ySupplier;
@@ -29,20 +30,20 @@ public class AutoPickupExperimental extends Command {
 			SwerveDrive swerve,
 			Limelight limelight,
 			Intake intake,
-			Shooter shooter,
+			Indexer indexer,
 			DoubleSupplier xSupplier,
 			DoubleSupplier ySupplier,
 			DoubleSupplier rotationSupplier) {
 		this.swerve = swerve;
 		this.limelight = limelight;
 		this.intake = intake;
-		this.shooter = shooter;
+		this.indexer = indexer;
 
 		this.xSupplier = xSupplier;
 		this.ySupplier = ySupplier;
 		this.rotationSupplier = rotationSupplier;
 
-		addRequirements(swerve, intake, shooter);
+		addRequirements(swerve, intake, indexer);
 	}
 
 	@Override
@@ -84,23 +85,23 @@ public class AutoPickupExperimental extends Command {
 			beganIntaking = true;
 
 			// has note logic using beam breaks
-			IndexerState indexerState = shooter.indexingNoteState();
+			IndexerState indexerState = indexer.indexingNoteState();
 			if (indexerState == IndexerState.HasNote) {
 				isFinished = true;
 			} else if (indexerState == IndexerState.Noteless) {
-				shooter.rawIndexer(-Constants.Shooter.kIndexerSpinSpeed);
+				indexer.rawIndexer(-Constants.Shooter.kIndexerSpinSpeed);
 				intake.intake(true);
 			} else if (indexerState == IndexerState.NoteTooShooter) {
-				shooter.rawIndexer(Constants.Shooter.kIndexerSpinSpeed * 0.5); // increase if needed
+				indexer.rawIndexer(Constants.Shooter.kIndexerSpinSpeed * 0.5); // increase if needed
 				intake.stop();
 			} else if (indexerState == IndexerState.NoteTooShooterExtreme) {
-				shooter.rawIndexer(Constants.Shooter.kIndexerSpinSpeed);
+				indexer.rawIndexer(Constants.Shooter.kIndexerSpinSpeed);
 				intake.stop();
 			} else if (indexerState == IndexerState.NoteTooIntake) {
-				shooter.rawIndexer(-Constants.Shooter.kIndexerSpinSpeed * 0.5); // increase if needed
+				indexer.rawIndexer(-Constants.Shooter.kIndexerSpinSpeed * 0.5); // increase if needed
 				intake.stop();
 			} else if (indexerState == IndexerState.NoteTooIntakeExtreme) {
-				shooter.rawIndexer(-Constants.Shooter.kIndexerSpinSpeed);
+				indexer.rawIndexer(-Constants.Shooter.kIndexerSpinSpeed);
 				intake.intake(true);
 			}
 		}
@@ -119,6 +120,6 @@ public class AutoPickupExperimental extends Command {
 		swerve.drive(new Translation2d(0, 0), 0, true, false);
 		limelight.setLEDMode_ForceOff();
 		intake.stop();
-		shooter.rawIndexer(0.0);
+		indexer.rawIndexer(0.0);
 	}
 }

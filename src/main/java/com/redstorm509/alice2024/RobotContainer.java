@@ -29,7 +29,9 @@ public class RobotContainer {
 
 	private final SwerveDrive swerve;
 	private final Intake intake;
+	private final Indexer indexer;
 	private final Shooter shooter;
+	private final Arm arm;
 	private final Climber climber;
 	public final Limelight intakeCamera = new Limelight("limelight-intake");
 	private final Limelight shooterCamera = new Limelight("limelight-arm");
@@ -39,7 +41,9 @@ public class RobotContainer {
 	public RobotContainer() {
 		this.swerve = new SwerveDrive(pigeon);
 		this.intake = new Intake();
+		this.indexer = new Indexer();
 		this.shooter = new Shooter();
+		this.arm = new Arm();
 		this.climber = new Climber();
 
 		intakeCamera.setLEDMode_ForceOff();
@@ -69,66 +73,68 @@ public class RobotContainer {
 			swerve.setTargetHeading(0);
 		}, swerve));
 
-		driverRight.isDownBind(StickButton.Bottom, new AimForSpeaker(swerve, shooter,
+		driverRight.isDownBind(StickButton.Bottom, new AutoAlign(
+				swerve,
+				arm,
+				intakeCamera,
 				() -> MathUtil.applyDeadband(-driverLeft.getY(), Constants.kStickDeadband),
 				() -> MathUtil.applyDeadband(-driverLeft.getX(), Constants.kStickDeadband),
-				() -> MathUtil.applyDeadband(-driverRight.getX(), Constants.kStickDeadband),
-				shooterCamera));
+				() -> MathUtil.applyDeadband(-driverRight.getX(), Constants.kStickDeadband)));
 
 		driverLeft.isDownBind(StickButton.Trigger, Commands.startEnd(
 				() -> {
 					// shooter.setPivotDegrees(1);
 					intake.intake(true);
 					// Goes INNNNNN
-					shooter.rawIndexer(-Constants.Shooter.kIndexerSpinSpeed);
+					indexer.rawIndexer(-Constants.Shooter.kIndexerSpinSpeed);
 				},
 				() -> {
 					intake.stop();
-					shooter.rawIndexer(0);
+					indexer.rawIndexer(0);
 				},
 				intake, shooter));
 		driverRight.isDownBind(StickButton.Trigger, Commands.startEnd(
 				() -> {
 					intake.intake(false);
 					// Goes OUTTTTTT
-					shooter.rawIndexer(Constants.Shooter.kIndexerSpinSpeed);
+					indexer.rawIndexer(Constants.Shooter.kIndexerSpinSpeed);
 				},
 				() -> {
 					intake.stop();
-					shooter.rawIndexer(0);
+					indexer.rawIndexer(0);
 				},
 				intake, shooter));
 
 		driverLeft.isDownBind(StickButton.Right, Commands.startEnd(() -> {
-			shooter.rawIndexer(-Constants.Shooter.kIndexerSpinSpeed);
+			indexer.rawIndexer(-Constants.Shooter.kIndexerSpinSpeed);
 		}, () -> {
-			shooter.rawIndexer(0);
+			indexer.rawIndexer(0);
 
 		}, shooter));
 		driverRight.isDownBind(StickButton.Left, Commands.startEnd(() -> {
-			shooter.rawIndexer(Constants.Shooter.kIndexerSpinSpeed);
+			indexer.rawIndexer(Constants.Shooter.kIndexerSpinSpeed);
 		}, () -> {
-			shooter.rawIndexer(0);
+			indexer.rawIndexer(0);
 		}, shooter));
 
-		operator.rightBumper().whileTrue(new ShootNote(shooter, 0.5 * Constants.kFalconFreeSpeedRPS, false,
+		operator.rightBumper().whileTrue(new ShootNote(shooter, indexer, 0.5 * Constants.kFalconFreeSpeedRPS, false,
 				() -> driverRight.isDown(StickButton.Right)));
 		operator.leftBumper().whileTrue(Commands.startEnd(
-				() -> shooter.rawIndexer(Constants.Shooter.kIndexerSpinSpeed),
-				() -> shooter.rawIndexer(0), shooter));
-		operator.a().onTrue(new SetPivot(shooter, 110));
+				() -> indexer.rawIndexer(Constants.Shooter.kIndexerSpinSpeed),
+				() -> indexer.rawIndexer(0), shooter));
+		operator.a().onTrue(new SetPivot(arm, 110));
 
-		shooter.setDefaultCommand(new DefaultPivotCommand(shooter,
+		shooter.setDefaultCommand(new DefaultPivotCommand(arm,
 				() -> MathUtil.applyDeadband(-operator.getLeftY(), Constants.kStickDeadband) / 5));
-		climber.setDefaultCommand(new DefaultClimbCommand(climber, () -> operator.getLeftTriggerAxis(),
-				() -> operator.getRightTriggerAxis(), () -> operator.y().getAsBoolean()));
+		climber.setDefaultCommand(new DefaultClimbCommand(climber, () -> operator.getRightTriggerAxis(),
+				() -> operator.getLeftTriggerAxis(), pigeon));
 	}
 
 	private void addAutonomousRoutines() {
 		chooser.addOption("Two Note", new ThreeNote(swerve, shooter, intake));
 		chooser.addOption("One Note and Taxi",
 				new SequentialCommandGroup(
-						new ShootNote(shooter, 0.5 * Constants.kFalconFreeSpeedRPS, true, () -> false),
+						new ShootNote(shooter, indexer, 0.5 * Constants.kFalconFreeSpeedRPS, true, () -> false),
 						new DefaultDriveCommand(swerve, 0.7d, 0.0d, 0.0d, true).withTimeout(1)));
 		chooser.addOption("Null", new InstantCommand());
 		SmartDashboard.putData("Auto Mode", chooser);
