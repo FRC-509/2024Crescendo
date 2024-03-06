@@ -44,8 +44,6 @@ public class Shooter extends SubsystemBase {
 	private DigitalInput indexerBB = new DigitalInput(2);
 	private DigitalInput imStageBB = new DigitalInput(3);
 
-	private IndexerState currentState = IndexerState.Noteless;
-
 	private TalonFX pivotLeader = new TalonFX(13); // Labelled PIVOTL
 	private TalonFX pivotFollower = new TalonFX(14); // Labelled PIVOTR
 	private CANcoder pivotEncoder = new CANcoder(17);
@@ -188,7 +186,7 @@ public class Shooter extends SubsystemBase {
 	}
 
 	public boolean hasNote() {
-		return currentState == IndexerState.HasNote;
+		return indexingNoteState() == IndexerState.HasNote;
 	}
 
 	public IndexerState indexingNoteState() {

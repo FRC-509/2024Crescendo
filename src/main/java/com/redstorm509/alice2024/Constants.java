@@ -82,6 +82,12 @@ public final class Constants {
 	public static class Climber {
 		// REPLACE ME >:((((
 		public static final double kMaxExtensionLength = 0.0; // milimeters
+		public static final double kAcceptableRoll = 0.0; // degrees
+		public static final double kMaxRollCompensationAngle = 0.0; // degrees
+
+		public static final double kExtensionP = 0.0;
+		public static final double kExtensionI = 0.0;
+		public static final double kExtensionD = 0.0;
 	}
 
 	public static final double kFalconFreeSpeedRPS = 6380.0d / 60.0d;

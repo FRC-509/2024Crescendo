@@ -1,10 +1,15 @@
 package com.redstorm509.alice2024.subsystems;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.redstorm509.alice2024.Constants;
+import com.redstorm509.alice2024.util.math.Conversions;
+import com.redstorm509.stormkit.math.PositionTarget;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -14,6 +19,7 @@ public class Climber extends SubsystemBase {
 	private TalonFX rightClimbMotor = new TalonFX(18);
 
 	private VoltageOut openLoopVoltage = new VoltageOut(0);
+
 	private Solenoid leftSol = new Solenoid(PneumaticsModuleType.CTREPCM, 6);
 	private Solenoid rightSol = new Solenoid(PneumaticsModuleType.CTREPCM, 7);
 
@@ -53,5 +59,18 @@ public class Climber extends SubsystemBase {
 				rightSol.set(false);
 			}
 		}
+	}
+
+	public void climb(double speed) {
+		leftClimb(speed);
+		rightClimb(speed);
+	}
+
+	public double getRightExtension() {
+		return rightClimbMotor.getPosition().getValueAsDouble() * 0.0; // REPLACE ME rotations to milimeters conversion
+	}
+
+	public double getLeftExtension() {
+		return leftClimbMotor.getPosition().getValueAsDouble() * 0.0; // REPLACE ME rotations to milimeters conversion
 	}
 }
