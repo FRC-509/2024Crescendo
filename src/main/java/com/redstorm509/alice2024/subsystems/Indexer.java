@@ -5,23 +5,43 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Indexer extends SubsystemBase {
 
 	public enum IndexerState {
 		HasNote,
-		Noteless,
+		Noteless, // lol -itsmeft24
 		NoteTooShooter,
 		NoteTooShooterExtreme,
 		NoteTooIntake,
-		NoteTooIntakeExtreme,
+		NoteTooIntakeExtreme;
+
+		public String toString() {
+			switch (this) {
+				case HasNote:
+					return "Has Note";
+				case NoteTooIntake:
+					return "Note is too close to the intake!";
+				case NoteTooIntakeExtreme:
+					return "Note is WAY too close to the intake!";
+				case NoteTooShooter:
+					return "Note is too close to the shooter!";
+				case NoteTooShooterExtreme:
+					return "Note is WAY too close to the shooter!";
+				case Noteless:
+					return "Maidenless";
+				default:
+					return "What?!";
+			}
+		}
 	}
 
 	private CANSparkMax indexer = new CANSparkMax(12, MotorType.kBrushed);
-	private DigitalInput shooterBB = new DigitalInput(1); // CHANGE TO REAL PORTS
+	private DigitalInput shooterBB = new DigitalInput(4); // CHANGE TO REAL PORTS
 	private DigitalInput indexerBB = new DigitalInput(2);
-	private DigitalInput imStageBB = new DigitalInput(3);
+	private DigitalInput imStageBB = new DigitalInput(0);
 
 	public Indexer() {
 		indexer.setSmartCurrentLimit(15);
@@ -60,5 +80,14 @@ public class Indexer extends SubsystemBase {
 			// Does not have a note, or is invalid state
 			return IndexerState.Noteless;
 		}
+	}
+
+	@Override
+	public void periodic() {
+		SmartDashboard.putString("Indexer State", indexingNoteState().toString());
+		SmartDashboard.putBoolean("IMBB", imStageBB.get());
+		SmartDashboard.putBoolean("IndexerBB", indexerBB.get());
+		SmartDashboard.putBoolean("ShooterBB", shooterBB.get());
+
 	}
 }

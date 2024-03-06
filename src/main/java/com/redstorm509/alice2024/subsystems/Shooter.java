@@ -32,8 +32,8 @@ public class Shooter extends SubsystemBase {
 		shooterFollower.getConfigurator().apply(shootConf);
 	}
 
-	public void setShooterOutput(double speed) {
-		shooterLeader.setControl(closedLoopVelocity.withVelocity(speed * Constants.kFalconFreeSpeedRPS));
+	public void setShooterVelocity(double speed) {
+		shooterLeader.setControl(closedLoopVelocity.withVelocity(speed));
 	}
 
 	public double getShooterVelocity() {

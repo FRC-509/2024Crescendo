@@ -25,7 +25,7 @@ public class Arm extends SubsystemBase {
 	private TalonFX pivotLeader = new TalonFX(13); // Labelled PIVOTL
 	private TalonFX pivotFollower = new TalonFX(14); // Labelled PIVOTR
 	private CANcoder pivotEncoder = new CANcoder(17);
-	private DigitalInput limitSwitch = new DigitalInput(0);
+	private DigitalInput limitSwitch = new DigitalInput(6);
 
 	private VoltageOut openLoop = new VoltageOut(0).withEnableFOC(false);
 	private PositionVoltage closedLoopPosition = new PositionVoltage(0).withEnableFOC(false);

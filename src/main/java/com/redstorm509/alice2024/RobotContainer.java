@@ -81,18 +81,7 @@ public class RobotContainer {
 				() -> MathUtil.applyDeadband(-driverLeft.getX(), Constants.kStickDeadband),
 				() -> MathUtil.applyDeadband(-driverRight.getX(), Constants.kStickDeadband)));
 
-		driverLeft.isDownBind(StickButton.Trigger, Commands.startEnd(
-				() -> {
-					// shooter.setPivotDegrees(1);
-					intake.intake(true);
-					// Goes INNNNNN
-					indexer.rawIndexer(-Constants.Shooter.kIndexerSpinSpeed);
-				},
-				() -> {
-					intake.stop();
-					indexer.rawIndexer(0);
-				},
-				intake, shooter));
+		driverLeft.isDownBind(StickButton.Trigger, new IntakeNote(intake, indexer));
 		driverRight.isDownBind(StickButton.Trigger, Commands.startEnd(
 				() -> {
 					intake.intake(false);
@@ -117,14 +106,13 @@ public class RobotContainer {
 			indexer.rawIndexer(0);
 		}, shooter));
 
-		operator.rightBumper().whileTrue(new ShootNote(shooter, indexer, 0.5 * Constants.kFalconFreeSpeedRPS, false,
-				() -> driverRight.isDown(StickButton.Right)));
+		operator.rightBumper().whileTrue(new ShootNote(shooter, indexer));
 		operator.leftBumper().whileTrue(Commands.startEnd(
 				() -> indexer.rawIndexer(Constants.Shooter.kIndexerSpinSpeed),
 				() -> indexer.rawIndexer(0), shooter));
 		operator.a().onTrue(new SetPivot(arm, 110));
 
-		shooter.setDefaultCommand(new DefaultPivotCommand(arm,
+		arm.setDefaultCommand(new DefaultPivotCommand(arm,
 				() -> MathUtil.applyDeadband(-operator.getLeftY(), Constants.kStickDeadband) / 5));
 		climber.setDefaultCommand(new DefaultClimbCommand(climber, () -> operator.getRightTriggerAxis(),
 				() -> operator.getLeftTriggerAxis(), pigeon));
@@ -134,7 +122,7 @@ public class RobotContainer {
 		chooser.addOption("Two Note", new ThreeNote(swerve, shooter, intake));
 		chooser.addOption("One Note and Taxi",
 				new SequentialCommandGroup(
-						new ShootNote(shooter, indexer, 0.5 * Constants.kFalconFreeSpeedRPS, true, () -> false),
+						new ShootNote(shooter, indexer),
 						new DefaultDriveCommand(swerve, 0.7d, 0.0d, 0.0d, true).withTimeout(1)));
 		chooser.addOption("Null", new InstantCommand());
 		SmartDashboard.putData("Auto Mode", chooser);
