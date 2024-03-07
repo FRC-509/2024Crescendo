@@ -29,13 +29,13 @@ public class ShootNote extends Command {
 
 	@Override
 	public void execute() {
-		shooter.setShooterVelocity(Constants.Shooter.kTargetSpeed);
+		shooter.setShooterVelocity(-Constants.Shooter.kTargetSpeed);
 
 		if (Math.abs(shooter.getShooterVelocity() + Constants.Shooter.kTargetSpeed) <= 10.0d) {
-			indexer.rawIndexer(-Constants.Intake.kIntakeSpinSpeed);
+			indexer.rawIndexer(-Constants.Shooter.kIndexerSpinSpeed);
 		}
 
-		if (indexer.indexingNoteState() == IndexerState.Noteless) {
+		if (indexer.indexingNoteState == IndexerState.Noteless) {
 			isFinished = true;
 		}
 	}
@@ -44,6 +44,7 @@ public class ShootNote extends Command {
 	public void end(boolean wasInterrupted) {
 		shooter.setShooterVelocity(0.0);
 		indexer.rawIndexer(0.0);
+		indexer.setNoteless();
 	}
 
 	@Override

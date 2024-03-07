@@ -38,6 +38,8 @@ public class Indexer extends SubsystemBase {
 		}
 	}
 
+	public IndexerState indexingNoteState;
+
 	private CANSparkMax indexer = new CANSparkMax(12, MotorType.kBrushed);
 	private DigitalInput shooterBB = new DigitalInput(4); // CHANGE TO REAL PORTS
 	private DigitalInput indexerBB = new DigitalInput(2);
@@ -47,6 +49,7 @@ public class Indexer extends SubsystemBase {
 		indexer.setSmartCurrentLimit(15);
 		indexer.setIdleMode(IdleMode.kCoast);
 		indexer.burnFlash();
+		indexingNoteState = IndexerState.Noteless;
 	}
 
 	public void rawIndexer(double speed) {
@@ -54,40 +57,35 @@ public class Indexer extends SubsystemBase {
 	}
 
 	public boolean hasNote() {
-		return indexingNoteState() == IndexerState.HasNote;
+		return indexingNoteState == IndexerState.HasNote;
 	}
 
-	public IndexerState indexingNoteState() {
-		if (indexerBB.get() && shooterBB.get() && !imStageBB.get()) {
-			// Note is where we want it to be
-			return IndexerState.HasNote;
-		} else if (indexerBB.get() && !shooterBB.get() && !imStageBB.get()) {
-			// Note is too far out shooter side
-			return IndexerState.NoteTooShooter;
-		} else if (indexerBB.get() && !shooterBB.get() && imStageBB.get()) {
-			// Note is too far out intermediate stage side
-			return IndexerState.NoteTooIntake;
-		} else if (indexerBB.get() && !shooterBB.get() && !imStageBB.get()) {
-			// Note is inside of indexer, but not far enough
-			return IndexerState.NoteTooIntake;
-		} else if (!indexerBB.get() && shooterBB.get() && !imStageBB.get()) {
-			// Note is way too sticking out shooter
-			return IndexerState.NoteTooShooterExtreme;
-		} else if (!indexerBB.get() && !shooterBB.get() && imStageBB.get()) {
-			// Note is way too sticking out shooter
-			return IndexerState.NoteTooIntakeExtreme;
-		} else {
-			// Does not have a note, or is invalid state
-			return IndexerState.Noteless;
-		}
+	public void setNoteless() {
+		indexingNoteState = IndexerState.Noteless;
 	}
 
 	@Override
 	public void periodic() {
-		SmartDashboard.putString("Indexer State", indexingNoteState().toString());
+		if (!indexerBB.get() && !shooterBB.get() && imStageBB.get()) {
+			// Note is where we want it to be
+			indexingNoteState = IndexerState.HasNote;
+		} else if (!indexerBB.get() && shooterBB.get() && imStageBB.get()) {
+			// Note is too far out shooter side
+			indexingNoteState = IndexerState.NoteTooShooter;
+		} else if (!indexerBB.get() && shooterBB.get() && !imStageBB.get()) {
+			// Note is too far out intermediate stage side
+			indexingNoteState = IndexerState.NoteTooIntake;
+		} else if (indexerBB.get() && !shooterBB.get() && imStageBB.get()) {
+			// Note is way too sticking out shooter
+			indexingNoteState = IndexerState.NoteTooShooterExtreme;
+		} else if (indexerBB.get() && shooterBB.get() && !imStageBB.get()) {
+			// Note is way too sticking out shooter
+			indexingNoteState = IndexerState.NoteTooIntakeExtreme;
+		}
+
+		SmartDashboard.putString("Indexer State", indexingNoteState.toString());
 		SmartDashboard.putBoolean("IMBB", imStageBB.get());
 		SmartDashboard.putBoolean("IndexerBB", indexerBB.get());
 		SmartDashboard.putBoolean("ShooterBB", shooterBB.get());
-
 	}
 }

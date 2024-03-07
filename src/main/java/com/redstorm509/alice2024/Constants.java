@@ -36,7 +36,7 @@ public final class Constants {
 		public static final double kMaxPivotSpeed = 250.0d;
 		public static final double kIndexerSpinSpeed = 0.7d;
 
-		public static final double kPivotMagnetOffset = -325.1946d;
+		public static final double kPivotMagnetOffset = -86.747499;
 
 		public static final double kPivotP = 0.425 * 12; // Fix later probably
 		public static final double kPivotI = 0.06 * 12;
@@ -52,7 +52,7 @@ public final class Constants {
 		public static final double kTargetSpeed = kFalconFreeSpeedRPS * 0.75;
 		public static final double kFlyWheelCircumference = Units.inchesToMeters(4) * Math.PI; // 0.3192 meters
 
-		public static final double kPivotGearRatio = 175.177397338;
+		public static final double kPivotGearRatio = 166.20892908;
 	}
 
 	public static class Intake {
@@ -84,7 +84,7 @@ public final class Constants {
 		// REPLACE ME >:((((
 		public static final double kMaxExtensionLength = 0.0; // milimeters
 		public static final double kAcceptableRoll = 0.0; // degrees
-		public static final double kMaxRollCompensationAngle = 0.0; // degrees
+		public static final double kMaxRollCompensationAngle = 5.0; // degrees
 
 		public static final double kExtensionP = 0.0;
 		public static final double kExtensionI = 0.0;

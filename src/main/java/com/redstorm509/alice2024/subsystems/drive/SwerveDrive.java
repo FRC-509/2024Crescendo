@@ -305,6 +305,9 @@ public class SwerveDrive extends SubsystemBase {
 
 		field2d.setRobotPose(getRawOdometeryPose());
 
+		SmartDashboard.putNumber("roll", pigeon.getRoll().getValueAsDouble());
+		SmartDashboard.putNumber("pitch", pigeon.getPitch().getValueAsDouble());
+
 		SmartDashboard.putNumber("yaw", getYaw().getDegrees());
 		SmartDashboard.putNumber("target-heading", targetHeading);
 		SmartDashboard.putNumber("odometry-x", getRawOdometeryPose().getX());

@@ -4,6 +4,7 @@ import com.redstorm509.alice2024.Constants;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -30,6 +31,8 @@ public class Shooter extends SubsystemBase {
 		shootConf.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 		shooterLeader.getConfigurator().apply(shootConf);
 		shooterFollower.getConfigurator().apply(shootConf);
+
+		shooterFollower.setControl(new Follower(shooterLeader.getDeviceID(), true));
 	}
 
 	public void setShooterVelocity(double speed) {

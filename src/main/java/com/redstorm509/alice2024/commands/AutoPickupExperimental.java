@@ -85,22 +85,21 @@ public class AutoPickupExperimental extends Command {
 			beganIntaking = true;
 
 			// has note logic using beam breaks
-			IndexerState indexerState = indexer.indexingNoteState();
-			if (indexerState == IndexerState.HasNote) {
+			if (indexer.indexingNoteState == IndexerState.HasNote) {
 				isFinished = true;
-			} else if (indexerState == IndexerState.Noteless) {
+			} else if (indexer.indexingNoteState == IndexerState.Noteless) {
 				indexer.rawIndexer(-Constants.Shooter.kIndexerSpinSpeed);
 				intake.intake(true);
-			} else if (indexerState == IndexerState.NoteTooShooter) {
+			} else if (indexer.indexingNoteState == IndexerState.NoteTooShooter) {
 				indexer.rawIndexer(Constants.Shooter.kIndexerSpinSpeed * 0.5); // increase if needed
 				intake.stop();
-			} else if (indexerState == IndexerState.NoteTooShooterExtreme) {
+			} else if (indexer.indexingNoteState == IndexerState.NoteTooShooterExtreme) {
 				indexer.rawIndexer(Constants.Shooter.kIndexerSpinSpeed);
 				intake.stop();
-			} else if (indexerState == IndexerState.NoteTooIntake) {
+			} else if (indexer.indexingNoteState == IndexerState.NoteTooIntake) {
 				indexer.rawIndexer(-Constants.Shooter.kIndexerSpinSpeed * 0.5); // increase if needed
 				intake.stop();
-			} else if (indexerState == IndexerState.NoteTooIntakeExtreme) {
+			} else if (indexer.indexingNoteState == IndexerState.NoteTooIntakeExtreme) {
 				indexer.rawIndexer(-Constants.Shooter.kIndexerSpinSpeed);
 				intake.intake(true);
 			}

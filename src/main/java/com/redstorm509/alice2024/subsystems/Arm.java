@@ -54,7 +54,7 @@ public class Arm extends SubsystemBase {
 
 		resetIntegratedToAbsolute(true);
 
-		if (pivotEncoder.getPosition().getValueAsDouble() * 360.0d >= 350.0d) {
+		if (pivotEncoder.getPosition().getValueAsDouble() * 360.0d >= 350.0d || limitSwitch.get()) {
 			pivotEncoder.setPosition(0);
 			pivotLeader.setPosition(0);
 			pivotFollower.setPosition(0);
@@ -135,14 +135,18 @@ public class Arm extends SubsystemBase {
 	public void periodic() {
 		// DIO channels default to high in sim so we dont run this code if we're in sim.
 		if (!RobotBase.isSimulation() && limitSwitch.get()) {
-			// pivotEncoder.setPosition(kAbsOffsetOffset);
+			pivotEncoder.setPosition(kAbsOffsetOffset);
 			resetIntegratedToAbsolute(false);
 		}
 		SmartDashboard.putBoolean("PivotLimitSwitch", limitSwitch.get());
+		SmartDashboard.putNumber("PivotIntegratedRaw", pivotLeader.getPosition().getValueAsDouble());
 		SmartDashboard.putNumber("PivotLIntegrated",
 				Conversions.falconToDegrees(pivotLeader.getPosition().getValue(), Constants.Shooter.kPivotGearRatio));
 		SmartDashboard.putNumber("PivotFIntegrated",
 				Conversions.falconToDegrees(pivotFollower.getPosition().getValue(), Constants.Shooter.kPivotGearRatio));
-		SmartDashboard.putNumber("PivotAbsolute", pivotEncoder.getPosition().getValue() * 360.0 - kAbsOffsetOffset);
+		SmartDashboard.putNumber("PivotEncoder (Relative)",
+				pivotEncoder.getAbsolutePosition().getValue() * 360.0 - kAbsOffsetOffset);
+		SmartDashboard.putNumber("PivotEncoder (Absolute)",
+				pivotEncoder.getAbsolutePosition().getValue() * 360.0 - kAbsOffsetOffset);
 	}
 }

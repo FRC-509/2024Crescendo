@@ -29,10 +29,10 @@ public class RobotContainer {
 
 	private final SwerveDrive swerve;
 	private final Intake intake;
-	private final Indexer indexer;
-	private final Shooter shooter;
+	public final Indexer indexer;
+	public final Shooter shooter;
 	private final Arm arm;
-	private final Climber climber;
+	// private final Climber climber;
 	public final Limelight intakeCamera = new Limelight("limelight-intake");
 	private final Limelight shooterCamera = new Limelight("limelight-arm");
 
@@ -44,7 +44,7 @@ public class RobotContainer {
 		this.indexer = new Indexer();
 		this.shooter = new Shooter();
 		this.arm = new Arm();
-		this.climber = new Climber();
+		// this.climber = new Climber();
 
 		intakeCamera.setLEDMode_ForceOff();
 		intakeCamera.setPipelineIndex(Constants.Vision.Pipeline.AprilTags);
@@ -114,8 +114,9 @@ public class RobotContainer {
 
 		arm.setDefaultCommand(new DefaultPivotCommand(arm,
 				() -> MathUtil.applyDeadband(-operator.getLeftY(), Constants.kStickDeadband) / 5));
-		climber.setDefaultCommand(new DefaultClimbCommand(climber, () -> operator.getRightTriggerAxis(),
-				() -> operator.getLeftTriggerAxis(), pigeon));
+		// climber.setDefaultCommand(new DefaultClimbCommand(climber, () ->
+		// operator.getRightTriggerAxis(), () -> operator.getLeftTriggerAxis(),
+		// pigeon));
 	}
 
 	private void addAutonomousRoutines() {
