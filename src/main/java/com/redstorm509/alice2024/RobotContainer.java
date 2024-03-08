@@ -32,7 +32,7 @@ public class RobotContainer {
 	public final Indexer indexer;
 	public final Shooter shooter;
 	private final Arm arm;
-	// private final Climber climber;
+	private final Climber climber;
 	public final Limelight intakeCamera = new Limelight("limelight-intake");
 	private final Limelight shooterCamera = new Limelight("limelight-arm");
 
@@ -44,7 +44,7 @@ public class RobotContainer {
 		this.indexer = new Indexer();
 		this.shooter = new Shooter();
 		this.arm = new Arm();
-		// this.climber = new Climber();
+		this.climber = new Climber();
 
 		intakeCamera.setLEDMode_ForceOff();
 		intakeCamera.setPipelineIndex(Constants.Vision.Pipeline.AprilTags);
@@ -91,36 +91,40 @@ public class RobotContainer {
 				() -> {
 					intake.stop();
 					indexer.rawIndexer(0);
+					indexer.setNoteless();
 				},
-				intake, shooter));
+				intake, indexer));
 
 		driverLeft.isDownBind(StickButton.Right, Commands.startEnd(() -> {
 			indexer.rawIndexer(-Constants.Shooter.kIndexerSpinSpeed);
 		}, () -> {
 			indexer.rawIndexer(0);
 
-		}, shooter));
+		}, indexer));
 		driverRight.isDownBind(StickButton.Left, Commands.startEnd(() -> {
 			indexer.rawIndexer(Constants.Shooter.kIndexerSpinSpeed);
 		}, () -> {
 			indexer.rawIndexer(0);
-		}, shooter));
+		}, indexer));
 
 		operator.rightBumper().whileTrue(new ShootNote(shooter, indexer));
 		operator.leftBumper().whileTrue(Commands.startEnd(
 				() -> indexer.rawIndexer(Constants.Shooter.kIndexerSpinSpeed),
-				() -> indexer.rawIndexer(0), shooter));
+				() -> indexer.rawIndexer(0), indexer));
 		operator.a().onTrue(new SetPivot(arm, 110));
 
 		arm.setDefaultCommand(new DefaultPivotCommand(arm,
 				() -> MathUtil.applyDeadband(-operator.getLeftY(), Constants.kStickDeadband) / 5));
-		// climber.setDefaultCommand(new DefaultClimbCommand(climber, () ->
-		// operator.getRightTriggerAxis(), () -> operator.getLeftTriggerAxis(),
-		// pigeon));
+		climber.setDefaultCommand(new DefaultClimbCommand(climber,
+				() -> operator.getRightTriggerAxis(),
+				() -> operator.getLeftTriggerAxis(),
+				() -> operator.button(0).getAsBoolean(), // CHANGE TO ACTUAL BUTTONS
+				() -> operator.button(0).getAsBoolean(),
+				pigeon));
 	}
 
 	private void addAutonomousRoutines() {
-		chooser.addOption("Two Note", new ThreeNote(swerve, shooter, intake));
+		chooser.addOption("Two Note", new ThreeNote(swerve, shooter, arm, indexer, intake));
 		chooser.addOption("One Note and Taxi",
 				new SequentialCommandGroup(
 						new ShootNote(shooter, indexer),

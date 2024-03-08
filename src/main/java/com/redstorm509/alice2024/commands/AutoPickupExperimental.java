@@ -69,19 +69,23 @@ public class AutoPickupExperimental extends Command {
 
 		// Finds distance to target and how much to move
 		double angleToTarget = -limelight.getTY() + -Constants.Vision.kIntakeCameraAngleOffset;
-		double distanceToTarget = Constants.Vision.kIntakeCameraHeightFromGround
-				/ Math.tan(Math.toRadians(angleToTarget));
+		double distanceToTargetY = -(Constants.Vision.kIntakeCameraHeightFromGround
+				/ Math.tan(Math.toRadians(angleToTarget)));
+		double distanceToTargetX = (distanceToTargetY * Math.tan(Math.toRadians(limelight.getTX())));
+
 		// double check correct sign, double negatives l
-		double outputMove = MathUtil.clamp(-distanceToTarget * 2, -Constants.kMaxSpeed, Constants.kMaxSpeed);
 
 		if (limelight.getTV()) {
-			swerve.drive(new Translation2d(0.0, // possibly change 0.0 to: -distanceToTarget * getTX() or scale somehow
-					outputMove),
-					Math.toRadians(distanceToTarget * limelight.getTX() * 1.5), // tune this
-					false, false);
+			swerve.drive(
+					new Translation2d(
+							MathUtil.clamp(distanceToTargetX * 2, -Constants.kMaxSpeed, Constants.kMaxSpeed),
+							MathUtil.clamp(distanceToTargetY * 2, -Constants.kMaxSpeed, Constants.kMaxSpeed)), // tune
+					Math.toRadians(distanceToTargetY * limelight.getTX() * 1.5), // tune this
+					false,
+					false);
 		}
 
-		if (distanceToTarget < 2 || beganIntaking) {
+		if (distanceToTargetY < 2 || beganIntaking) {
 			beganIntaking = true;
 
 			// has note logic using beam breaks
@@ -106,7 +110,8 @@ public class AutoPickupExperimental extends Command {
 		}
 
 		SmartDashboard.putNumber("Angle To Target", angleToTarget);
-		SmartDashboard.putNumber("Distance From Target", distanceToTarget);
+		SmartDashboard.putNumber("Distance From Target", distanceToTargetY);
+		SmartDashboard.putNumber("Side Distance From Target", distanceToTargetX);
 	}
 
 	@Override
