@@ -86,7 +86,7 @@ public class RobotContainer {
 				() -> {
 					intake.intake(false);
 					// Goes OUTTTTTT
-					indexer.rawIndexer(Constants.Shooter.kIndexerSpinSpeed);
+					indexer.rawIndexer(Constants.Indexer.kSpinSpeed);
 				},
 				() -> {
 					intake.stop();
@@ -95,20 +95,20 @@ public class RobotContainer {
 				intake, shooter));
 
 		driverLeft.isDownBind(StickButton.Right, Commands.startEnd(() -> {
-			indexer.rawIndexer(-Constants.Shooter.kIndexerSpinSpeed);
+			indexer.rawIndexer(-Constants.Indexer.kSpinSpeed);
 		}, () -> {
 			indexer.rawIndexer(0);
 
 		}, shooter));
 		driverRight.isDownBind(StickButton.Left, Commands.startEnd(() -> {
-			indexer.rawIndexer(Constants.Shooter.kIndexerSpinSpeed);
+			indexer.rawIndexer(Constants.Indexer.kSpinSpeed);
 		}, () -> {
 			indexer.rawIndexer(0);
 		}, shooter));
 
 		operator.rightBumper().whileTrue(new ShootNote(shooter, indexer));
 		operator.leftBumper().whileTrue(Commands.startEnd(
-				() -> indexer.rawIndexer(Constants.Shooter.kIndexerSpinSpeed),
+				() -> indexer.rawIndexer(Constants.Indexer.kSpinSpeed),
 				() -> indexer.rawIndexer(0), shooter));
 		operator.a().onTrue(new SetPivot(arm, 110));
 

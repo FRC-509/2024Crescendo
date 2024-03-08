@@ -25,7 +25,7 @@ public final class Constants {
 
 	// (0, 0, 0) -> Center of Drivetrain Projected Onto Ground
 	// Front of robot is the direction where the intake is pointing.
-	public static class Shooter {
+	public static class Arm {
 		public static final Translation3d kPointOfRotation = new Translation3d(-0.253997, 0, 0.581834);
 		public static final Translation3d kDefaultShootingOrigin = new Translation3d(0.019505, 0, 0.597487);
 		public static final double kPivotToShootAngleOffset = 61.0d;
@@ -34,7 +34,6 @@ public final class Constants {
 		public static final double kMinPivot = 0.0d;
 		public static final double kMaxPivot = 130.0d;
 		public static final double kMaxPivotSpeed = 250.0d;
-		public static final double kIndexerSpinSpeed = 0.7d;
 
 		public static final double kPivotMagnetOffset = -86.747499;
 
@@ -42,6 +41,10 @@ public final class Constants {
 		public static final double kPivotI = 0.06 * 12;
 		public static final double kPivotD = 0.02 * 12;
 
+		public static final double kPivotGearRatio = 166.20892908;
+	}
+
+	public static class Shooter {
 		public static final double kFlyWheelP = 0.1;
 		public static final double kFlyWheelI = 0.007;
 		public static final double kFlyWheelD = 0.0;
@@ -51,8 +54,10 @@ public final class Constants {
 
 		public static final double kTargetSpeed = kFalconFreeSpeedRPS * 0.75;
 		public static final double kFlyWheelCircumference = Units.inchesToMeters(4) * Math.PI; // 0.3192 meters
+	}
 
-		public static final double kPivotGearRatio = 166.20892908;
+	public static class Indexer {
+		public static final double kSpinSpeed = 0.7d;
 	}
 
 	public static class Intake {

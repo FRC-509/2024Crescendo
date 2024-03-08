@@ -88,19 +88,19 @@ public class AutoPickupExperimental extends Command {
 			if (indexer.indexingNoteState == IndexerState.HasNote) {
 				isFinished = true;
 			} else if (indexer.indexingNoteState == IndexerState.Noteless) {
-				indexer.rawIndexer(-Constants.Shooter.kIndexerSpinSpeed);
+				indexer.rawIndexer(-Constants.Indexer.kSpinSpeed);
 				intake.intake(true);
 			} else if (indexer.indexingNoteState == IndexerState.NoteTooShooter) {
-				indexer.rawIndexer(Constants.Shooter.kIndexerSpinSpeed * 0.5); // increase if needed
+				indexer.rawIndexer(Constants.Indexer.kSpinSpeed * 0.5); // increase if needed
 				intake.stop();
 			} else if (indexer.indexingNoteState == IndexerState.NoteTooShooterExtreme) {
-				indexer.rawIndexer(Constants.Shooter.kIndexerSpinSpeed);
+				indexer.rawIndexer(Constants.Indexer.kSpinSpeed);
 				intake.stop();
 			} else if (indexer.indexingNoteState == IndexerState.NoteTooIntake) {
-				indexer.rawIndexer(-Constants.Shooter.kIndexerSpinSpeed * 0.5); // increase if needed
+				indexer.rawIndexer(-Constants.Indexer.kSpinSpeed * 0.5); // increase if needed
 				intake.stop();
 			} else if (indexer.indexingNoteState == IndexerState.NoteTooIntakeExtreme) {
-				indexer.rawIndexer(-Constants.Shooter.kIndexerSpinSpeed);
+				indexer.rawIndexer(-Constants.Indexer.kSpinSpeed);
 				intake.intake(true);
 			}
 		}

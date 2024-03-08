@@ -32,7 +32,7 @@ public class ShootNote extends Command {
 		shooter.setShooterVelocity(-Constants.Shooter.kTargetSpeed);
 
 		if (Math.abs(shooter.getShooterVelocity() + Constants.Shooter.kTargetSpeed) <= 10.0d) {
-			indexer.rawIndexer(-Constants.Shooter.kIndexerSpinSpeed);
+			indexer.rawIndexer(-Constants.Indexer.kSpinSpeed);
 		}
 
 		if (indexer.indexingNoteState == IndexerState.Noteless) {

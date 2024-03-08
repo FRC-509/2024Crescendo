@@ -93,7 +93,7 @@ public class AutoAlign extends Command {
 				// VERIFY SIGNS & AXES
 				desiredArmPivot = Math.toDegrees(Math.atan(
 						2 * RobotToTag.getZ() / Math.hypot(RobotToTag.getX(), RobotToTag.getY())))
-						- Constants.Shooter.kPivotToShootAngleOffset;
+						- Constants.Arm.kPivotToShootAngleOffset;
 
 				return new Pose2d(new Translation2d(0, 0),
 						new Rotation2d(swerve.getYaw().getRadians() + Math.toRadians(desiredRotation)));
@@ -106,7 +106,7 @@ public class AutoAlign extends Command {
 				// VERIFY SIGNS & AXES
 				desiredArmPivot = Math.toDegrees(Math.atan(
 						2 * RobotToTag.getZ() / Math.hypot(RobotToTag.getX() - 0.43, RobotToTag.getY())))
-						- Constants.Shooter.kPivotToShootAngleOffset;
+						- Constants.Arm.kPivotToShootAngleOffset;
 
 				return new Pose2d(new Translation2d(), new Rotation2d(desiredRotation));
 
@@ -172,7 +172,7 @@ public class AutoAlign extends Command {
 			}
 
 			arm.setPivotDegrees(
-					MathUtil.clamp(desiredArmPivot, Constants.Shooter.kMinPivot, Constants.Shooter.kMaxPivot));
+					MathUtil.clamp(desiredArmPivot, Constants.Arm.kMinPivot, Constants.Arm.kMaxPivot));
 		} else {
 			// if valid tag but no translation, sets desired rotation with operator
 			// movement, otherwise full operator control
