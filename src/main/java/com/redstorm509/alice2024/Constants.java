@@ -52,7 +52,7 @@ public final class Constants {
 		public static final double kFlyWheelV = 0.11;
 		public static final double kFlyWheelA = 0.0;
 
-		public static final double kTargetSpeed = kFalconFreeSpeedRPS * 0.75;
+		public static final double kTargetSpeed = kFalconFreeSpeedRPS * 1.0;
 		public static final double kFlyWheelCircumference = Units.inchesToMeters(4) * Math.PI; // 0.3192 meters
 	}
 

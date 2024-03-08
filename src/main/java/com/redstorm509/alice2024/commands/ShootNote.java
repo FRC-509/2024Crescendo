@@ -22,16 +22,14 @@ public class ShootNote extends Command {
 
 	@Override
 	public void initialize() {
-		if (!indexer.hasNote()) {
-			isFinished = true;
-		}
+		isFinished = !indexer.hasNote();
 	}
 
 	@Override
 	public void execute() {
 		shooter.setShooterVelocity(-Constants.Shooter.kTargetSpeed);
 
-		if (Math.abs(shooter.getShooterVelocity() + Constants.Shooter.kTargetSpeed) <= 10.0d) {
+		if (Math.abs(shooter.getShooterVelocity() + Constants.Shooter.kTargetSpeed) <= 3.0d) {
 			indexer.rawIndexer(-Constants.Indexer.kSpinSpeed);
 		}
 
