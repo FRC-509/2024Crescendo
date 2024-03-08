@@ -20,8 +20,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Arm extends SubsystemBase {
-	private static final double kAbsOffsetOffset = 0.0;
-
 	private TalonFX pivotLeader = new TalonFX(13); // Labelled PIVOTL
 	private TalonFX pivotFollower = new TalonFX(14); // Labelled PIVOTR
 	private CANcoder pivotEncoder = new CANcoder(17);
@@ -39,26 +37,23 @@ public class Arm extends SubsystemBase {
 		pivotConf.Slot0.kP = Constants.Arm.kPivotP;
 		pivotConf.Slot0.kI = Constants.Arm.kPivotI;
 		pivotConf.Slot0.kD = Constants.Arm.kPivotD;
-		pivotConf.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+		pivotConf.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
 		pivotLeader.getConfigurator().apply(pivotConf);
 		pivotFollower.getConfigurator().apply(pivotConf);
 
 		CANcoderConfiguration pivotEncoderConf = new CANcoderConfiguration();
-		pivotEncoderConf.MagnetSensor.MagnetOffset = (Constants.Arm.kPivotMagnetOffset + kAbsOffsetOffset) / 360.0;
+		pivotEncoderConf.MagnetSensor.MagnetOffset = (Constants.Arm.kPivotMagnetOffset) / 360.0;
 		pivotEncoderConf.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-		pivotEncoderConf.MagnetSensor.AbsoluteSensorRange = AbsoluteSensorRangeValue.Unsigned_0To1;
+		pivotEncoderConf.MagnetSensor.AbsoluteSensorRange = AbsoluteSensorRangeValue.Signed_PlusMinusHalf;
 		pivotEncoder.getConfigurator().apply(pivotEncoderConf);
 
 		pivotFollower.setControl(new Follower(pivotLeader.getDeviceID(), true));
 
 		resetIntegratedToAbsolute(true);
+		pivotEncoder.setPosition(Constants.Arm.kMinPivot / 360.0);
+		resetIntegratedToAbsolute(false);
 
-		if (pivotEncoder.getPosition().getValueAsDouble() * 360.0d >= 350.0d || limitSwitch.get()) {
-			pivotEncoder.setPosition(0);
-			pivotLeader.setPosition(0);
-			pivotFollower.setPosition(0);
-		}
 		double angle = pivotEncoder.getPosition().getValueAsDouble() * 360.0d;
 		pivotTarget = new PositionTarget(angle, Constants.Arm.kMinPivot, Constants.Arm.kMaxPivot,
 				Constants.Arm.kMaxPivotSpeed);
@@ -67,13 +62,13 @@ public class Arm extends SubsystemBase {
 	public void resetIntegratedToAbsolute(boolean waitForUpdate) {
 		if (waitForUpdate) {
 			double absPosition = Conversions.degreesToFalcon(
-					pivotEncoder.getPosition().waitForUpdate(1).getValueAsDouble() * 360.0 - kAbsOffsetOffset,
+					pivotEncoder.getPosition().waitForUpdate(1).getValueAsDouble() * 360.0,
 					Constants.Arm.kPivotGearRatio);
 			pivotLeader.setPosition(absPosition);
 			pivotFollower.setPosition(absPosition);
 		} else {
 			double absPosition = Conversions.degreesToFalcon(
-					pivotEncoder.getPosition().getValueAsDouble() * 360.0 - kAbsOffsetOffset,
+					pivotEncoder.getPosition().getValueAsDouble() * 360.0,
 					Constants.Arm.kPivotGearRatio);
 			pivotLeader.setPosition(absPosition);
 			pivotFollower.setPosition(absPosition);
@@ -81,11 +76,12 @@ public class Arm extends SubsystemBase {
 	}
 
 	public double getPivotDegrees() {
-		return pivotEncoder.getPosition().getValue() * 360.0 - kAbsOffsetOffset;
+		return pivotEncoder.getPosition().getValue() * 360.0;
 	}
 
 	public void setPivotDegrees(double targetDegrees) {
 		double delta = (targetDegrees - getPivotDegrees()) % 360;
+
 		if (delta > 180.0d) {
 			delta -= 360.0d;
 		} else if (delta < -180.0d) {
@@ -101,15 +97,14 @@ public class Arm extends SubsystemBase {
 	}
 
 	public void setPivotOutput(double percentOutput) {
-
 		// double previous = pivotTarget.getTarget();
 		pivotTarget.update(percentOutput);
 
-		if (percentOutput <= 0.0d && getPivotDegrees() < 3.0d) {
+		if (percentOutput <= 0.0d && getPivotDegrees() < (Constants.Arm.kMinPivot + 3.0d)) {
 			if (!limitSwitch.get()) {
 				pivotLeader.setControl(openLoop.withOutput(percentOutput));
 			}
-		} else if (percentOutput <= 0 && getPivotDegrees() < 0) {
+		} else if (percentOutput <= 0 && getPivotDegrees() < Constants.Arm.kMinPivot) {
 			pivotLeader.setControl(openLoop.withOutput(percentOutput * 0.075));
 		} else {
 			/*-
@@ -135,18 +130,19 @@ public class Arm extends SubsystemBase {
 	public void periodic() {
 		// DIO channels default to high in sim so we dont run this code if we're in sim.
 		if (!RobotBase.isSimulation() && limitSwitch.get()) {
-			pivotEncoder.setPosition(kAbsOffsetOffset);
+			pivotEncoder.setPosition(Constants.Arm.kMinPivot / 360.0);
 			resetIntegratedToAbsolute(false);
 		}
 		SmartDashboard.putBoolean("PivotLimitSwitch", limitSwitch.get());
+		SmartDashboard.putNumber("PivotOutputDC", pivotLeader.getClosedLoopOutput().getValueAsDouble());
 		SmartDashboard.putNumber("PivotIntegratedRaw", pivotLeader.getPosition().getValueAsDouble());
 		SmartDashboard.putNumber("PivotLIntegrated",
 				Conversions.falconToDegrees(pivotLeader.getPosition().getValue(), Constants.Arm.kPivotGearRatio));
 		SmartDashboard.putNumber("PivotFIntegrated",
 				Conversions.falconToDegrees(pivotFollower.getPosition().getValue(), Constants.Arm.kPivotGearRatio));
 		SmartDashboard.putNumber("PivotEncoder (Relative)",
-				pivotEncoder.getAbsolutePosition().getValue() * 360.0 - kAbsOffsetOffset);
+				pivotEncoder.getPosition().getValue() * 360.0);
 		SmartDashboard.putNumber("PivotEncoder (Absolute)",
-				pivotEncoder.getAbsolutePosition().getValue() * 360.0 - kAbsOffsetOffset);
+				pivotEncoder.getAbsolutePosition().getValue() * 360.0);
 	}
 }

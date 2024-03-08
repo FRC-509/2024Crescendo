@@ -28,20 +28,20 @@ public final class Constants {
 	public static class Arm {
 		public static final Translation3d kPointOfRotation = new Translation3d(-0.253997, 0, 0.581834);
 		public static final Translation3d kDefaultShootingOrigin = new Translation3d(0.019505, 0, 0.597487);
-		public static final double kPivotToShootAngleOffset = 61.0d;
+		public static final double kPivotToShootAngleOffset = 0.0d;
 		// Replace Me!
 		public static final Translation3d kGoalApex = new Translation3d(0.1, 0, Units.inchesToMeters(80.5) + 0.3);
-		public static final double kMinPivot = 0.0d;
-		public static final double kMaxPivot = 130.0d;
+		public static final double kMinPivot = -58.166;
+		public static final double kMaxPivot = 71.834;
 		public static final double kMaxPivotSpeed = 250.0d;
 
-		public static final double kPivotMagnetOffset = -86.747499;
+		public static final double kPivotMagnetOffset = 0;
 
 		public static final double kPivotP = 0.425 * 12; // Fix later probably
 		public static final double kPivotI = 0.06 * 12;
 		public static final double kPivotD = 0.02 * 12;
 
-		public static final double kPivotGearRatio = 166.20892908;
+		public static final double kPivotGearRatio = 512 / 3;
 	}
 
 	public static class Shooter {

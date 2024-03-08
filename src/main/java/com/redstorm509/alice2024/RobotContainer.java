@@ -32,7 +32,7 @@ public class RobotContainer {
 	public final Indexer indexer;
 	public final Shooter shooter;
 	private final Arm arm;
-	private final Climber climber;
+	// private final Climber climber;
 	public final Limelight intakeCamera = new Limelight("limelight-intake");
 	private final Limelight shooterCamera = new Limelight("limelight-arm");
 
@@ -44,7 +44,7 @@ public class RobotContainer {
 		this.indexer = new Indexer();
 		this.shooter = new Shooter();
 		this.arm = new Arm();
-		this.climber = new Climber();
+		// this.climber = new Climber();
 
 		intakeCamera.setLEDMode_ForceOff();
 		intakeCamera.setPipelineIndex(Constants.Vision.Pipeline.AprilTags);
@@ -111,16 +111,16 @@ public class RobotContainer {
 		operator.leftBumper().whileTrue(Commands.startEnd(
 				() -> indexer.rawIndexer(Constants.Indexer.kSpinSpeed),
 				() -> indexer.rawIndexer(0), shooter));
-		operator.a().onTrue(new SetPivot(arm, 110));
+		operator.a().onTrue(new SetPivot(arm, 120));
 
 		arm.setDefaultCommand(new DefaultPivotCommand(arm,
 				() -> MathUtil.applyDeadband(-operator.getLeftY(), Constants.kStickDeadband) / 5));
-		climber.setDefaultCommand(new DefaultClimbCommand(climber,
-				() -> operator.getRightTriggerAxis(),
-				() -> operator.getLeftTriggerAxis(),
-				() -> operator.button(0).getAsBoolean(), // CHANGE TO ACTUAL BUTTONS
-				() -> operator.button(0).getAsBoolean(),
-				pigeon));
+		// climber.setDefaultCommand(new DefaultClimbCommand(climber,
+		// () -> operator.getRightTriggerAxis(),
+		// () -> operator.getLeftTriggerAxis(),
+		// () -> operator.button(0).getAsBoolean(), // CHANGE TO ACTUAL BUTTONS
+		// () -> operator.button(0).getAsBoolean(),
+		// pigeon));
 	}
 
 	private void addAutonomousRoutines() {
