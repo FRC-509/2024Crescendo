@@ -32,7 +32,7 @@ public class RobotContainer {
 	public final Indexer indexer;
 	public final Shooter shooter;
 	private final Arm arm;
-	// private final Climber climber;
+	private final Climber climber;
 	public final Limelight intakeCamera = new Limelight("limelight-intake");
 	private final Limelight shooterCamera = new Limelight("limelight-arm");
 
@@ -44,7 +44,7 @@ public class RobotContainer {
 		this.indexer = new Indexer();
 		this.shooter = new Shooter();
 		this.arm = new Arm();
-		// this.climber = new Climber();
+		this.climber = new Climber(pigeon);
 
 		intakeCamera.setLEDMode_ForceOff();
 		intakeCamera.setPipelineIndex(Constants.Vision.Pipeline.AprilTags);
@@ -56,6 +56,12 @@ public class RobotContainer {
 		addAutonomousRoutines();
 	}
 
+	private static double xsquared(double axis) {
+		double deadbanded = MathUtil.applyDeadband(axis, Constants.kStickDeadband);
+		double squared = Math.abs(deadbanded) * deadbanded;
+		return squared;
+	}
+
 	private void configureButtonBindings() {
 		// Binds translation to the left stick, and rotation to the right stick.
 		// Defaults to field-oriented drive unless the left button on the left stick is
@@ -63,9 +69,9 @@ public class RobotContainer {
 
 		swerve.setDefaultCommand(new DefaultDriveCommand(
 				swerve,
-				() -> MathUtil.applyDeadband(-driverLeft.getY(), Constants.kStickDeadband),
-				() -> MathUtil.applyDeadband(-driverLeft.getX(), Constants.kStickDeadband),
-				() -> MathUtil.applyDeadband(-driverRight.getX(), Constants.kStickDeadband),
+				() -> xsquared(-driverLeft.getY()),
+				() -> xsquared(-driverLeft.getX()),
+				() -> xsquared(-driverRight.getX()),
 				() -> !driverLeft.isDown(StickButton.Left)));
 		// Zeroes the gyroscope when the bottom button the left stick is pressed.
 		driverLeft.isPressedBind(StickButton.Left, Commands.runOnce(() -> {
@@ -76,10 +82,19 @@ public class RobotContainer {
 		driverRight.isDownBind(StickButton.Bottom, new AutoAlign(
 				swerve,
 				arm,
+				shooterCamera,
+				() -> xsquared(-driverLeft.getY()),
+				() -> xsquared(-driverLeft.getX()),
+				() -> xsquared(-driverRight.getX())));
+
+		driverLeft.isDownBind(StickButton.Bottom, new AutoPickupExperimental(
+				swerve,
 				intakeCamera,
-				() -> MathUtil.applyDeadband(-driverLeft.getY(), Constants.kStickDeadband),
-				() -> MathUtil.applyDeadband(-driverLeft.getX(), Constants.kStickDeadband),
-				() -> MathUtil.applyDeadband(-driverRight.getX(), Constants.kStickDeadband)));
+				intake,
+				indexer,
+				() -> xsquared(-driverLeft.getY()),
+				() -> xsquared(-driverLeft.getX()),
+				() -> xsquared(-driverRight.getX())));
 
 		driverLeft.isDownBind(StickButton.Trigger, new IntakeNote(intake, indexer));
 		driverRight.isDownBind(StickButton.Trigger, Commands.startEnd(

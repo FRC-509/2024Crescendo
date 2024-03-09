@@ -2,6 +2,7 @@ package com.redstorm509.alice2024.subsystems;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -17,7 +18,9 @@ public class Climber extends SubsystemBase {
 	private Solenoid leftSol = new Solenoid(PneumaticsModuleType.CTREPCM, 6);
 	private Solenoid rightSol = new Solenoid(PneumaticsModuleType.CTREPCM, 7);
 
-	public Climber() {
+	private double bootRoll = 0.0d;
+
+	public Climber(Pigeon2 pigeon) {
 		TalonFXConfiguration conf = new TalonFXConfiguration();
 		conf.CurrentLimits.SupplyCurrentLimitEnable = true;
 		conf.CurrentLimits.SupplyCurrentLimit = 35.0;
@@ -25,6 +28,11 @@ public class Climber extends SubsystemBase {
 
 		leftClimbMotor.getConfigurator().apply(conf);
 		rightClimbMotor.getConfigurator().apply(conf);
+		bootRoll = pigeon.getRoll().waitForUpdate(1).getValueAsDouble();
+	}
+
+	public double getBootRoll() {
+		return bootRoll;
 	}
 
 	public void leftClimb(double speed) {

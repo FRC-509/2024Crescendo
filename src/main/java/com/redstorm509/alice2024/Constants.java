@@ -117,14 +117,14 @@ public final class Constants {
 	public static final double kSteerAngleD = 0.0;
 
 	// Tune Me!
-	public static final double kHeadingPassiveP = 0.3 * 12.0d;
-	public static final double kHeadingPassiveI = 0.8 * 12.0d;
-	public static final double kHeadingPassiveD = 0.0 * 12.0d;
+	public static final double kHeadingPassiveP = 18;
+	public static final double kHeadingPassiveI = 5;
+	public static final double kHeadingPassiveD = 0.7;
 	public static final double kHeadingAggressiveP = 0.0 * 12.0d;
 	public static final double kHeadingAggressiveI = 0.0 * 12.0d;
 	public static final double kHeadingAggressiveD = 0.0 * 12.0d;
-	public static final double kHeadingTimeout = 0.40;
-	public static final double kMinHeadingCorrectionSpeed = 0.15;
+	public static final double kHeadingTimeout = 0.3;
+	public static final double kMinHeadingCorrectionSpeed = 0.40;
 
 	public static record SwerveModuleConfiguration(
 			int moduleNumber,

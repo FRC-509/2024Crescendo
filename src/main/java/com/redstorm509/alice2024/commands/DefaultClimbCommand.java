@@ -41,7 +41,7 @@ public class DefaultClimbCommand extends Command {
 		boolean extending = Math.abs(extendSupplier.getAsDouble()) > 0.1;
 		boolean retracting = Math.abs(retractSupplier.getAsDouble()) > 0.1;
 
-		double roll = pigeon.getRoll().getValueAsDouble();
+		double roll = pigeon.getRoll().getValueAsDouble() - climber.getBootRoll();
 
 		double rollCompensation = MathUtil.clamp(Math.abs(roll), 0.0, Constants.Climber.kMaxRollCompensationAngle)
 				/ Constants.Climber.kMaxRollCompensationAngle;

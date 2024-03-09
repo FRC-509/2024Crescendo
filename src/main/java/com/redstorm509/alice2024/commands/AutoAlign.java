@@ -153,7 +153,7 @@ public class AutoAlign extends Command {
 		// checks if has valid tag, and if it is specific tag when aplicable
 		if ((!specificTag && !offsetPose.equals(new Pose2d()))
 				|| (specificTag && limelight.getFiducialID() == targetTagID)) {
-			swerve.setTargetHeading(offsetPose.getRotation().getRadians());
+			swerve.setTargetHeading(offsetPose.getRotation().getDegrees() + 90);
 			if (!offsetPose.getTranslation().equals(new Translation2d())) {
 				// possible wait for target heading to be near reached if needed
 				swerve.drive(
@@ -171,8 +171,12 @@ public class AutoAlign extends Command {
 						false);
 			}
 
+			SmartDashboard.putNumber("Desired Arm Pivot",
+					MathUtil.clamp(desiredArmPivot + Constants.Arm.kMinPivot, Constants.Arm.kMinPivot,
+							Constants.Arm.kMaxPivot));
 			arm.setPivotDegrees(
-					MathUtil.clamp(desiredArmPivot, Constants.Arm.kMinPivot, Constants.Arm.kMaxPivot));
+					MathUtil.clamp(desiredArmPivot + Constants.Arm.kMinPivot, Constants.Arm.kMinPivot,
+							Constants.Arm.kMaxPivot));
 		} else {
 			// if valid tag but no translation, sets desired rotation with operator
 			// movement, otherwise full operator control

@@ -51,7 +51,7 @@ public class AutoPickupExperimental extends Command {
 		beganIntaking = false;
 		isFinished = false;
 
-		limelight.setLEDMode_ForceBlink();
+		limelight.setLEDMode_ForceOff();
 		limelight.setPipelineIndex(Constants.Vision.Pipeline.NeuralNetwork);
 	}
 
@@ -69,17 +69,17 @@ public class AutoPickupExperimental extends Command {
 
 		// Finds distance to target and how much to move
 		double angleToTarget = -limelight.getTY() + -Constants.Vision.kIntakeCameraAngleOffset;
-		double distanceToTargetY = -(Constants.Vision.kIntakeCameraHeightFromGround
+		double distanceToTargetY = (Constants.Vision.kIntakeCameraHeightFromGround
 				/ Math.tan(Math.toRadians(angleToTarget)));
-		double distanceToTargetX = (distanceToTargetY * Math.tan(Math.toRadians(limelight.getTX())));
+		double distanceToTargetX = -(distanceToTargetY * Math.tan(Math.toRadians(limelight.getTX())));
 
 		// double check correct sign, double negatives l
 
 		if (limelight.getTV()) {
 			swerve.drive(
 					new Translation2d(
-							MathUtil.clamp(distanceToTargetX * 2, -Constants.kMaxSpeed, Constants.kMaxSpeed),
-							MathUtil.clamp(distanceToTargetY * 2, -Constants.kMaxSpeed, Constants.kMaxSpeed)), // tune
+							MathUtil.clamp(distanceToTargetY * 2, -Constants.kMaxSpeed, Constants.kMaxSpeed), // tune
+							MathUtil.clamp(distanceToTargetX * 2, -Constants.kMaxSpeed, Constants.kMaxSpeed)),
 					Math.toRadians(distanceToTargetY * limelight.getTX() * 1.5), // tune this
 					false,
 					false);
