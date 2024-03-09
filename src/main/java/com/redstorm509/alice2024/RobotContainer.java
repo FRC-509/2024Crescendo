@@ -126,7 +126,7 @@ public class RobotContainer {
 		operator.leftBumper().whileTrue(Commands.startEnd(
 				() -> indexer.rawIndexer(Constants.Indexer.kSpinSpeed),
 				() -> indexer.rawIndexer(0), shooter));
-		operator.a().onTrue(new SetPivot(arm, 120));
+		operator.a().onTrue(new SetPivot(arm, 43));
 
 		arm.setDefaultCommand(new DefaultPivotCommand(arm,
 				() -> MathUtil.applyDeadband(-operator.getLeftY(), Constants.kStickDeadband) / 5));

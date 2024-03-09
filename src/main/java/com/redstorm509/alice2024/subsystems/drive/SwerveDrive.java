@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.redstorm509.alice2024.Constants;
 import com.redstorm509.alice2024.Constants.Chassis;
@@ -129,6 +130,8 @@ public class SwerveDrive extends SubsystemBase {
 		SmartDashboard.putNumber("HeadingKP", Constants.kHeadingPassiveP);
 		SmartDashboard.putNumber("HeadingKI", Constants.kHeadingPassiveI);
 		SmartDashboard.putNumber("HeadingKD", Constants.kHeadingPassiveD);
+		SmartDashboard.putData("Flip to Zero", new InstantCommand(() -> this.setTargetHeading(0), this));
+		SmartDashboard.putData("Flip to 180", new InstantCommand(() -> this.setTargetHeading(180), this));
 	}
 
 	public void drive(Translation2d translationMetersPerSecond, double rotationRadiansPerSecond, boolean fieldRelative,
@@ -175,12 +178,15 @@ public class SwerveDrive extends SubsystemBase {
 			// headingAggressive.calculate(delta) : headingPassive.calculate(delta);
 			// double outputDegrees = Math.abs(delta) > 0.5d ?
 			// headingPassive.calculate(delta) : 0;
-			double[] rawOutputFuck = headingPassive.calculate(delta);
-			double outputDegrees = rawOutputFuck[0] + rawOutputFuck[1] + rawOutputFuck[2];
-			outputDegrees = Math.abs(delta) > 0.7d ? outputDegrees : 0;
-			SmartDashboard.putNumber("HeadingPOUTPUT", rawOutputFuck[0]);
-			SmartDashboard.putNumber("HeadingIOUTPUT", rawOutputFuck[1]);
-			SmartDashboard.putNumber("HeadingDOUTPUT", rawOutputFuck[2]);
+			double[] rawOutputPass = headingPassive.calculate(delta);
+			double outputDegreesP = rawOutputPass[0] + rawOutputPass[1] + rawOutputPass[2];
+			double[] rawOutputAggro = headingAggressive.calculate(delta);
+			double outputDegreesA = rawOutputAggro[0] + rawOutputAggro[1] + rawOutputAggro[2];
+
+			double outputDegrees = Math.abs(delta) > 5.0d ? outputDegreesA : outputDegreesP;
+			// SmartDashboard.putNumber("HeadingPOUTPUT", rawOutputFuck[0]);
+			// SmartDashboard.putNumber("HeadingIOUTPUT", rawOutputFuck[1]);
+			// SmartDashboard.putNumber("HeadingDOUTPUT", rawOutputFuck[2]);
 
 			rotationOutput = Math.toRadians(outputDegrees);
 		}

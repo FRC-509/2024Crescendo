@@ -28,7 +28,7 @@ public final class Constants {
 	public static class Arm {
 		public static final Translation3d kPointOfRotation = new Translation3d(-0.253997, 0, 0.581834);
 		public static final Translation3d kDefaultShootingOrigin = new Translation3d(0.019505, 0, 0.597487);
-		public static final double kPivotToShootAngleOffset = 0.0d;
+		// public static final double kPivotToShootAngleOffset = 0.0d;
 		// Replace Me!
 		public static final Translation3d kGoalApex = new Translation3d(0.1, 0, Units.inchesToMeters(80.5) + 0.3);
 		public static final double kMinPivot = -58.166;
@@ -117,12 +117,12 @@ public final class Constants {
 	public static final double kSteerAngleD = 0.0;
 
 	// Tune Me!
-	public static final double kHeadingPassiveP = 18;
-	public static final double kHeadingPassiveI = 5;
-	public static final double kHeadingPassiveD = 0.7;
-	public static final double kHeadingAggressiveP = 0.0 * 12.0d;
-	public static final double kHeadingAggressiveI = 0.0 * 12.0d;
-	public static final double kHeadingAggressiveD = 0.0 * 12.0d;
+	public static final double kHeadingPassiveP = 15.0;
+	public static final double kHeadingPassiveI = 0.0;
+	public static final double kHeadingPassiveD = 0.65;
+	public static final double kHeadingAggressiveP = 10.0;
+	public static final double kHeadingAggressiveI = 0.8;
+	public static final double kHeadingAggressiveD = 0.8;
 	public static final double kHeadingTimeout = 0.3;
 	public static final double kMinHeadingCorrectionSpeed = 0.40;
 

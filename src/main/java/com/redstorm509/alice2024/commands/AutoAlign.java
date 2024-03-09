@@ -1,5 +1,6 @@
 package com.redstorm509.alice2024.commands;
 
+import edu.wpi.first.math.MathShared;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -30,7 +31,7 @@ public class AutoAlign extends Command {
 
 	private Translation3d RobotToTag;
 	private Translation2d outputTranslation;
-	private double desiredArmPivot;
+	private double desiredArmPivot = Constants.Arm.kMinPivot;
 
 	// Meant to be an "isDownBind" command
 	public AutoAlign(
@@ -46,6 +47,7 @@ public class AutoAlign extends Command {
 		this.xSupplier = xSupplier;
 		this.ySupplier = ySupplier;
 		this.rotationSupplier = rotationSupplier;
+		this.specificTag = false;
 
 		addRequirements(swerve, arm);
 	}
@@ -66,14 +68,15 @@ public class AutoAlign extends Command {
 		this.rotationSupplier = rotationSupplier;
 
 		this.targetTagID = alignmentTagID;
+		this.specificTag = true;
 
 		addRequirements(swerve, arm);
 	}
 
 	public Pose2d getAlignmentOffset(int TagID) {
 		// collects desired offset position
-		// Translation part of pose should be offset wanted offset
-		// Rotation part of pose should be desired angle heading
+		// Translation part of pose should be the desired translational offset.
+		// Rotation part of pose should be desired angle heading.
 
 		double desiredRotation;
 
@@ -86,29 +89,39 @@ public class AutoAlign extends Command {
 
 			// SPEAKER TAG OFFSET
 			case 4: // Red Alliance
-			case 7: // Blue Alliance
+			case 8: // Blue Alliance
 				// robot shoots from behind, so opposite of this angle as heading (?)
-				desiredRotation = -Math.atan(RobotToTag.getX() / RobotToTag.getY());
+				// desiredRotation = -Math.atan2(RobotToTag.getX(), RobotToTag.getY()) - Math.PI
+				// / 2;
+				desiredRotation = -Math.toRadians(limelight.getTX()) * 1.5;
+
+				SmartDashboard.putNumber("TX", limelight.getTX());
+				SmartDashboard.putNumber("DesiredRotation", Math.toDegrees(desiredRotation));
+				SmartDashboard.putNumber("DesiredRotation2",
+						Math.toDegrees(Math.atan2(RobotToTag.getY(), RobotToTag.getX())));
 
 				// VERIFY SIGNS & AXES
 				desiredArmPivot = Math.toDegrees(Math.atan(
-						2 * RobotToTag.getZ() / Math.hypot(RobotToTag.getX(), RobotToTag.getY())))
-						- Constants.Arm.kPivotToShootAngleOffset;
+						2 * RobotToTag.getZ() / Math.hypot(RobotToTag.getX(), RobotToTag.getY())));
 
 				return new Pose2d(new Translation2d(0, 0),
-						new Rotation2d(swerve.getYaw().getRadians() + Math.toRadians(desiredRotation)));
+						new Rotation2d(swerve.getYaw().getRadians() + desiredRotation));
 
 			// SPEAKER SIDE TAG OFFSETS (43 cm to the right of central tags)
 			case 3: // Red Alliance
-			case 8: // Blue Alliance
-				desiredRotation = -Math.atan((RobotToTag.getX() - 0.43) / RobotToTag.getY());
+			case 7: // Blue Alliance
+				// desiredRotation = -Math.atan2(RobotToTag.getX(), (RobotToTag.getY() - 0.43))
+				// - Math.PI / 2;
+				desiredRotation = Math.toRadians(0);
 
+				SmartDashboard.putNumber("DesiredRotation", Math.toDegrees(desiredRotation));
+				SmartDashboard.putNumber("DesiredRotation2",
+						Math.toDegrees(Math.atan2(RobotToTag.getY() - 0.43, RobotToTag.getX())));
 				// VERIFY SIGNS & AXES
 				desiredArmPivot = Math.toDegrees(Math.atan(
-						2 * RobotToTag.getZ() / Math.hypot(RobotToTag.getX() - 0.43, RobotToTag.getY())))
-						- Constants.Arm.kPivotToShootAngleOffset;
+						2 * RobotToTag.getZ() / Math.hypot(RobotToTag.getX(), RobotToTag.getY() - 0.43)));
 
-				return new Pose2d(new Translation2d(), new Rotation2d(desiredRotation));
+				return new Pose2d(new Translation2d(), new Rotation2d(swerve.getYaw().getRadians() + desiredRotation));
 
 			// STAGE TAG OFFSETS
 			case 11: // Red Alliance
@@ -144,17 +157,19 @@ public class AutoAlign extends Command {
 		// TEST VALUES TO MAKE SURE WORKS AS EXPECTED
 
 		// inverted tag centric version
-		Pose3d TagToRobotPose = Limelight.toPose3D(limelight.getTargetPose_RobotSpace());
-		RobotToTag = new Translation3d(TagToRobotPose.getX(), -TagToRobotPose.getZ(), -TagToRobotPose.getY());
+		Pose3d TagToRobotPose = Limelight.toPose3D(limelight.getBotPose_TargetSpace());
+		RobotToTag = new Translation3d(-TagToRobotPose.getZ(), -TagToRobotPose.getX(), -TagToRobotPose.getY());
 
 		Pose2d offsetPose = getAlignmentOffset(targetTagID);
 		outputTranslation = RobotToTag.toTranslation2d().minus(offsetPose.getTranslation());
 
+		// offsetPose = new Pose2d();
 		// checks if has valid tag, and if it is specific tag when aplicable
 		if ((!specificTag && !offsetPose.equals(new Pose2d()))
 				|| (specificTag && limelight.getFiducialID() == targetTagID)) {
-			swerve.setTargetHeading(offsetPose.getRotation().getDegrees() + 90);
 			if (!offsetPose.getTranslation().equals(new Translation2d())) {
+				swerve.setTargetHeading(offsetPose.getRotation().getDegrees());
+
 				// possible wait for target heading to be near reached if needed
 				swerve.drive(
 						new Translation2d(
@@ -166,17 +181,20 @@ public class AutoAlign extends Command {
 			} else {
 				swerve.drive(
 						new Translation2d(xSupplier.getAsDouble(), ySupplier.getAsDouble()).times(Constants.kMaxSpeed),
-						0.0,
+						MathUtil.clamp(offsetPose.getRotation().getRadians(), -Constants.kMaxAngularVelocity,
+								Constants.kMaxAngularVelocity),
 						true,
-						false);
+						true);
 			}
 
 			SmartDashboard.putNumber("Desired Arm Pivot",
 					MathUtil.clamp(desiredArmPivot + Constants.Arm.kMinPivot, Constants.Arm.kMinPivot,
 							Constants.Arm.kMaxPivot));
+			/*-
 			arm.setPivotDegrees(
 					MathUtil.clamp(desiredArmPivot + Constants.Arm.kMinPivot, Constants.Arm.kMinPivot,
 							Constants.Arm.kMaxPivot));
+			*/
 		} else {
 			// if valid tag but no translation, sets desired rotation with operator
 			// movement, otherwise full operator control
@@ -191,6 +209,7 @@ public class AutoAlign extends Command {
 
 		SmartDashboard.putNumber("X to Tag", RobotToTag.getX());
 		SmartDashboard.putNumber("Y to Tag", RobotToTag.getY());
+		SmartDashboard.putNumber("Z to tag", RobotToTag.getZ());
 
 		SmartDashboard.putNumber("X to target position", outputTranslation.getX());
 		SmartDashboard.putNumber("Y to target position", outputTranslation.getY());
@@ -211,5 +230,6 @@ public class AutoAlign extends Command {
 	public void end(boolean wasInterrupted) {
 		limelight.setLEDMode_ForceOff();
 		swerve.drive(new Translation2d(0, 0), 0, true, false);
+		swerve.setTargetHeading(swerve.getYaw().getDegrees());
 	}
 }
