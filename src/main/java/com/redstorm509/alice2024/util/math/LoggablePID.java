@@ -62,6 +62,10 @@ public class LoggablePID implements Sendable, AutoCloseable {
 	private boolean m_haveMeasurement;
 	private boolean m_haveSetpoint;
 
+	private double m_lastProportionalOutput;
+	private double m_lastIntegralOutput;
+	private double m_lastDerivativeOutput;
+
 	/**
 	 * Allocates a PIDController with the given constants for kp, ki, and kd and a
 	 * default period of
@@ -377,13 +381,40 @@ public class LoggablePID implements Sendable, AutoCloseable {
 	}
 
 	/**
+	 * Returns the previous proportional output.
+	 *
+	 * @return The last proportional output.
+	 */
+	public double getLastPOutput() {
+		return m_lastProportionalOutput;
+	}
+
+	/**
+	 * Returns the previous integral output.
+	 *
+	 * @return The last integral output.
+	 */
+	public double getLastIOutput() {
+		return m_lastIntegralOutput;
+	}
+
+	/**
+	 * Returns the previous derivative output.
+	 *
+	 * @return The last derivative output.
+	 */
+	public double getLastDOutput() {
+		return m_lastDerivativeOutput;
+	}
+
+	/**
 	 * Returns the next output of the PID controller.
 	 *
 	 * @param measurement The current measurement of the process variable.
 	 * @param setpoint    The new setpoint of the controller.
 	 * @return The next controller output.
 	 */
-	public double[] calculate(double measurement, double setpoint) {
+	public double calculate(double measurement, double setpoint) {
 		m_setpoint = setpoint;
 		m_haveSetpoint = true;
 		return calculate(measurement);
@@ -395,7 +426,7 @@ public class LoggablePID implements Sendable, AutoCloseable {
 	 * @param measurement The current measurement of the process variable.
 	 * @return The next controller output.
 	 */
-	public double[] calculate(double measurement) {
+	public double calculate(double measurement) {
 		m_measurement = measurement;
 		m_prevError = m_positionError;
 		m_haveMeasurement = true;
@@ -420,12 +451,11 @@ public class LoggablePID implements Sendable, AutoCloseable {
 					m_maximumIntegral / m_ki);
 		}
 
-		double[] outputs = new double[3];
-		outputs[0] = m_kp * m_positionError;
-		outputs[1] = m_ki * m_totalError;
-		outputs[2] = m_kd * m_velocityError;
+		m_lastProportionalOutput = m_kp * m_positionError;
+		m_lastIntegralOutput = m_ki * m_totalError;
+		m_lastDerivativeOutput = m_kd * m_velocityError;
 
-		return outputs;
+		return m_lastProportionalOutput + m_lastIntegralOutput + m_lastDerivativeOutput;
 	}
 
 	/** Resets the previous error and the integral term. */
