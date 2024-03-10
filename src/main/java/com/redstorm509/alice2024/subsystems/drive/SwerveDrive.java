@@ -337,6 +337,7 @@ public class SwerveDrive extends SubsystemBase {
 		SmartDashboard.putNumber("roll", pigeon.getRoll().getValueAsDouble());
 		SmartDashboard.putNumber("pitch", pigeon.getPitch().getValueAsDouble());
 		SmartDashboard.putNumber("yaw", getYaw().getDegrees());
+		SmartDashboard.putNumber("yaw-velocity", pigeon.getAngularVelocityZWorld().getValueAsDouble());
 
 		headingPassive.setP(SmartDashboard.getNumber("HeadingPassiveP", Constants.kHeadingPassiveP));
 		headingPassive.setI(SmartDashboard.getNumber("HeadingPassiveI", Constants.kHeadingPassiveI));

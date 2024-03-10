@@ -47,16 +47,16 @@ public class SwerveM2D {
 	}
 
 	public void update(SwerveModuleState[] states) {
-		frontRight.setAngle(states[0].angle.getDegrees());
+		frontRight.setAngle(states[0].angle.getDegrees() + 90.0d);
 		frontRight.setLength(states[0].speedMetersPerSecond);
 
-		frontLeft.setAngle(states[1].angle.getDegrees());
+		frontLeft.setAngle(states[1].angle.getDegrees() + 90.0d);
 		frontLeft.setLength(states[1].speedMetersPerSecond);
 
-		backLeft.setAngle(states[2].angle.getDegrees());
+		backLeft.setAngle(states[2].angle.getDegrees() + 90.0d);
 		backLeft.setLength(states[2].speedMetersPerSecond);
 
-		backRight.setAngle(states[3].angle.getDegrees());
+		backRight.setAngle(states[3].angle.getDegrees() + 90.0d);
 		backRight.setLength(states[3].speedMetersPerSecond);
 
 		SmartDashboard.putData("Swerve Drive State", layout);

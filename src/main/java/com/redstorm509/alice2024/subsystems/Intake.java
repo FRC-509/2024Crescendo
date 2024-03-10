@@ -15,8 +15,7 @@ public class Intake extends SubsystemBase {
 	private final CANSparkMax preCompressorMotors = new CANSparkMax(10, MotorType.kBrushed);
 	private final CANSparkMax intermediateStage = new CANSparkMax(16, MotorType.kBrushless);
 	private VoltageOut openLoopVoltage = new VoltageOut(0);
-	private double preCompressorSpeed = 0.0d;
-	private double intermediateStageSpeed = 0.0d;
+	private boolean isIntaking = false;
 
 	public Intake() {
 		TalonFXConfiguration conf = new TalonFXConfiguration();
@@ -35,29 +34,25 @@ public class Intake extends SubsystemBase {
 		intermediateStage.burnFlash();
 	}
 
-	@Override
-	public void periodic() {
-		intakeMotor.setControl(openLoopVoltage);
-		preCompressorMotors.set(preCompressorSpeed);
-		intermediateStage.set(intermediateStageSpeed);
-	}
-
 	public void intake(boolean inwards) {
-		if (inwards) {
-			openLoopVoltage.Output = -Constants.Intake.kIntakeSpinSpeed * 12;
-			preCompressorSpeed = -Constants.Intake.kPreCompressorSpinSpeed;
-			intermediateStageSpeed = -Constants.Intake.kIntermediateStageSpinSpeed;
-		} else {
-			openLoopVoltage.Output = Constants.Intake.kIntakeSpinSpeed * 12;
-			preCompressorSpeed = Constants.Intake.kPreCompressorSpinSpeed;
-			intermediateStageSpeed = Constants.Intake.kIntermediateStageSpinSpeed;
+		if (!isIntaking) {
+			if (inwards) {
+				intakeMotor.setControl(openLoopVoltage.withOutput(-Constants.Intake.kIntakeSpinSpeed * 12));
+				preCompressorMotors.set(-Constants.Intake.kPreCompressorSpinSpeed);
+				intermediateStage.set(-Constants.Intake.kIntermediateStageSpinSpeed);
+			} else {
+				intakeMotor.setControl(openLoopVoltage.withOutput(Constants.Intake.kIntakeSpinSpeed * 12));
+				preCompressorMotors.set(Constants.Intake.kPreCompressorSpinSpeed);
+				intermediateStage.set(Constants.Intake.kIntermediateStageSpinSpeed);
+			}
+			isIntaking = true;
 		}
-
 	}
 
 	public void stop() {
-		openLoopVoltage.Output = 0;
-		preCompressorSpeed = 0.0d;
-		intermediateStageSpeed = 0.0d;
+		intakeMotor.setControl(openLoopVoltage.withOutput(0));
+		preCompressorMotors.set(0);
+		intermediateStage.set(0);
+		isIntaking = false;
 	}
 }

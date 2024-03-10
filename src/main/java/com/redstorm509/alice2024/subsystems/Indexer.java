@@ -12,7 +12,7 @@ public class Indexer extends SubsystemBase {
 
 	public enum IndexerState {
 		HasNote,
-		Noteless, // lol -itsmeft24
+		Noteless,
 		NoteTooShooter,
 		NoteTooShooterExtreme,
 		NoteTooIntake,
@@ -31,9 +31,9 @@ public class Indexer extends SubsystemBase {
 				case NoteTooShooterExtreme:
 					return "Note is WAY too close to the shooter!";
 				case Noteless:
-					return "Maidenless";
+					return "Noteless";
 				default:
-					return "What?!";
+					return "Invalid";
 			}
 		}
 	}
@@ -84,8 +84,5 @@ public class Indexer extends SubsystemBase {
 		}
 
 		SmartDashboard.putString("Indexer State", indexingNoteState.toString());
-		SmartDashboard.putBoolean("IMBB", imStageBB.get());
-		SmartDashboard.putBoolean("IndexerBB", indexerBB.get());
-		SmartDashboard.putBoolean("ShooterBB", shooterBB.get());
 	}
 }

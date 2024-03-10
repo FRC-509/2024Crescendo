@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -56,7 +57,7 @@ public class RobotContainer {
 		addAutonomousRoutines();
 	}
 
-	private static double xsquared(double axis) {
+	private static double nonInvSquare(double axis) {
 		double deadbanded = MathUtil.applyDeadband(axis, Constants.kStickDeadband);
 		double squared = Math.abs(deadbanded) * deadbanded;
 		return squared;
@@ -69,10 +70,18 @@ public class RobotContainer {
 
 		swerve.setDefaultCommand(new DefaultDriveCommand(
 				swerve,
-				() -> xsquared(-driverLeft.getY()),
-				() -> xsquared(-driverLeft.getX()),
-				() -> xsquared(-driverRight.getX()),
+				() -> nonInvSquare(-driverLeft.getY()),
+				() -> nonInvSquare(-driverLeft.getX()),
+				() -> nonInvSquare(-driverRight.getX()),
 				() -> !driverLeft.isDown(StickButton.Left)));
+
+		// Binds heading locks to the left stick's dpad. Pressing up will face forward,
+		// pressing down will face backward.
+		(new Trigger(() -> driverLeft.getPOV(0) == 0))
+				.onTrue(Commands.runOnce(() -> swerve.setTargetHeading(0), swerve));
+		(new Trigger(() -> driverLeft.getPOV(0) == 180))
+				.onTrue(Commands.runOnce(() -> swerve.setTargetHeading(180), swerve));
+
 		// Zeroes the gyroscope when the bottom button the left stick is pressed.
 		driverLeft.isPressedBind(StickButton.Left, Commands.runOnce(() -> {
 			pigeon.setYaw(0);
@@ -83,18 +92,18 @@ public class RobotContainer {
 				swerve,
 				arm,
 				shooterCamera,
-				() -> xsquared(-driverLeft.getY()),
-				() -> xsquared(-driverLeft.getX()),
-				() -> xsquared(-driverRight.getX())));
+				() -> nonInvSquare(-driverLeft.getY()),
+				() -> nonInvSquare(-driverLeft.getX()),
+				() -> nonInvSquare(-driverRight.getX())));
 
 		driverLeft.isDownBind(StickButton.Bottom, new AutoPickupExperimental(
 				swerve,
 				intakeCamera,
 				intake,
 				indexer,
-				() -> xsquared(-driverLeft.getY()),
-				() -> xsquared(-driverLeft.getX()),
-				() -> xsquared(-driverRight.getX())));
+				() -> nonInvSquare(-driverLeft.getY()),
+				() -> nonInvSquare(-driverLeft.getX()),
+				() -> nonInvSquare(-driverRight.getX())));
 
 		driverLeft.isDownBind(StickButton.Trigger, new IntakeNote(intake, indexer));
 		driverRight.isDownBind(StickButton.Trigger, Commands.startEnd(
@@ -129,7 +138,7 @@ public class RobotContainer {
 		operator.a().onTrue(new SetPivot(arm, 43));
 
 		arm.setDefaultCommand(new DefaultPivotCommand(arm,
-				() -> MathUtil.applyDeadband(-operator.getLeftY(), Constants.kStickDeadband) / 5));
+				() -> nonInvSquare(-operator.getLeftY()) / 5));
 		// climber.setDefaultCommand(new DefaultClimbCommand(climber,
 		// () -> operator.getRightTriggerAxis(),
 		// () -> operator.getLeftTriggerAxis(),
@@ -139,7 +148,7 @@ public class RobotContainer {
 	}
 
 	private void addAutonomousRoutines() {
-		chooser.addOption("Two Note", new ThreeNote(swerve, shooter, arm, indexer, intake));
+		chooser.addOption("Three Note", new ThreeNote(swerve, shooter, arm, indexer, intake));
 		chooser.addOption("One Note and Taxi",
 				new SequentialCommandGroup(
 						new ShootNote(shooter, indexer),
