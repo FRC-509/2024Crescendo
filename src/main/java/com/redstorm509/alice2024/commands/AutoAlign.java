@@ -90,38 +90,20 @@ public class AutoAlign extends Command {
 			// SPEAKER TAG OFFSET
 			case 4: // Red Alliance
 			case 8: // Blue Alliance
-				// robot shoots from behind, so opposite of this angle as heading (?)
-				// desiredRotation = -Math.atan2(RobotToTag.getX(), RobotToTag.getY()) - Math.PI
-				// / 2;
-				desiredRotation = -Math.toRadians(limelight.getTX()) * 1.5;
-
-				SmartDashboard.putNumber("TX", limelight.getTX());
-				SmartDashboard.putNumber("DesiredRotation", Math.toDegrees(desiredRotation));
-				SmartDashboard.putNumber("DesiredRotation2",
-						Math.toDegrees(Math.atan2(RobotToTag.getY(), RobotToTag.getX())));
+				desiredRotation = -Math.toRadians(limelight.getTX() * 4.5);
 
 				// VERIFY SIGNS & AXES
 				desiredArmPivot = Math.toDegrees(Math.atan(
 						2 * RobotToTag.getZ() / Math.hypot(RobotToTag.getX(), RobotToTag.getY())));
 
 				return new Pose2d(new Translation2d(0, 0),
-						new Rotation2d(swerve.getYaw().getRadians() + desiredRotation));
+						new Rotation2d(desiredRotation));
 
 			// SPEAKER SIDE TAG OFFSETS (43 cm to the right of central tags)
 			case 3: // Red Alliance
 			case 7: // Blue Alliance
-				// desiredRotation = -Math.atan2(RobotToTag.getX(), (RobotToTag.getY() - 0.43))
-				// - Math.PI / 2;
-				desiredRotation = Math.toRadians(0);
-
-				SmartDashboard.putNumber("DesiredRotation", Math.toDegrees(desiredRotation));
-				SmartDashboard.putNumber("DesiredRotation2",
-						Math.toDegrees(Math.atan2(RobotToTag.getY() - 0.43, RobotToTag.getX())));
-				// VERIFY SIGNS & AXES
-				desiredArmPivot = Math.toDegrees(Math.atan(
-						2 * RobotToTag.getZ() / Math.hypot(RobotToTag.getX(), RobotToTag.getY() - 0.43)));
-
-				return new Pose2d(new Translation2d(), new Rotation2d(swerve.getYaw().getRadians() + desiredRotation));
+				// skip and wait to rotate to center tag
+				return new Pose2d();
 
 			// STAGE TAG OFFSETS
 			case 11: // Red Alliance
@@ -146,7 +128,11 @@ public class AutoAlign extends Command {
 	@Override
 	public void execute() {
 		if (limelight.getTV()) {
-			limelight.setLEDMode_ForceOn();
+			if ((int) limelight.getFiducialID() == 7 || (int) limelight.getFiducialID() == 3) {
+				limelight.setLEDMode_ForceBlink();
+			} else {
+				limelight.setLEDMode_ForceOn();
+			}
 			if (!specificTag) {
 				targetTagID = (int) limelight.getFiducialID();
 			}

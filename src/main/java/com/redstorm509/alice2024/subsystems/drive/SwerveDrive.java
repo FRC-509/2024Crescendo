@@ -68,6 +68,8 @@ public class SwerveDrive extends SubsystemBase {
 	private LoggablePID headingAggressive = new LoggablePID(Constants.kHeadingAggressiveP,
 			Constants.kHeadingAggressiveI, Constants.kHeadingAggressiveD);
 
+	private boolean alwaysOmitRotationalCorrection = false;
+
 	private double simHeading = 0.0d;
 	private double prevRotOutput = 0.0d;
 	private SwerveM2D visualizer;
@@ -126,14 +128,16 @@ public class SwerveDrive extends SubsystemBase {
 
 		headingPassive.setIntegratorRange(-180, 180);
 		headingAggressive.setIntegratorRange(-180, 180);
+		headingPassive.setTolerance(0.25);
+		headingAggressive.setTolerance(0.25);
 
 		SmartDashboard.putNumber("HeadingPassiveP", Constants.kHeadingPassiveP);
 		SmartDashboard.putNumber("HeadingPassiveI", Constants.kHeadingPassiveI);
 		SmartDashboard.putNumber("HeadingPassiveD", Constants.kHeadingPassiveD);
 
-		SmartDashboard.putNumber("HeadingAggressiveP", Constants.kHeadingPassiveP);
-		SmartDashboard.putNumber("HeadingAggressiveI", Constants.kHeadingPassiveI);
-		SmartDashboard.putNumber("HeadingAggressiveD", Constants.kHeadingPassiveD);
+		SmartDashboard.putNumber("HeadingAggressiveP", Constants.kHeadingAggressiveP);
+		SmartDashboard.putNumber("HeadingAggressiveI", Constants.kHeadingAggressiveI);
+		SmartDashboard.putNumber("HeadingAggressiveD", Constants.kHeadingAggressiveD);
 
 		SmartDashboard.putData("Set Heading to 0", new InstantCommand(() -> this.setTargetHeading(0), this));
 		SmartDashboard.putData("Set Heading to 180", new InstantCommand(() -> this.setTargetHeading(180), this));
@@ -141,7 +145,9 @@ public class SwerveDrive extends SubsystemBase {
 
 	public void drive(Translation2d translationMetersPerSecond, double rotationRadiansPerSecond, boolean fieldRelative,
 			boolean omitRotationCorrection) {
-
+		if (alwaysOmitRotationalCorrection) {
+			omitRotationCorrection = true;
+		}
 		double dt = Timer.getFPGATimestamp() - prevTime;
 		if (prevTime < 0) {
 			dt = 0.02;
@@ -168,6 +174,7 @@ public class SwerveDrive extends SubsystemBase {
 			// if (hasRotationInput || timer.get() < Constants.kHeadingTimeout) {
 			setTargetHeading(getYaw().getDegrees());
 			headingPassive.reset();
+			headingAggressive.reset();
 			// }
 			rotationOutput = interpolatedRotation;
 		} else {
@@ -179,18 +186,22 @@ public class SwerveDrive extends SubsystemBase {
 				delta += 360.0d;
 			}
 
-			// double outputDegrees = Math.abs(delta) > 2.0d ?
-			// headingAggressive.calculate(delta) : headingPassive.calculate(delta);
-			// double outputDegrees = Math.abs(delta) > 0.5d ?
-			// headingPassive.calculate(delta) : 0;
-			double passiveOutput = headingPassive.calculate(delta);
 			double aggressiveOutput = headingAggressive.calculate(delta);
+			double passiveOutput = headingPassive.calculate(delta);
 
-			double outputDegrees = Math.abs(delta) > 5.0d ? passiveOutput : aggressiveOutput;
+			// Remove the D term from passive if its output is less than 1
+			if (Math.abs(headingPassive.getLastDOutput()) < 1.0) {
+				passiveOutput = headingPassive.getLastPOutput() + headingPassive.getLastIOutput();
+			}
 
-			// SmartDashboard.putNumber("HeadingPOutput", headingPassive.getLastPOutput());
-			// SmartDashboard.putNumber("HeadingIOutput", headingPassive.getLastIOutput());
-			// SmartDashboard.putNumber("HeadingDOutput", headingPassive.getLastDOutput());
+			double outputDegrees = Math.abs(delta) > 30.0d ? passiveOutput : aggressiveOutput;
+
+			SmartDashboard.putNumber("HeadingPassivePOutput", headingPassive.getLastPOutput());
+			SmartDashboard.putNumber("HeadingPassiveIOutput", headingPassive.getLastIOutput());
+			SmartDashboard.putNumber("HeadingPassiveDOutput", headingPassive.getLastDOutput());
+			SmartDashboard.putNumber("HeadingAggressivePOutput", headingAggressive.getLastPOutput());
+			SmartDashboard.putNumber("HeadingAggressiveIOutput", headingAggressive.getLastIOutput());
+			SmartDashboard.putNumber("HeadingAggressiveDOutput", headingAggressive.getLastDOutput());
 
 			rotationOutput = Math.toRadians(outputDegrees);
 		}
@@ -237,6 +248,12 @@ public class SwerveDrive extends SubsystemBase {
 
 	public void setTargetHeading(double heading) {
 		targetHeading = heading % 360.0d;
+	}
+
+	public void toggleHeadingCorrection() {
+		alwaysOmitRotationalCorrection = !alwaysOmitRotationalCorrection;
+		headingAggressive.reset();
+		headingPassive.reset();
 	}
 
 	public ChassisSpeeds getChassisSpeeds() {
@@ -337,15 +354,19 @@ public class SwerveDrive extends SubsystemBase {
 		SmartDashboard.putNumber("roll", pigeon.getRoll().getValueAsDouble());
 		SmartDashboard.putNumber("pitch", pigeon.getPitch().getValueAsDouble());
 		SmartDashboard.putNumber("yaw", getYaw().getDegrees());
+		SmartDashboard.putBoolean("Heading Correction Enabled?", !alwaysOmitRotationalCorrection);
+
+		SmartDashboard.putNumber("x-velocity", getChassisSpeeds().vxMetersPerSecond);
+		SmartDashboard.putNumber("y-velocity", getChassisSpeeds().vyMetersPerSecond);
 		SmartDashboard.putNumber("yaw-velocity", pigeon.getAngularVelocityZWorld().getValueAsDouble());
 
 		headingPassive.setP(SmartDashboard.getNumber("HeadingPassiveP", Constants.kHeadingPassiveP));
 		headingPassive.setI(SmartDashboard.getNumber("HeadingPassiveI", Constants.kHeadingPassiveI));
 		headingPassive.setD(SmartDashboard.getNumber("HeadingPassiveD", Constants.kHeadingPassiveD));
 
-		headingAggressive.setP(SmartDashboard.getNumber("HeadingAggressiveP", Constants.kHeadingPassiveP));
-		headingAggressive.setI(SmartDashboard.getNumber("HeadingAggressiveI", Constants.kHeadingPassiveI));
-		headingAggressive.setD(SmartDashboard.getNumber("HeadingAggressiveD", Constants.kHeadingPassiveD));
+		headingAggressive.setP(SmartDashboard.getNumber("HeadingAggressiveP", Constants.kHeadingAggressiveP));
+		headingAggressive.setI(SmartDashboard.getNumber("HeadingAggressiveI", Constants.kHeadingAggressiveI));
+		headingAggressive.setD(SmartDashboard.getNumber("HeadingAggressiveD", Constants.kHeadingAggressiveD));
 
 		SmartDashboard.putNumber("target-heading", targetHeading);
 		SmartDashboard.putNumber("odometry-x", getRawOdometeryPose().getX());

@@ -77,11 +77,14 @@ public class RobotContainer {
 
 		// Binds heading locks to the left stick's dpad. Pressing up will face forward,
 		// pressing down will face backward.
-		(new Trigger(() -> driverLeft.getPOV(0) == 0))
+		(new Trigger(() -> driverRight.getPOV(0) == 0))
 				.onTrue(Commands.runOnce(() -> swerve.setTargetHeading(0), swerve));
-		(new Trigger(() -> driverLeft.getPOV(0) == 180))
+		(new Trigger(() -> driverRight.getPOV(0) == 180))
 				.onTrue(Commands.runOnce(() -> swerve.setTargetHeading(180), swerve));
-
+		// Toggle heading correction by pressing the bottom-rightmost botton on the left
+		// side of the right stick. Heading correction defaults to ON at boot.
+		driverRight.isPressedBind(StickButton.LeftSideRightBottom,
+				Commands.runOnce(() -> swerve.toggleHeadingCorrection(), swerve));
 		// Zeroes the gyroscope when the bottom button the left stick is pressed.
 		driverLeft.isPressedBind(StickButton.Left, Commands.runOnce(() -> {
 			pigeon.setYaw(0);
@@ -139,12 +142,12 @@ public class RobotContainer {
 
 		arm.setDefaultCommand(new DefaultPivotCommand(arm,
 				() -> nonInvSquare(-operator.getLeftY()) / 5));
-		// climber.setDefaultCommand(new DefaultClimbCommand(climber,
-		// () -> operator.getRightTriggerAxis(),
-		// () -> operator.getLeftTriggerAxis(),
-		// () -> operator.button(0).getAsBoolean(), // CHANGE TO ACTUAL BUTTONS
-		// () -> operator.button(0).getAsBoolean(),
-		// pigeon));
+		climber.setDefaultCommand(new DefaultClimbCommand(climber,
+				() -> operator.getRightTriggerAxis(),
+				() -> operator.getLeftTriggerAxis(),
+				() -> operator.button(0).getAsBoolean(), // CHANGE TO ACTUAL BUTTONS
+				() -> operator.button(0).getAsBoolean(),
+				pigeon));
 	}
 
 	private void addAutonomousRoutines() {

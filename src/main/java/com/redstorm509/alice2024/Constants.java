@@ -104,7 +104,7 @@ public final class Constants {
 			/ (Math.hypot(Chassis.kOffsetToSwerveModule, Chassis.kOffsetToSwerveModule));
 	public static final double kMaxAngularAcceleration = 0.0;
 
-	public static final double kDriveVelocityS = 0.128;
+	public static final double kDriveVelocityS = 0.124;
 	public static final double kDriveVelocityV = 0.109;
 	public static final double kDriveVelocityA = 0.0;
 
@@ -117,14 +117,14 @@ public final class Constants {
 	public static final double kSteerAngleD = 0.0;
 
 	// Tune Me!
-	public static final double kHeadingPassiveP = 15.0;
+	public static final double kHeadingPassiveP = 14.0;
 	public static final double kHeadingPassiveI = 0.0;
-	public static final double kHeadingPassiveD = 0.65;
-	public static final double kHeadingAggressiveP = 10.0;
-	public static final double kHeadingAggressiveI = 0.8;
+	public static final double kHeadingPassiveD = 0.75;
+	public static final double kHeadingAggressiveP = 12.0;
+	public static final double kHeadingAggressiveI = 0.25;
 	public static final double kHeadingAggressiveD = 0.8;
-	public static final double kHeadingTimeout = 0.3;
-	public static final double kMinHeadingCorrectionSpeed = 0.40;
+	public static final double kHeadingTimeout = 0.25;
+	public static final double kMinHeadingCorrectionSpeed = 0.05;
 
 	public static record SwerveModuleConfiguration(
 			int moduleNumber,

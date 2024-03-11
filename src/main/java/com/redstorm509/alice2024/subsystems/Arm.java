@@ -24,6 +24,7 @@ public class Arm extends SubsystemBase {
 	private TalonFX pivotFollower = new TalonFX(14); // Labelled PIVOTR
 	private CANcoder pivotEncoder = new CANcoder(17);
 	private DigitalInput limitSwitch = new DigitalInput(6);
+	private boolean wasLimitSwitchTripped = false;
 
 	private VoltageOut openLoop = new VoltageOut(0).withEnableFOC(false);
 	private PositionVoltage closedLoopPosition = new PositionVoltage(0).withEnableFOC(false);
@@ -129,10 +130,11 @@ public class Arm extends SubsystemBase {
 	@Override
 	public void periodic() {
 		// DIO channels default to high in sim so we dont run this code if we're in sim.
-		if (!RobotBase.isSimulation() && limitSwitch.get()) {
+		if (!RobotBase.isSimulation() && !wasLimitSwitchTripped && limitSwitch.get()) {
 			pivotEncoder.setPosition(Constants.Arm.kMinPivot / 360.0);
 			resetIntegratedToAbsolute(false);
 		}
+		wasLimitSwitchTripped = limitSwitch.get();
 		SmartDashboard.putBoolean("PivotLimitSwitch", limitSwitch.get());
 		SmartDashboard.putNumber("PivotOutputDC", pivotLeader.getClosedLoopOutput().getValueAsDouble());
 		SmartDashboard.putNumber("PivotIntegratedRaw", pivotLeader.getPosition().getValueAsDouble());
