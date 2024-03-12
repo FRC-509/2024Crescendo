@@ -59,9 +59,10 @@ public class AutoPickupExperimental extends Command {
 	public void execute() {
 		if (!limelight.getTV() && !beganIntaking) {
 			limelight.setLEDMode_ForceOn();
-			swerve.drive(new Translation2d(xSupplier.getAsDouble(), ySupplier.getAsDouble()).times(Constants.kMaxSpeed),
-					rotationSupplier.getAsDouble(),
-					false,
+			swerve.drive(
+					new Translation2d(xSupplier.getAsDouble(), ySupplier.getAsDouble()).times(Constants.kMaxSpeed),
+					rotationSupplier.getAsDouble() * Constants.kMaxAngularVelocity,
+					true,
 					false);
 		} else {
 			limelight.setLEDMode_ForceBlink();
@@ -75,12 +76,13 @@ public class AutoPickupExperimental extends Command {
 
 		// double check correct sign, double negatives l
 
-		if (limelight.getTV()) {
+		if (limelight.getTV() && indexer.indexingNoteState == IndexerState.Noteless && distanceToTargetY <= 3.0) {
 			swerve.drive(
 					new Translation2d(
 							MathUtil.clamp(distanceToTargetY * 2, -Constants.kMaxSpeed, Constants.kMaxSpeed), // tune
 							MathUtil.clamp(distanceToTargetX * 2, -Constants.kMaxSpeed, Constants.kMaxSpeed)),
-					Math.toRadians(distanceToTargetY * limelight.getTX() * 1.5), // tune this
+					MathUtil.clamp(Math.toRadians(limelight.getTX() * 2),
+							-Constants.kMaxAngularVelocity, Constants.kMaxAngularVelocity), // tune this
 					false,
 					false);
 		}

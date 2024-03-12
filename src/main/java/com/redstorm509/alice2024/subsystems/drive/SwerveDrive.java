@@ -1,6 +1,8 @@
 package com.redstorm509.alice2024.subsystems.drive;
 
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -22,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.redstorm509.alice2024.Constants;
 import com.redstorm509.alice2024.Constants.Chassis;
+import com.redstorm509.alice2024.subsystems.vision.Limelight;
 import com.redstorm509.alice2024.util.math.LoggablePID;
 
 import java.util.Optional;
@@ -54,12 +57,13 @@ public class SwerveDrive extends SubsystemBase {
 
 	public SwerveModule[] swerveModules;
 	public SwerveDriveOdometry odometry;
+	public SwerveDrivePoseEstimator poseEstimator;
 	private Field2d field2d;
 	private Pigeon2 pigeon;
 
 	private Interpolator headingInterplator;
 
-	private Timer timer;
+	private Timer manualRotationTimer;
 
 	private double prevTime = -1.0d;
 	private double targetHeading;
@@ -69,16 +73,19 @@ public class SwerveDrive extends SubsystemBase {
 			Constants.kHeadingAggressiveI, Constants.kHeadingAggressiveD);
 
 	private boolean alwaysOmitRotationalCorrection = false;
+	private double yawFromWhenWeLastSetTargetHeading = 0.0d;
 
 	private double simHeading = 0.0d;
 	private double prevRotOutput = 0.0d;
 	private SwerveM2D visualizer;
+	private Limelight shooterCamera;
 
-	public SwerveDrive(Pigeon2 pigeon) {
-		this.timer = new Timer();
-		timer.start();
+	public SwerveDrive(Pigeon2 pigeon, Limelight shooterCamera) {
+		this.manualRotationTimer = new Timer();
+		manualRotationTimer.start();
 
 		this.pigeon = pigeon;
+		this.shooterCamera = shooterCamera;
 		this.headingInterplator = new Interpolator(Constants.kMaxAngularVelocity);
 		this.targetHeading = 0.0;
 
@@ -94,6 +101,7 @@ public class SwerveDrive extends SubsystemBase {
 		field2d = new Field2d();
 
 		odometry = new SwerveDriveOdometry(kinematics, getYaw(), getModulePositions());
+		poseEstimator = new SwerveDrivePoseEstimator(kinematics, getYaw(), getModulePositions(), new Pose2d());
 
 		HolonomicPathFollowerConfig pathFollowerConfig = new HolonomicPathFollowerConfig(
 				new PIDConstants(5.0, 0, 0), // Translation constants
@@ -162,7 +170,7 @@ public class SwerveDrive extends SubsystemBase {
 		boolean hasRotationInput = Math.abs(rotationRadiansPerSecond) > 0.01;
 
 		if (hasRotationInput) {
-			timer.reset();
+			manualRotationTimer.reset();
 		}
 
 		double speed = Math.hypot(translationMetersPerSecond.getX(),
@@ -170,7 +178,7 @@ public class SwerveDrive extends SubsystemBase {
 		SmartDashboard.putNumber("SpeedX", speed);
 
 		if ((speed != 0 && speed < Constants.kMinHeadingCorrectionSpeed) || omitRotationCorrection || hasRotationInput
-				|| timer.get() < Constants.kHeadingTimeout) {
+				|| manualRotationTimer.get() < Constants.kHeadingTimeout) {
 			// if (hasRotationInput || timer.get() < Constants.kHeadingTimeout) {
 			setTargetHeading(getYaw().getDegrees());
 			headingPassive.reset();
@@ -186,6 +194,14 @@ public class SwerveDrive extends SubsystemBase {
 				delta += 360.0d;
 			}
 
+			double overallDrift = yawFromWhenWeLastSetTargetHeading - targetHeading;
+			if (overallDrift > 180.0d) {
+				overallDrift -= 360.0d;
+			}
+			if (overallDrift < -180.0d) {
+				overallDrift += 360.0d;
+			}
+
 			double aggressiveOutput = headingAggressive.calculate(delta);
 			double passiveOutput = headingPassive.calculate(delta);
 
@@ -194,8 +210,8 @@ public class SwerveDrive extends SubsystemBase {
 				passiveOutput = headingPassive.getLastPOutput() + headingPassive.getLastIOutput();
 			}
 
-			double outputDegrees = Math.abs(delta) > 30.0d ? passiveOutput : aggressiveOutput;
-
+			double outputDegrees = Math.abs(overallDrift) > 10.0d ? aggressiveOutput : passiveOutput;
+			// double outputDegrees = passiveOutput;
 			SmartDashboard.putNumber("HeadingPassivePOutput", headingPassive.getLastPOutput());
 			SmartDashboard.putNumber("HeadingPassiveIOutput", headingPassive.getLastIOutput());
 			SmartDashboard.putNumber("HeadingPassiveDOutput", headingPassive.getLastDOutput());
@@ -247,6 +263,7 @@ public class SwerveDrive extends SubsystemBase {
 	}
 
 	public void setTargetHeading(double heading) {
+		yawFromWhenWeLastSetTargetHeading = getYaw().getDegrees() % 360.0;
 		targetHeading = heading % 360.0d;
 	}
 
@@ -292,12 +309,47 @@ public class SwerveDrive extends SubsystemBase {
 				}, swerve);
 	}
 
+	public static double jankFlipHeading(double heading) {
+		boolean flip = false;
+		Optional<Alliance> alliance = DriverStation.getAlliance();
+		if (alliance.isPresent()) {
+			flip = alliance.get() == DriverStation.Alliance.Red;
+		}
+		if (flip) {
+			return -heading;
+		} else {
+			return heading;
+		}
+	}
+
+	public static double jankFlipInitialHolonomicRot(double heading) {
+		boolean flip = false;
+		Optional<Alliance> alliance = DriverStation.getAlliance();
+		if (alliance.isPresent()) {
+			flip = alliance.get() == DriverStation.Alliance.Red;
+		}
+		if (flip) {
+			return 180 - heading;
+		} else {
+			return heading;
+		}
+	}
+
+	public void setYawForTeleopEntry(double yaw) {
+		pigeon.setYaw(yaw);
+	}
+
 	public Pose2d getRawOdometeryPose() {
 		return odometry.getPoseMeters();
 	}
 
+	public Pose2d getEstimatedPose() {
+		return poseEstimator.getEstimatedPosition();
+	}
+
 	public void resetOdometry(Pose2d pose) {
 		odometry.resetPosition(getYaw(), getModulePositions(), pose);
+		poseEstimator.resetPosition(getYaw(), getModulePositions(), pose);
 	}
 
 	public SwerveModule[] getModules() {
@@ -348,7 +400,14 @@ public class SwerveDrive extends SubsystemBase {
 	public void periodic() {
 		visualizer.update(getModuleStates());
 		odometry.update(getYaw(), getModulePositions());
+		poseEstimator.update(getYaw(), getModulePositions());
 
+		if (shooterCamera.getTV()) {
+			Pose2d visionPose = shooterCamera.getAllianceBotPose2d();
+			double timestamp = Timer.getFPGATimestamp() - (shooterCamera.getLatency_Pipeline() / 1000.0)
+					- (shooterCamera.getLatency_Capture() / 1000.0);
+			poseEstimator.addVisionMeasurement(visionPose, timestamp);
+		}
 		field2d.setRobotPose(getRawOdometeryPose());
 
 		SmartDashboard.putNumber("roll", pigeon.getRoll().getValueAsDouble());
@@ -372,5 +431,8 @@ public class SwerveDrive extends SubsystemBase {
 		SmartDashboard.putNumber("odometry-x", getRawOdometeryPose().getX());
 		SmartDashboard.putNumber("odometry-y", getRawOdometeryPose().getY());
 		SmartDashboard.putNumber("odometry-theta", getRawOdometeryPose().getRotation().getDegrees());
+		SmartDashboard.putNumber("estimation-x", getEstimatedPose().getX());
+		SmartDashboard.putNumber("estimation-y", getEstimatedPose().getY());
+		SmartDashboard.putNumber("estimation-theta", getEstimatedPose().getRotation().getDegrees());
 	}
 }

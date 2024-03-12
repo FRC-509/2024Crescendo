@@ -9,9 +9,11 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 
 import com.redstorm509.alice2024.autonomous.ThreeNote;
+import com.redstorm509.alice2024.autonomous.TwoNoteCloseToAmp;
 import com.redstorm509.alice2024.commands.*;
 import com.redstorm509.alice2024.subsystems.*;
 import com.redstorm509.alice2024.subsystems.drive.*;
@@ -40,7 +42,7 @@ public class RobotContainer {
 	private SendableChooser<Command> chooser = new SendableChooser<Command>();
 
 	public RobotContainer() {
-		this.swerve = new SwerveDrive(pigeon);
+		this.swerve = new SwerveDrive(pigeon, shooterCamera);
 		this.intake = new Intake();
 		this.indexer = new Indexer();
 		this.shooter = new Shooter();
@@ -48,7 +50,7 @@ public class RobotContainer {
 		this.climber = new Climber(pigeon);
 
 		intakeCamera.setLEDMode_ForceOff();
-		intakeCamera.setPipelineIndex(Constants.Vision.Pipeline.AprilTags);
+		intakeCamera.setPipelineIndex(Constants.Vision.Pipeline.NeuralNetwork);
 
 		shooterCamera.setLEDMode_ForceOff();
 		shooterCamera.setPipelineIndex(Constants.Vision.Pipeline.AprilTags);
@@ -139,19 +141,30 @@ public class RobotContainer {
 				() -> indexer.rawIndexer(Constants.Indexer.kSpinSpeed),
 				() -> indexer.rawIndexer(0), shooter));
 		operator.a().onTrue(new SetPivot(arm, 43));
+		operator.y().onTrue(new SetPivot(arm, Constants.Arm.kMinPivot));
 
+		// When the B button is held down, the arm goes into raw output mode; there are
+		// no
 		arm.setDefaultCommand(new DefaultPivotCommand(arm,
-				() -> nonInvSquare(-operator.getLeftY()) / 5));
+				() -> nonInvSquare(-operator.getLeftY()) / 5, () -> operator.getHID().getBButton()));
+
+		// The left and right buttons on the d-pad indicate that only that climber
+		// should actuate. The X button toggles the solenoids between their locked and
+		// unlocked position.
+
 		climber.setDefaultCommand(new DefaultClimbCommand(climber,
 				() -> operator.getRightTriggerAxis(),
 				() -> operator.getLeftTriggerAxis(),
-				() -> operator.button(0).getAsBoolean(), // CHANGE TO ACTUAL BUTTONS
-				() -> operator.button(0).getAsBoolean(),
+				() -> operator.getHID().getPOV() == 270,
+				() -> operator.getHID().getPOV() == 90,
+				() -> operator.getHID().getXButton(),
 				pigeon));
+
 	}
 
 	private void addAutonomousRoutines() {
 		chooser.addOption("Three Note", new ThreeNote(swerve, shooter, arm, indexer, intake));
+		chooser.addOption("Two Note Amp Side", new TwoNoteCloseToAmp(swerve, shooter, arm, indexer, intake));
 		chooser.addOption("One Note and Taxi",
 				new SequentialCommandGroup(
 						new ShootNote(shooter, indexer),
@@ -169,6 +182,12 @@ public class RobotContainer {
 	}
 
 	public void onTeleopEntry() {
-		swerve.setTargetHeading(pigeon.getYaw().getValue());
+		if (DriverStation.isFMSAttached()) {
+			swerve.setTargetHeading(0);
+		} else {
+			swerve.setTargetHeading(pigeon.getYaw().getValue());
+		}
+		climber.unlockLeft();
+		climber.unlockRight();
 	}
 }

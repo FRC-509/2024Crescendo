@@ -97,6 +97,13 @@ public class Arm extends SubsystemBase {
 		pivotTarget.setTarget(target);
 	}
 
+	public void setPivotOpenLoop(double percentOutput) {
+		if (getPivotDegrees() > Constants.Arm.kMaxPivot) {
+			percentOutput = 0.0d;
+		}
+		pivotLeader.setControl(openLoop.withOutput(percentOutput * 0.25));
+	}
+
 	public void setPivotOutput(double percentOutput) {
 		// double previous = pivotTarget.getTarget();
 		pivotTarget.update(percentOutput);

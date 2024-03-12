@@ -106,8 +106,9 @@ public class SwerveModule {
 		}
 		// Accounts for coupling; rotation of the angle motor causing the actual drive
 		// wheel to rotate slightly.
-		double drivePosition = driveMotor.getPosition().getValue()
-				- steerMotor.getPosition().getValue() * Constants.MK4I.kCouplingRatio;
+		// double drivePosition = driveMotor.getPosition().getValue() -
+		// steerMotor.getPosition().getValue() * Constants.MK4I.kCouplingRatio;
+		double drivePosition = driveMotor.getPosition().getValue();
 		return new SwerveModulePosition(
 				Conversions.falconToMeters(
 						drivePosition,
@@ -156,7 +157,7 @@ public class SwerveModule {
 		double driveRateBackOut = steerMotor.getVelocity().getValue() * Constants.MK4I.kCouplingRatio;
 
 		double targetVelocity = Conversions.MPSToFalcon(desiredState.speedMetersPerSecond,
-				Constants.MK4I.kWheelCircumference, Constants.MK4I.kDriveGearRatio) * cosineScalar - driveRateBackOut;
+				Constants.MK4I.kWheelCircumference, Constants.MK4I.kDriveGearRatio) * cosineScalar;
 
 		if (closedLoop) {
 			driveMotor.setControl(closedLoopDriveRequest.withVelocity(targetVelocity));

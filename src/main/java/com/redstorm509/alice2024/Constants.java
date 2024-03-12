@@ -68,8 +68,8 @@ public final class Constants {
 
 	public static class Vision {
 		public static class Pipeline {
-			public static final int NeuralNetwork = 0;
-			public static final int AprilTags = 1; // works for both, (arm ll needs to be set to pipeline 1)
+			public static final int NeuralNetwork = 1;
+			public static final int AprilTags = 0; // works for both, (intake ll needs to be set to pipeline 1)
 		};
 
 		public static final double kLimelightFullFOVAngle = 24.85 * 2;
@@ -118,9 +118,9 @@ public final class Constants {
 
 	// Tune Me!
 	public static final double kHeadingPassiveP = 14.0;
-	public static final double kHeadingPassiveI = 0.0;
-	public static final double kHeadingPassiveD = 0.75;
-	public static final double kHeadingAggressiveP = 12.0;
+	public static final double kHeadingPassiveI = 0.15;
+	public static final double kHeadingPassiveD = 0.4;
+	public static final double kHeadingAggressiveP = 11.5;
 	public static final double kHeadingAggressiveI = 0.25;
 	public static final double kHeadingAggressiveD = 0.8;
 	public static final double kHeadingTimeout = 0.25;

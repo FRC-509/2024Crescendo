@@ -7,6 +7,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Climber extends SubsystemBase {
@@ -15,8 +16,8 @@ public class Climber extends SubsystemBase {
 
 	private VoltageOut openLoopVoltage = new VoltageOut(0);
 
-	private Solenoid leftSol = new Solenoid(PneumaticsModuleType.CTREPCM, 6);
-	private Solenoid rightSol = new Solenoid(PneumaticsModuleType.CTREPCM, 7);
+	private Solenoid leftSol = new Solenoid(PneumaticsModuleType.CTREPCM, 5); // 6 is bad
+	private Solenoid rightSol = new Solenoid(PneumaticsModuleType.CTREPCM, 4);
 
 	private double bootRoll = 0.0d;
 
@@ -24,7 +25,7 @@ public class Climber extends SubsystemBase {
 		TalonFXConfiguration conf = new TalonFXConfiguration();
 		conf.CurrentLimits.SupplyCurrentLimitEnable = true;
 		conf.CurrentLimits.SupplyCurrentLimit = 35.0;
-		conf.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+		conf.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
 		leftClimbMotor.getConfigurator().apply(conf);
 		rightClimbMotor.getConfigurator().apply(conf);
@@ -35,32 +36,40 @@ public class Climber extends SubsystemBase {
 		return bootRoll;
 	}
 
-	public void leftClimb(double speed) {
-		if (Math.abs(speed) >= 0.1) {
-			if (!leftSol.get()) {
-				leftSol.set(true);
-			}
-			leftClimbMotor.setControl(openLoopVoltage.withOutput(speed * 12.0));
-		} else {
-			leftClimbMotor.setControl(openLoopVoltage.withOutput(0));
-			if (leftSol.get()) {
-				leftSol.set(false);
-			}
+	public void lockLeft() {
+		if (leftSol.get()) {
+			leftSol.set(false);
 		}
 	}
 
-	public void rightClimb(double speed) {
-		if (Math.abs(speed) >= 0.1) {
-			if (!rightSol.get()) {
-				rightSol.set(true);
-			}
-			rightClimbMotor.setControl(openLoopVoltage.withOutput(speed * 12.0));
-		} else {
-			rightClimbMotor.setControl(openLoopVoltage.withOutput(0));
-			if (rightSol.get()) {
-				rightSol.set(false);
-			}
+	public void lockRight() {
+		if (rightSol.get()) {
+			rightSol.set(false);
 		}
+	}
+
+	public void unlockLeft() {
+		leftSol.set(true);
+	}
+
+	public void unlockRight() {
+		rightSol.set(true);
+	}
+
+	public void toggleLockLeft() {
+		leftSol.toggle();
+	}
+
+	public void toggleLockRight() {
+		rightSol.toggle();
+	}
+
+	public void leftClimb(double speed) {
+		leftClimbMotor.setControl(openLoopVoltage.withOutput(speed * 12.0));
+	}
+
+	public void rightClimb(double speed) {
+		rightClimbMotor.setControl(openLoopVoltage.withOutput(speed * 12.0));
 	}
 
 	public void climb(double speed) {
@@ -68,11 +77,17 @@ public class Climber extends SubsystemBase {
 		rightClimb(speed);
 	}
 
+	public double getLeftExtension() {
+		return leftClimbMotor.getPosition().getValueAsDouble() * 0.0; // REPLACE ME rotations to milimeters conversion
+	}
+
 	public double getRightExtension() {
 		return rightClimbMotor.getPosition().getValueAsDouble() * 0.0; // REPLACE ME rotations to milimeters conversion
 	}
 
-	public double getLeftExtension() {
-		return leftClimbMotor.getPosition().getValueAsDouble() * 0.0; // REPLACE ME rotations to milimeters conversion
+	@Override
+	public void periodic() {
+		SmartDashboard.putBoolean("LeftSol", leftSol.get());
+		SmartDashboard.putBoolean("RightSol", rightSol.get());
 	}
 }

@@ -5,6 +5,7 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -39,6 +40,10 @@ public class Indexer extends SubsystemBase {
 	}
 
 	public IndexerState indexingNoteState;
+	private IndexerState prevIndexerState;
+
+	public boolean indexerInvalidState;
+	private Timer currentStateTimer = new Timer();
 
 	private CANSparkMax indexer = new CANSparkMax(12, MotorType.kBrushed);
 	private DigitalInput shooterBB = new DigitalInput(4); // CHANGE TO REAL PORTS
@@ -50,6 +55,8 @@ public class Indexer extends SubsystemBase {
 		indexer.setIdleMode(IdleMode.kCoast);
 		indexer.burnFlash();
 		indexingNoteState = IndexerState.Noteless;
+		indexerInvalidState = false;
+		currentStateTimer.start();
 	}
 
 	public void rawIndexer(double speed) {
@@ -68,21 +75,37 @@ public class Indexer extends SubsystemBase {
 	public void periodic() {
 		if (!indexerBB.get() && !shooterBB.get() && imStageBB.get()) {
 			// Note is where we want it to be
+			prevIndexerState = indexingNoteState;
 			indexingNoteState = IndexerState.HasNote;
+			indexerInvalidState = false;
 		} else if (!indexerBB.get() && shooterBB.get() && imStageBB.get()) {
 			// Note is too far out shooter side
+			prevIndexerState = indexingNoteState;
 			indexingNoteState = IndexerState.NoteTooShooter;
+			indexerInvalidState = false;
 		} else if (!indexerBB.get() && shooterBB.get() && !imStageBB.get()) {
 			// Note is too far out intermediate stage side
+			prevIndexerState = indexingNoteState;
 			indexingNoteState = IndexerState.NoteTooIntake;
+			indexerInvalidState = false;
 		} else if (indexerBB.get() && !shooterBB.get() && imStageBB.get()) {
 			// Note is way too sticking out shooter
+			prevIndexerState = indexingNoteState;
 			indexingNoteState = IndexerState.NoteTooShooterExtreme;
+			indexerInvalidState = false;
 		} else if (indexerBB.get() && shooterBB.get() && !imStageBB.get()) {
 			// Note is way too sticking out shooter
+			prevIndexerState = indexingNoteState;
 			indexingNoteState = IndexerState.NoteTooIntakeExtreme;
+			indexerInvalidState = false;
 		}
 
+		if (indexingNoteState == prevIndexerState && indexingNoteState != IndexerState.NoteTooShooter) {
+			currentStateTimer.reset();
+		}
+		if (indexingNoteState == IndexerState.NoteTooShooter && currentStateTimer.get() >= 0.75) {
+			setNoteless();
+		}
 		SmartDashboard.putString("Indexer State", indexingNoteState.toString());
 	}
 }

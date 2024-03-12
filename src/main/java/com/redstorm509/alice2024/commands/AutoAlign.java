@@ -89,7 +89,7 @@ public class AutoAlign extends Command {
 
 			// SPEAKER TAG OFFSET
 			case 4: // Red Alliance
-			case 8: // Blue Alliance
+			case 7: // Blue Alliance
 				desiredRotation = -Math.toRadians(limelight.getTX() * 4.5);
 
 				// VERIFY SIGNS & AXES
@@ -101,7 +101,7 @@ public class AutoAlign extends Command {
 
 			// SPEAKER SIDE TAG OFFSETS (43 cm to the right of central tags)
 			case 3: // Red Alliance
-			case 7: // Blue Alliance
+			case 8: // Blue Alliance
 				// skip and wait to rotate to center tag
 				return new Pose2d();
 
@@ -128,7 +128,7 @@ public class AutoAlign extends Command {
 	@Override
 	public void execute() {
 		if (limelight.getTV()) {
-			if ((int) limelight.getFiducialID() == 7 || (int) limelight.getFiducialID() == 3) {
+			if ((int) limelight.getFiducialID() == 8 || (int) limelight.getFiducialID() == 3) {
 				limelight.setLEDMode_ForceBlink();
 			} else {
 				limelight.setLEDMode_ForceOn();

@@ -17,6 +17,7 @@ public class DefaultClimbCommand extends Command {
 	private DoubleSupplier retractSupplier;
 	private BooleanSupplier leftOnlySupplier;
 	private BooleanSupplier rightOnlySupplier;
+	private BooleanSupplier toggleLockSupplier;
 	private Pigeon2 pigeon;
 
 	public DefaultClimbCommand(
@@ -25,19 +26,34 @@ public class DefaultClimbCommand extends Command {
 			DoubleSupplier retractSupplier,
 			BooleanSupplier leftOnlySupplier,
 			BooleanSupplier rightOnlySupplier,
+			BooleanSupplier toggleLockSupplier,
 			Pigeon2 pigeon) {
 		this.climber = climber;
 		this.extendSupplier = extendSupplier;
 		this.retractSupplier = retractSupplier;
 		this.leftOnlySupplier = leftOnlySupplier;
 		this.rightOnlySupplier = rightOnlySupplier;
+		this.toggleLockSupplier = toggleLockSupplier;
 		this.pigeon = pigeon;
 
 		addRequirements(climber);
 	}
 
 	@Override
+	public void initialize() {
+		climber.unlockLeft();
+		climber.unlockRight();
+	}
+
+	@Override
 	public void execute() {
+		climber.unlockLeft();
+		climber.unlockRight();
+
+		if (toggleLockSupplier.getAsBoolean()) {
+			climber.toggleLockLeft();
+			climber.toggleLockRight();
+		}
 		boolean extending = Math.abs(extendSupplier.getAsDouble()) > 0.1;
 		boolean retracting = Math.abs(retractSupplier.getAsDouble()) > 0.1;
 
