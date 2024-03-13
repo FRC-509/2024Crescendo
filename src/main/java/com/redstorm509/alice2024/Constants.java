@@ -81,6 +81,7 @@ public final class Constants {
 		public static final double kShoooterCameraHeightFromGround = 0.38735;
 
 		// REPLACE ME D:<
+		public static final double kMaxTargetDistanceVariation = 0.0; // meters
 		public static final double kAlignmentTranslationTolerance = 0.0; // meters
 		public static final double kAlignmentRotationTolerance = 0.0; // degrees
 	}

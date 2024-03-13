@@ -26,6 +26,8 @@ public class AutoPickup extends Command {
 	private boolean isFinished = false;
 
 	private double lastTX;
+	private double lastDistanceToTarget;
+	private boolean lostTarget = false;
 
 	public AutoPickup(
 			SwerveDrive swerve,
@@ -51,23 +53,24 @@ public class AutoPickup extends Command {
 	public void initialize() {
 		beganIntaking = false;
 		isFinished = false;
-		lastTX = 0;
+		lostTarget = false;
+		lastTX = 0.0;
 
-		limelight.setLEDMode_ForceOff();
+		limelight.setLEDMode_ForceBlink();
 		limelight.setPipelineIndex(Constants.Vision.Pipeline.NeuralNetwork);
 	}
 
 	@Override
 	public void execute() {
 		if (!limelight.getTV() && !beganIntaking) {
-			limelight.setLEDMode_ForceOn();
+			limelight.setLEDMode_ForceBlink();
 			swerve.drive(
 					new Translation2d(xSupplier.getAsDouble(), ySupplier.getAsDouble()).times(Constants.kMaxSpeed),
 					rotationSupplier.getAsDouble() * Constants.kMaxAngularVelocity,
 					true,
 					false);
 		} else {
-			limelight.setLEDMode_ForceBlink();
+			limelight.setLEDMode_ForceOn();
 		}
 
 		// Finds distance to target and how much to move
@@ -78,11 +81,26 @@ public class AutoPickup extends Command {
 
 		// double check correct sign, double negatives l
 
-		if (limelight.getTV() && indexer.indexingNoteState == IndexerState.Noteless && distanceToTargetY <= 3.0) {
+		if (limelight.getTV() && indexer.indexingNoteState == IndexerState.Noteless && distanceToTargetY < 3.0) {
+			// checks if target is the same target that has been tracking, if not follows
+			// last known path (slightly jank, but test)
+			double travelDistanceY;
+			if (!lostTarget) {
+				if (Math.abs(distanceToTargetY) < Math
+						.abs(lastDistanceToTarget + Constants.Vision.kMaxTargetDistanceVariation)) {
+					travelDistanceY = distanceToTargetY;
+				} else {
+					travelDistanceY = lastDistanceToTarget;
+					lostTarget = true;
+				}
+			} else {
+				travelDistanceY = lastDistanceToTarget / 2;
+			}
+
 			swerve.drive(
 					new Translation2d(
-							MathUtil.clamp(distanceToTargetY * 2, -Constants.kMaxSpeed, Constants.kMaxSpeed), // tune
-							MathUtil.clamp(distanceToTargetX * 2, -Constants.kMaxSpeed, Constants.kMaxSpeed)),
+							MathUtil.clamp(travelDistanceY * 2, -Constants.kMaxSpeed, Constants.kMaxSpeed), // tune
+							MathUtil.clamp(distanceToTargetX * 3, -Constants.kMaxSpeed, Constants.kMaxSpeed)),
 					MathUtil.clamp(Math.toRadians(limelight.getTX() * 2),
 							-Constants.kMaxAngularVelocity, Constants.kMaxAngularVelocity), // tune this
 					false,
@@ -90,10 +108,11 @@ public class AutoPickup extends Command {
 			lastTX = limelight.getTX();
 		} else {
 			swerve.drive(
-					new Translation2d(),
-					MathUtil.clamp(Math.toRadians(lastTX),
-							-Constants.kMaxAngularVelocity, Constants.kMaxAngularVelocity), // tune this
-					false,
+					new Translation2d(xSupplier.getAsDouble(), ySupplier.getAsDouble()).times(Constants.kMaxSpeed),
+					indexer.indexingNoteState == IndexerState.Noteless ? MathUtil.clamp(Math.toRadians(lastTX * 1.5),
+							-Constants.kMaxAngularVelocity, Constants.kMaxAngularVelocity)
+							: rotationSupplier.getAsDouble() * Constants.kMaxAngularVelocity,
+					true,
 					false);
 		}
 

@@ -16,8 +16,8 @@ public class Climber extends SubsystemBase {
 
 	private VoltageOut openLoopVoltage = new VoltageOut(0);
 
-	private Solenoid leftSol = new Solenoid(PneumaticsModuleType.CTREPCM, 5); // 6 is bad
-	private Solenoid rightSol = new Solenoid(PneumaticsModuleType.CTREPCM, 4);
+	private Solenoid leftSol = new Solenoid(PneumaticsModuleType.REVPH, 13); // changed to REVPH
+	private Solenoid rightSol = new Solenoid(PneumaticsModuleType.REVPH, 15);
 
 	private double bootRoll = 0.0d;
 

@@ -8,6 +8,7 @@ import com.redstorm509.alice2024.Constants;
 import com.redstorm509.alice2024.subsystems.Climber;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class DefaultClimbCommand extends Command {
@@ -20,6 +21,8 @@ public class DefaultClimbCommand extends Command {
 	private BooleanSupplier toggleLockSupplier;
 	private Pigeon2 pigeon;
 	private boolean usesRollCompensation;
+
+	private Timer toggleDelay = new Timer();
 
 	public DefaultClimbCommand(
 			Climber climber,
@@ -46,17 +49,18 @@ public class DefaultClimbCommand extends Command {
 	public void initialize() {
 		climber.unlockLeft();
 		climber.unlockRight();
+
+		toggleDelay.start();
 	}
 
 	@Override
 	public void execute() {
-		climber.unlockLeft();
-		climber.unlockRight();
-
-		if (toggleLockSupplier.getAsBoolean()) {
+		if (toggleLockSupplier.getAsBoolean() && toggleDelay.get() > 1.0) {
 			climber.toggleLockLeft();
 			climber.toggleLockRight();
+			toggleDelay.reset();
 		}
+
 		boolean extending = Math.abs(extendSupplier.getAsDouble()) > 0.1;
 		boolean retracting = Math.abs(retractSupplier.getAsDouble()) > 0.1;
 

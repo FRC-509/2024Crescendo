@@ -142,9 +142,7 @@ public class Arm extends SubsystemBase {
 			resetIntegratedToAbsolute(false);
 		}
 		wasLimitSwitchTripped = limitSwitch.get();
-		// SmartDashboard.putBoolean("PivotLimitSwitch", limitSwitch.get());
-		// SmartDashboard.putNumber("PivotOutputDC",
-		// pivotLeader.getClosedLoopOutput().getValueAsDouble());
+		SmartDashboard.putBoolean("PivotLimitSwitch", limitSwitch.get());
 		SmartDashboard.putNumber("PivotIntegratedRaw", pivotLeader.getPosition().getValueAsDouble());
 		SmartDashboard.putNumber("PivotLIntegrated",
 				Conversions.falconToDegrees(pivotLeader.getPosition().getValue(), Constants.Arm.kPivotGearRatio));
