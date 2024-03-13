@@ -11,10 +11,9 @@ import com.redstorm509.alice2024.subsystems.vision.Limelight;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
-public class AutoPickupExperimental extends Command {
+public class AutoPickup extends Command {
 
 	private SwerveDrive swerve;
 	private Limelight limelight;
@@ -26,7 +25,9 @@ public class AutoPickupExperimental extends Command {
 	private DoubleSupplier rotationSupplier;
 	private boolean isFinished = false;
 
-	public AutoPickupExperimental(
+	private double lastTX;
+
+	public AutoPickup(
 			SwerveDrive swerve,
 			Limelight limelight,
 			Intake intake,
@@ -50,6 +51,7 @@ public class AutoPickupExperimental extends Command {
 	public void initialize() {
 		beganIntaking = false;
 		isFinished = false;
+		lastTX = 0;
 
 		limelight.setLEDMode_ForceOff();
 		limelight.setPipelineIndex(Constants.Vision.Pipeline.NeuralNetwork);
@@ -85,6 +87,14 @@ public class AutoPickupExperimental extends Command {
 							-Constants.kMaxAngularVelocity, Constants.kMaxAngularVelocity), // tune this
 					false,
 					false);
+			lastTX = limelight.getTX();
+		} else {
+			swerve.drive(
+					new Translation2d(),
+					MathUtil.clamp(Math.toRadians(lastTX),
+							-Constants.kMaxAngularVelocity, Constants.kMaxAngularVelocity), // tune this
+					false,
+					false);
 		}
 
 		if (distanceToTargetY < 2 || beganIntaking) {
@@ -110,10 +120,6 @@ public class AutoPickupExperimental extends Command {
 				intake.intake(true);
 			}
 		}
-
-		SmartDashboard.putNumber("Angle To Target", angleToTarget);
-		SmartDashboard.putNumber("Distance From Target", distanceToTargetY);
-		SmartDashboard.putNumber("Side Distance From Target", distanceToTargetX);
 	}
 
 	@Override

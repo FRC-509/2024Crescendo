@@ -2,7 +2,6 @@ package com.redstorm509.alice2024.subsystems.drive;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -139,16 +138,18 @@ public class SwerveDrive extends SubsystemBase {
 		headingPassive.setTolerance(0.25);
 		headingAggressive.setTolerance(0.25);
 
+		/*-
 		SmartDashboard.putNumber("HeadingPassiveP", Constants.kHeadingPassiveP);
 		SmartDashboard.putNumber("HeadingPassiveI", Constants.kHeadingPassiveI);
 		SmartDashboard.putNumber("HeadingPassiveD", Constants.kHeadingPassiveD);
-
+		
 		SmartDashboard.putNumber("HeadingAggressiveP", Constants.kHeadingAggressiveP);
 		SmartDashboard.putNumber("HeadingAggressiveI", Constants.kHeadingAggressiveI);
 		SmartDashboard.putNumber("HeadingAggressiveD", Constants.kHeadingAggressiveD);
-
+		
 		SmartDashboard.putData("Set Heading to 0", new InstantCommand(() -> this.setTargetHeading(0), this));
 		SmartDashboard.putData("Set Heading to 180", new InstantCommand(() -> this.setTargetHeading(180), this));
+		*/
 	}
 
 	public void drive(Translation2d translationMetersPerSecond, double rotationRadiansPerSecond, boolean fieldRelative,
@@ -175,7 +176,7 @@ public class SwerveDrive extends SubsystemBase {
 
 		double speed = Math.hypot(translationMetersPerSecond.getX(),
 				translationMetersPerSecond.getY());
-		SmartDashboard.putNumber("SpeedX", speed);
+		// SmartDashboard.putNumber("SpeedX", speed);
 
 		if ((speed != 0 && speed < Constants.kMinHeadingCorrectionSpeed) || omitRotationCorrection || hasRotationInput
 				|| manualRotationTimer.get() < Constants.kHeadingTimeout) {
@@ -212,12 +213,15 @@ public class SwerveDrive extends SubsystemBase {
 
 			double outputDegrees = Math.abs(overallDrift) > 10.0d ? aggressiveOutput : passiveOutput;
 			// double outputDegrees = passiveOutput;
+
+			/*-
 			SmartDashboard.putNumber("HeadingPassivePOutput", headingPassive.getLastPOutput());
 			SmartDashboard.putNumber("HeadingPassiveIOutput", headingPassive.getLastIOutput());
 			SmartDashboard.putNumber("HeadingPassiveDOutput", headingPassive.getLastDOutput());
 			SmartDashboard.putNumber("HeadingAggressivePOutput", headingAggressive.getLastPOutput());
 			SmartDashboard.putNumber("HeadingAggressiveIOutput", headingAggressive.getLastIOutput());
 			SmartDashboard.putNumber("HeadingAggressiveDOutput", headingAggressive.getLastDOutput());
+			*/
 
 			rotationOutput = Math.toRadians(outputDegrees);
 		}
@@ -410,23 +414,26 @@ public class SwerveDrive extends SubsystemBase {
 		}
 		field2d.setRobotPose(getRawOdometeryPose());
 
+		/*-
 		SmartDashboard.putNumber("roll", pigeon.getRoll().getValueAsDouble());
 		SmartDashboard.putNumber("pitch", pigeon.getPitch().getValueAsDouble());
 		SmartDashboard.putNumber("yaw", getYaw().getDegrees());
 		SmartDashboard.putBoolean("Heading Correction Enabled?", !alwaysOmitRotationalCorrection);
-
+		
 		SmartDashboard.putNumber("x-velocity", getChassisSpeeds().vxMetersPerSecond);
 		SmartDashboard.putNumber("y-velocity", getChassisSpeeds().vyMetersPerSecond);
 		SmartDashboard.putNumber("yaw-velocity", pigeon.getAngularVelocityZWorld().getValueAsDouble());
-
+		
+		
 		headingPassive.setP(SmartDashboard.getNumber("HeadingPassiveP", Constants.kHeadingPassiveP));
 		headingPassive.setI(SmartDashboard.getNumber("HeadingPassiveI", Constants.kHeadingPassiveI));
 		headingPassive.setD(SmartDashboard.getNumber("HeadingPassiveD", Constants.kHeadingPassiveD));
-
+		
 		headingAggressive.setP(SmartDashboard.getNumber("HeadingAggressiveP", Constants.kHeadingAggressiveP));
 		headingAggressive.setI(SmartDashboard.getNumber("HeadingAggressiveI", Constants.kHeadingAggressiveI));
 		headingAggressive.setD(SmartDashboard.getNumber("HeadingAggressiveD", Constants.kHeadingAggressiveD));
-
+		
+		
 		SmartDashboard.putNumber("target-heading", targetHeading);
 		SmartDashboard.putNumber("odometry-x", getRawOdometeryPose().getX());
 		SmartDashboard.putNumber("odometry-y", getRawOdometeryPose().getY());
@@ -434,5 +441,6 @@ public class SwerveDrive extends SubsystemBase {
 		SmartDashboard.putNumber("estimation-x", getEstimatedPose().getX());
 		SmartDashboard.putNumber("estimation-y", getEstimatedPose().getY());
 		SmartDashboard.putNumber("estimation-theta", getEstimatedPose().getRotation().getDegrees());
+		*/
 	}
 }

@@ -83,16 +83,19 @@ public class RobotContainer {
 				.onTrue(Commands.runOnce(() -> swerve.setTargetHeading(0), swerve));
 		(new Trigger(() -> driverRight.getPOV(0) == 180))
 				.onTrue(Commands.runOnce(() -> swerve.setTargetHeading(180), swerve));
+
 		// Toggle heading correction by pressing the bottom-rightmost botton on the left
 		// side of the right stick. Heading correction defaults to ON at boot.
 		driverRight.isPressedBind(StickButton.LeftSideRightBottom,
 				Commands.runOnce(() -> swerve.toggleHeadingCorrection(), swerve));
+
 		// Zeroes the gyroscope when the bottom button the left stick is pressed.
 		driverLeft.isPressedBind(StickButton.Left, Commands.runOnce(() -> {
 			pigeon.setYaw(0);
 			swerve.setTargetHeading(0);
 		}, swerve));
 
+		// Teleop auto commands
 		driverRight.isDownBind(StickButton.Bottom, new AutoAlign(
 				swerve,
 				arm,
@@ -101,7 +104,7 @@ public class RobotContainer {
 				() -> nonInvSquare(-driverLeft.getX()),
 				() -> nonInvSquare(-driverRight.getX())));
 
-		driverLeft.isDownBind(StickButton.Bottom, new AutoPickupExperimental(
+		driverLeft.isDownBind(StickButton.Bottom, new AutoPickup(
 				swerve,
 				intakeCamera,
 				intake,
@@ -110,6 +113,7 @@ public class RobotContainer {
 				() -> nonInvSquare(-driverLeft.getX()),
 				() -> nonInvSquare(-driverRight.getX())));
 
+		// Basic intake and outake commands
 		driverLeft.isDownBind(StickButton.Trigger, new IntakeNote(intake, indexer));
 		driverRight.isDownBind(StickButton.Trigger, Commands.startEnd(
 				() -> {
@@ -124,6 +128,7 @@ public class RobotContainer {
 				},
 				intake, indexer));
 
+		// raw indexer
 		driverLeft.isDownBind(StickButton.Right, Commands.startEnd(() -> {
 			indexer.rawIndexer(-Constants.Indexer.kSpinSpeed);
 		}, () -> {
@@ -137,9 +142,11 @@ public class RobotContainer {
 		}, indexer));
 
 		operator.rightBumper().whileTrue(new ShootNote(shooter, indexer));
+
 		operator.leftBumper().whileTrue(Commands.startEnd(
 				() -> indexer.rawIndexer(Constants.Indexer.kSpinSpeed),
 				() -> indexer.rawIndexer(0), shooter));
+
 		operator.a().onTrue(new SetPivot(arm, 43));
 		operator.y().onTrue(new SetPivot(arm, Constants.Arm.kMinPivot));
 
@@ -158,8 +165,8 @@ public class RobotContainer {
 				() -> operator.getHID().getPOV() == 270,
 				() -> operator.getHID().getPOV() == 90,
 				() -> operator.getHID().getXButton(),
-				pigeon));
-
+				pigeon,
+				true));
 	}
 
 	private void addAutonomousRoutines() {

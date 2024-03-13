@@ -19,6 +19,7 @@ public class DefaultClimbCommand extends Command {
 	private BooleanSupplier rightOnlySupplier;
 	private BooleanSupplier toggleLockSupplier;
 	private Pigeon2 pigeon;
+	private boolean usesRollCompensation;
 
 	public DefaultClimbCommand(
 			Climber climber,
@@ -27,7 +28,8 @@ public class DefaultClimbCommand extends Command {
 			BooleanSupplier leftOnlySupplier,
 			BooleanSupplier rightOnlySupplier,
 			BooleanSupplier toggleLockSupplier,
-			Pigeon2 pigeon) {
+			Pigeon2 pigeon,
+			boolean usesRollCompensation) {
 		this.climber = climber;
 		this.extendSupplier = extendSupplier;
 		this.retractSupplier = retractSupplier;
@@ -35,6 +37,7 @@ public class DefaultClimbCommand extends Command {
 		this.rightOnlySupplier = rightOnlySupplier;
 		this.toggleLockSupplier = toggleLockSupplier;
 		this.pigeon = pigeon;
+		this.usesRollCompensation = usesRollCompensation;
 
 		addRequirements(climber);
 	}
@@ -59,8 +62,10 @@ public class DefaultClimbCommand extends Command {
 
 		double roll = pigeon.getRoll().getValueAsDouble() - climber.getBootRoll();
 
-		double rollCompensation = MathUtil.clamp(Math.abs(roll), 0.0, Constants.Climber.kMaxRollCompensationAngle)
-				/ Constants.Climber.kMaxRollCompensationAngle;
+		double rollCompensation = usesRollCompensation
+				? MathUtil.clamp(Math.abs(roll), 0.0, Constants.Climber.kMaxRollCompensationAngle)
+						/ Constants.Climber.kMaxRollCompensationAngle
+				: 0.0;
 
 		if (extending || retracting) {
 			double output = extending ? extendSupplier.getAsDouble() : -retractSupplier.getAsDouble();

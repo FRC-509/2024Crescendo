@@ -1,7 +1,5 @@
 package com.redstorm509.alice2024.commands;
 
-import org.ejml.equation.Symbol;
-
 import com.redstorm509.alice2024.subsystems.Arm;
 
 import edu.wpi.first.math.MathUtil;
@@ -24,7 +22,6 @@ public class SetPivot extends Command {
 
 	@Override
 	public boolean isFinished() {
-		System.out.println("Pivot: " + arm.getPivotDegrees() + " Target: " + targetAngle);
 		return MathUtil.isNear(targetAngle, arm.getPivotDegrees(), 10.0);
 	}
 }
