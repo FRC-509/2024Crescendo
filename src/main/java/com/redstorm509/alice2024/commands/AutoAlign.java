@@ -13,14 +13,15 @@ import edu.wpi.first.wpilibj2.command.Command;
 import java.util.function.DoubleSupplier;
 
 import com.redstorm509.alice2024.Constants;
-import com.redstorm509.alice2024.subsystems.Arm;
+import com.redstorm509.alice2024.subsystems.ArmKYS;
+import com.redstorm509.alice2024.subsystems.ArmKYS;
 import com.redstorm509.alice2024.subsystems.drive.SwerveDrive;
 import com.redstorm509.alice2024.subsystems.vision.Limelight;
 
 public class AutoAlign extends Command {
 
 	private SwerveDrive swerve;
-	private Arm arm;
+	private ArmKYS arm;
 	private Limelight limelight;
 	private DoubleSupplier xSupplier;
 	private DoubleSupplier ySupplier;
@@ -36,7 +37,7 @@ public class AutoAlign extends Command {
 	// Meant to be an "isDownBind" command
 	public AutoAlign(
 			SwerveDrive swerve,
-			Arm arm,
+			ArmKYS arm,
 			Limelight limelight,
 			DoubleSupplier xSupplier,
 			DoubleSupplier ySupplier,
@@ -49,13 +50,14 @@ public class AutoAlign extends Command {
 		this.rotationSupplier = rotationSupplier;
 		this.specificTag = false;
 
+		SmartDashboard.putNumber("FUC COCK", 34);
 		addRequirements(swerve, arm);
 	}
 
 	public AutoAlign(
 			int alignmentTagID,
 			SwerveDrive swerve,
-			Arm arm,
+			ArmKYS arm,
 			Limelight limelight,
 			DoubleSupplier xSupplier,
 			DoubleSupplier ySupplier,
@@ -69,7 +71,7 @@ public class AutoAlign extends Command {
 
 		this.targetTagID = alignmentTagID;
 		this.specificTag = true;
-
+		SmartDashboard.putNumber("FUC COCK", 34);
 		addRequirements(swerve, arm);
 	}
 
@@ -91,10 +93,18 @@ public class AutoAlign extends Command {
 			case 4: // Red Alliance
 			case 7: // Blue Alliance
 				desiredRotation = -Math.toRadians(limelight.getTX() * 4.5);
+				// desiredArmPivot = limelight.getTY() +
+				// Constants.Vision.kShoooterCameraAngleOffset - 90;
+				desiredArmPivot = SmartDashboard.getNumber("FUC COCK", desiredRotation) - limelight.getTY()
+						+ Constants.Arm.kMinPivot;
+				if (!limelight.getTV()) {
+					desiredArmPivot = arm.getPivotDegrees();
+				}
 
 				// VERIFY SIGNS & AXES
-				desiredArmPivot = Math.toDegrees(Math.atan(
-						2 * RobotToTag.getZ() / Math.hypot(RobotToTag.getX(), RobotToTag.getY())));
+				/*-
+				desiredArmPivot = Math.toDegrees(Math.atan(2 * RobotToTag.getZ() / Math.hypot(RobotToTag.getX(), RobotToTag.getY())));
+				*/
 
 				return new Pose2d(new Translation2d(0, 0),
 						new Rotation2d(desiredRotation));
@@ -173,14 +183,9 @@ public class AutoAlign extends Command {
 						true);
 			}
 
-			SmartDashboard.putNumber("Desired Arm Pivot",
-					MathUtil.clamp(desiredArmPivot + Constants.Arm.kMinPivot, Constants.Arm.kMinPivot,
-							Constants.Arm.kMaxPivot));
-			/*-
-			arm.setPivotDegrees(
-					MathUtil.clamp(desiredArmPivot + Constants.Arm.kMinPivot, Constants.Arm.kMinPivot,
-							Constants.Arm.kMaxPivot));
-			*/
+			SmartDashboard.putNumber("Desired Arm Pivot", desiredArmPivot);
+
+			arm.setPivotDegrees(MathUtil.clamp(desiredArmPivot, Constants.Arm.kMinPivot, Constants.Arm.kMaxPivot));
 		} else {
 			// if valid tag but no translation, sets desired rotation with operator
 			// movement, otherwise full operator control

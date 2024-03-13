@@ -34,8 +34,8 @@ public class RobotContainer {
 	private final Intake intake;
 	public final Indexer indexer;
 	public final Shooter shooter;
-	private final Arm arm;
-	private final Climber climber;
+	private final ArmKYS arm;
+	// private final Climber climber;
 	public final Limelight intakeCamera = new Limelight("limelight-intake");
 	private final Limelight shooterCamera = new Limelight("limelight-arm");
 
@@ -46,8 +46,8 @@ public class RobotContainer {
 		this.intake = new Intake();
 		this.indexer = new Indexer();
 		this.shooter = new Shooter();
-		this.arm = new Arm();
-		this.climber = new Climber(pigeon);
+		this.arm = new ArmKYS();
+		// this.climber = new Climber(pigeon);
 
 		intakeCamera.setLEDMode_ForceOff();
 		intakeCamera.setPipelineIndex(Constants.Vision.Pipeline.NeuralNetwork);
@@ -151,22 +151,23 @@ public class RobotContainer {
 		operator.y().onTrue(new SetPivot(arm, Constants.Arm.kMinPivot));
 
 		// When the B button is held down, the arm goes into raw output mode; there are
-		// no
+		// no safeties.
 		arm.setDefaultCommand(new DefaultPivotCommand(arm,
 				() -> nonInvSquare(-operator.getLeftY()) / 5, () -> operator.getHID().getBButton()));
 
 		// The left and right buttons on the d-pad indicate that only that climber
 		// should actuate. The X button toggles the solenoids between their locked and
 		// unlocked position.
-
+		/*-
 		climber.setDefaultCommand(new DefaultClimbCommand(climber,
-				() -> operator.getRightTriggerAxis(),
-				() -> operator.getLeftTriggerAxis(),
+				() -> MathUtil.applyDeadband(operator.getRightTriggerAxis(), 0.5),
+				() -> MathUtil.applyDeadband(operator.getLeftTriggerAxis(), 0.5),
 				() -> operator.getHID().getPOV() == 270,
 				() -> operator.getHID().getPOV() == 90,
 				() -> operator.getHID().getXButton(),
 				pigeon,
 				true));
+		 */
 	}
 
 	private void addAutonomousRoutines() {
@@ -194,7 +195,7 @@ public class RobotContainer {
 		} else {
 			swerve.setTargetHeading(pigeon.getYaw().getValue());
 		}
-		climber.unlockLeft();
-		climber.unlockRight();
+		// climber.unlockLeft();
+		// climber.unlockRight();
 	}
 }

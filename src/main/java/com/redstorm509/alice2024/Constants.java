@@ -37,11 +37,15 @@ public final class Constants {
 
 		public static final double kPivotMagnetOffset = 0;
 
-		public static final double kPivotP = 0.425 * 12; // Fix later probably
-		public static final double kPivotI = 0.06 * 12;
-		public static final double kPivotD = 0.02 * 12;
+		public static final double kPivotIntegratedP = 5.1;
+		public static final double kPivotIntegratedI = 0.72;
+		public static final double kPivotIntegratedD = 0.24;
 
-		public static final double kPivotGearRatio = 512 / 3;
+		public static final double kPivotRSP = 10 * 12;
+		public static final double kPivotRSI = 1.44 * 12;
+		public static final double kPivotRSD = 0.48 * 12;
+
+		public static final double kPivotGearRatio = 512.0d / 3.0d;
 	}
 
 	public static class Shooter {
@@ -77,7 +81,7 @@ public final class Constants {
 		public static final double kIntakeCameraAngleOffset = -5.0;
 		public static final double kIntakeCameraHeightFromGround = 0.2794; // meters
 
-		public static final double kShoooterCameraAngleOffset = 20.0;
+		public static final double kShoooterCameraAngleOffset = 25.0;
 		public static final double kShoooterCameraHeightFromGround = 0.38735;
 
 		// REPLACE ME D:<

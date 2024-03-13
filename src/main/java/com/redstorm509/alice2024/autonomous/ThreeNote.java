@@ -2,7 +2,8 @@ package com.redstorm509.alice2024.autonomous;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
-import com.redstorm509.alice2024.subsystems.Arm;
+import com.redstorm509.alice2024.subsystems.ArmKYS;
+import com.redstorm509.alice2024.subsystems.ArmKYS;
 import com.redstorm509.alice2024.subsystems.Indexer;
 import com.redstorm509.alice2024.subsystems.Intake;
 import com.redstorm509.alice2024.subsystems.Shooter;
@@ -15,7 +16,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 public class ThreeNote extends SequentialCommandGroup {
 
-	public ThreeNote(SwerveDrive swerve, Shooter shooter, Arm arm, Indexer indexer, Intake intake) {
+	public ThreeNote(SwerveDrive swerve, Shooter shooter, ArmKYS arm, Indexer indexer, Intake intake) {
 		Pose2d startPose = new Pose2d(0.63, 6.62, Rotation2d.fromDegrees(59.47));
 		Command paths = Commands.sequence(
 				SwerveDrive.resetOdometryCmd(swerve, startPose),

@@ -24,8 +24,8 @@ public class Climber extends SubsystemBase {
 	public Climber(Pigeon2 pigeon) {
 		TalonFXConfiguration conf = new TalonFXConfiguration();
 		conf.CurrentLimits.SupplyCurrentLimitEnable = true;
-		conf.CurrentLimits.SupplyCurrentLimit = 35.0;
-		conf.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+		conf.CurrentLimits.SupplyCurrentLimit = 10.0;
+		conf.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
 		leftClimbMotor.getConfigurator().apply(conf);
 		rightClimbMotor.getConfigurator().apply(conf);

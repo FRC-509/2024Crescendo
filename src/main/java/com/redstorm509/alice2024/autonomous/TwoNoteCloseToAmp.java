@@ -6,7 +6,8 @@ import com.redstorm509.alice2024.commands.DefaultDriveCommand;
 import com.redstorm509.alice2024.commands.IntakeNote;
 import com.redstorm509.alice2024.commands.SetPivot;
 import com.redstorm509.alice2024.commands.ShootNote;
-import com.redstorm509.alice2024.subsystems.Arm;
+import com.redstorm509.alice2024.subsystems.ArmKYS;
+import com.redstorm509.alice2024.subsystems.ArmKYS;
 import com.redstorm509.alice2024.subsystems.Indexer;
 import com.redstorm509.alice2024.subsystems.Intake;
 import com.redstorm509.alice2024.subsystems.Shooter;
@@ -19,7 +20,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 public class TwoNoteCloseToAmp extends SequentialCommandGroup {
-	public TwoNoteCloseToAmp(SwerveDrive swerve, Shooter shooter, Arm arm, Indexer indexer, Intake intake) {
+	public TwoNoteCloseToAmp(SwerveDrive swerve, Shooter shooter, ArmKYS arm, Indexer indexer, Intake intake) {
 		Pose2d startPose = new Pose2d(0.72, 6.65, Rotation2d.fromDegrees(59.86));
 		Command paths = Commands.sequence(
 				SwerveDrive.resetOdometryCmd(swerve, startPose),

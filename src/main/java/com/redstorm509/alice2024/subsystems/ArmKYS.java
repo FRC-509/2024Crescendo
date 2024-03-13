@@ -19,7 +19,8 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Arm extends SubsystemBase {
+/** THIS USES THE INTERNAL SENSOR!!!! */
+public class ArmKYS extends SubsystemBase {
 	private TalonFX pivotLeader = new TalonFX(13); // Labelled PIVOTL
 	private TalonFX pivotFollower = new TalonFX(14); // Labelled PIVOTR
 	private CANcoder pivotEncoder = new CANcoder(17);
@@ -31,13 +32,13 @@ public class Arm extends SubsystemBase {
 
 	private PositionTarget pivotTarget;
 
-	public Arm() {
+	public ArmKYS() {
 		TalonFXConfiguration pivotConf = new TalonFXConfiguration();
 		pivotConf.CurrentLimits.SupplyCurrentLimitEnable = true;
 		pivotConf.CurrentLimits.SupplyCurrentLimit = 35.0;
-		pivotConf.Slot0.kP = Constants.Arm.kPivotP;
-		pivotConf.Slot0.kI = Constants.Arm.kPivotI;
-		pivotConf.Slot0.kD = Constants.Arm.kPivotD;
+		pivotConf.Slot0.kP = Constants.Arm.kPivotIntegratedP;
+		pivotConf.Slot0.kI = Constants.Arm.kPivotIntegratedI;
+		pivotConf.Slot0.kD = Constants.Arm.kPivotIntegratedD;
 		pivotConf.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
 		pivotLeader.getConfigurator().apply(pivotConf);
