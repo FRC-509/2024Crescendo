@@ -50,7 +50,7 @@ public final class Constants {
 
 	public static class Shooter {
 		public static final double kFlyWheelP = 0.1;
-		public static final double kFlyWheelI = 0.007;
+		public static final double kFlyWheelI = 0.0;
 		public static final double kFlyWheelD = 0.0;
 		public static final double kFlyWheelS = 0.155;
 		public static final double kFlyWheelV = 0.11;

@@ -25,14 +25,14 @@ public class DefaultPivotCommand extends Command {
 	public void execute() {
 		if (rawOutputMode.getAsBoolean()) {
 			enteredRawOutputMode = true;
-			System.out.println("Doing Raw Output");
+			// System.out.println("Doing Raw Output");
 			arm.setPivotOpenLoop(pivotOutputSup.getAsDouble());
 		} else if (!rawOutputMode.getAsBoolean() && enteredRawOutputMode) {
-			System.out.println("Going back to normal");
+			// System.out.println("Going back to normal");
 			enteredRawOutputMode = false;
 			arm.setPivotDegrees(arm.getPivotDegrees());
 		} else if (!rawOutputMode.getAsBoolean() && !enteredRawOutputMode) {
-			System.out.println("Being normal");
+			// System.out.println("Being normal");
 			arm.setPivotOutput(pivotOutputSup.getAsDouble());
 		}
 	}

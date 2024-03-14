@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Shooter extends SubsystemBase {
 
-	private TalonFX shooterLeader = new TalonFX(15); // Labelled SHOOTERL
+	public TalonFX shooterLeader = new TalonFX(15); // Labelled SHOOTERL
 	private TalonFX shooterFollower = new TalonFX(16); // Labelled SHOOTERR
 
 	private VelocityVoltage closedLoopVelocity = new VelocityVoltage(0).withEnableFOC(false);
@@ -20,8 +20,8 @@ public class Shooter extends SubsystemBase {
 	// TODO: Define coordinate space!
 	public Shooter() {
 		TalonFXConfiguration shootConf = new TalonFXConfiguration();
-		shootConf.CurrentLimits.SupplyCurrentLimitEnable = true;
-		shootConf.CurrentLimits.SupplyCurrentLimit = 35.0;
+		shootConf.CurrentLimits.SupplyCurrentLimitEnable = false;
+		shootConf.CurrentLimits.SupplyCurrentLimit = 0.0;
 		shootConf.Slot0.kP = Constants.Shooter.kFlyWheelP;
 		shootConf.Slot0.kI = Constants.Shooter.kFlyWheelI;
 		shootConf.Slot0.kD = Constants.Shooter.kFlyWheelD;
@@ -31,12 +31,14 @@ public class Shooter extends SubsystemBase {
 		shootConf.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 		shooterLeader.getConfigurator().apply(shootConf);
 		shooterFollower.getConfigurator().apply(shootConf);
-
+		// shooterFollower.setInverted(true);
 		shooterFollower.setControl(new Follower(shooterLeader.getDeviceID(), true));
 	}
 
 	public void setShooterVelocity(double speed) {
 		shooterLeader.setControl(closedLoopVelocity.withVelocity(speed));
+		// shooterFollower.setControl(closedLoopVelocity.withVelocity(speed - 1.5));
+
 	}
 
 	public double getShooterVelocity() {
