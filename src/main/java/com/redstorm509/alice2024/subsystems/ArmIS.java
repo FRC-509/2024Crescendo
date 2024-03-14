@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /** THIS USES THE INTERNAL SENSOR!!!! */
-public class ArmKYS extends SubsystemBase {
+public class ArmIS extends SubsystemBase {
 	private TalonFX pivotLeader = new TalonFX(13); // Labelled PIVOTL
 	private TalonFX pivotFollower = new TalonFX(14); // Labelled PIVOTR
 	private CANcoder pivotEncoder = new CANcoder(17);
@@ -32,7 +32,7 @@ public class ArmKYS extends SubsystemBase {
 
 	private PositionTarget pivotTarget;
 
-	public ArmKYS() {
+	public ArmIS() {
 		TalonFXConfiguration pivotConf = new TalonFXConfiguration();
 		pivotConf.CurrentLimits.SupplyCurrentLimitEnable = true;
 		pivotConf.CurrentLimits.SupplyCurrentLimit = 35.0;

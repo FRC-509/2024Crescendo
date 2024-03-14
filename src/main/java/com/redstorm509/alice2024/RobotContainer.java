@@ -34,7 +34,7 @@ public class RobotContainer {
 	private final Intake intake;
 	public final Indexer indexer;
 	public final Shooter shooter;
-	private final ArmKYS arm;
+	private final ArmIS arm;
 	// private final Climber climber;
 	public final Limelight intakeCamera = new Limelight("limelight-intake");
 	private final Limelight shooterCamera = new Limelight("limelight-arm");
@@ -46,7 +46,7 @@ public class RobotContainer {
 		this.intake = new Intake();
 		this.indexer = new Indexer();
 		this.shooter = new Shooter();
-		this.arm = new ArmKYS();
+		this.arm = new ArmIS();
 		// this.climber = new Climber(pigeon);
 
 		intakeCamera.setLEDMode_ForceOff();

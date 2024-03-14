@@ -13,15 +13,15 @@ import edu.wpi.first.wpilibj2.command.Command;
 import java.util.function.DoubleSupplier;
 
 import com.redstorm509.alice2024.Constants;
-import com.redstorm509.alice2024.subsystems.ArmKYS;
-import com.redstorm509.alice2024.subsystems.ArmKYS;
+import com.redstorm509.alice2024.subsystems.ArmIS;
+import com.redstorm509.alice2024.subsystems.ArmIS;
 import com.redstorm509.alice2024.subsystems.drive.SwerveDrive;
 import com.redstorm509.alice2024.subsystems.vision.Limelight;
 
 public class AutoAlign extends Command {
 
 	private SwerveDrive swerve;
-	private ArmKYS arm;
+	private ArmIS arm;
 	private Limelight limelight;
 	private DoubleSupplier xSupplier;
 	private DoubleSupplier ySupplier;
@@ -37,7 +37,7 @@ public class AutoAlign extends Command {
 	// Meant to be an "isDownBind" command
 	public AutoAlign(
 			SwerveDrive swerve,
-			ArmKYS arm,
+			ArmIS arm,
 			Limelight limelight,
 			DoubleSupplier xSupplier,
 			DoubleSupplier ySupplier,
@@ -50,14 +50,14 @@ public class AutoAlign extends Command {
 		this.rotationSupplier = rotationSupplier;
 		this.specificTag = false;
 
-		SmartDashboard.putNumber("FUC COCK", 34);
+		SmartDashboard.putNumber("AAOffsetDeg", 34);
 		addRequirements(swerve, arm);
 	}
 
 	public AutoAlign(
 			int alignmentTagID,
 			SwerveDrive swerve,
-			ArmKYS arm,
+			ArmIS arm,
 			Limelight limelight,
 			DoubleSupplier xSupplier,
 			DoubleSupplier ySupplier,
@@ -71,7 +71,7 @@ public class AutoAlign extends Command {
 
 		this.targetTagID = alignmentTagID;
 		this.specificTag = true;
-		SmartDashboard.putNumber("FUC COCK", 34);
+		SmartDashboard.putNumber("AAOffsetDeg", 34);
 		addRequirements(swerve, arm);
 	}
 
@@ -95,7 +95,7 @@ public class AutoAlign extends Command {
 				desiredRotation = -Math.toRadians(limelight.getTX() * 4.5);
 				// desiredArmPivot = limelight.getTY() +
 				// Constants.Vision.kShoooterCameraAngleOffset - 90;
-				desiredArmPivot = SmartDashboard.getNumber("FUC COCK", desiredRotation) - limelight.getTY()
+				desiredArmPivot = SmartDashboard.getNumber("AAOffsetDeg", desiredRotation) - limelight.getTY()
 						+ Constants.Arm.kMinPivot;
 				if (!limelight.getTV()) {
 					desiredArmPivot = arm.getPivotDegrees();
