@@ -51,7 +51,7 @@ public class Indexer extends SubsystemBase {
 	private DigitalInput imStageBB = new DigitalInput(0);
 
 	public Indexer() {
-		indexer.setSmartCurrentLimit(15);
+		indexer.setSmartCurrentLimit(30);
 		indexer.setIdleMode(IdleMode.kCoast);
 		indexer.burnFlash();
 		indexingNoteState = IndexerState.Noteless;

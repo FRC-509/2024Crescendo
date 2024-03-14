@@ -24,7 +24,7 @@ public class Intake extends SubsystemBase {
 
 		intakeMotor.getConfigurator().apply(conf);
 
-		preCompressorMotors.setSmartCurrentLimit(15);
+		preCompressorMotors.setSmartCurrentLimit(30);
 		preCompressorMotors.setIdleMode(IdleMode.kCoast);
 		preCompressorMotors.setInverted(true);
 		preCompressorMotors.burnFlash();

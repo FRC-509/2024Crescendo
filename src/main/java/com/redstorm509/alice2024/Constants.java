@@ -61,7 +61,7 @@ public final class Constants {
 	}
 
 	public static class Indexer {
-		public static final double kSpinSpeed = 0.7d;
+		public static final double kSpinSpeed = 1.0d;
 	}
 
 	public static class Intake {
