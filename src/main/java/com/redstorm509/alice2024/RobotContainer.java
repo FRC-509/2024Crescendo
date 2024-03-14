@@ -81,6 +81,10 @@ public class RobotContainer {
 		// pressing down will face backward.
 		(new Trigger(() -> driverRight.getPOV(0) == 0))
 				.onTrue(Commands.runOnce(() -> swerve.setTargetHeading(0), swerve));
+		(new Trigger(() -> driverRight.getPOV(0) == 90))
+				.onTrue(Commands.runOnce(() -> swerve.setTargetHeading(-90), swerve));
+		(new Trigger(() -> driverRight.getPOV(0) == 270))
+				.onTrue(Commands.runOnce(() -> swerve.setTargetHeading(90), swerve));
 		(new Trigger(() -> driverRight.getPOV(0) == 180))
 				.onTrue(Commands.runOnce(() -> swerve.setTargetHeading(180), swerve));
 

@@ -35,7 +35,7 @@ public final class Constants {
 		public static final double kMaxPivot = 71.834;
 		public static final double kMaxPivotSpeed = 250.0d;
 
-		public static final double kPivotMagnetOffset = 0;
+		public static final double kPivotMagnetOffset = -0.19;
 
 		public static final double kPivotIntegratedP = 5.1;
 		public static final double kPivotIntegratedI = 0.72;
@@ -45,7 +45,7 @@ public final class Constants {
 		public static final double kPivotRSI = 1.44 * 12;
 		public static final double kPivotRSD = 0.48 * 12;
 
-		public static final double kPivotGearRatio = 512.0d / 3.0d;
+		public static final double kPivotGearRatio = 168.719419;// 512.0d / 3.0d;
 	}
 
 	public static class Shooter {

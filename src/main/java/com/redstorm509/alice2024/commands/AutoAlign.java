@@ -93,10 +93,17 @@ public class AutoAlign extends Command {
 			case 4: // Red Alliance
 			case 7: // Blue Alliance
 				desiredRotation = -Math.toRadians(limelight.getTX() * 4.5);
-				// desiredArmPivot = limelight.getTY() +
-				// Constants.Vision.kShoooterCameraAngleOffset - 90;
-				desiredArmPivot = SmartDashboard.getNumber("AAOffsetDeg", desiredRotation) - limelight.getTY()
-						+ Constants.Arm.kMinPivot;
+				// desiredArmPivot = SmartDashboard.getNumber("AAOffsetDeg", desiredRotation) -
+				// limelight.getTY() + Constants.Arm.kMinPivot;
+				desiredArmPivot = -0.677626 * limelight.getTY() - 32.9009;
+
+				// Dylan i dont think we should do this thing but i have it here if you want
+				/*-
+				if (limelight.getTY() >= 32) {
+					desiredArmPivot = Constants.Arm.kMinPivot;
+				}
+				 */
+
 				if (!limelight.getTV()) {
 					desiredArmPivot = arm.getPivotDegrees();
 				}
