@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 
-import com.redstorm509.alice2024.autonomous.ThreeNote;
+import com.redstorm509.alice2024.autonomous.ThreeNoteCloseToAmp;
 import com.redstorm509.alice2024.autonomous.TwoNoteCloseToAmp;
 import com.redstorm509.alice2024.commands.*;
 import com.redstorm509.alice2024.subsystems.*;
@@ -175,10 +175,14 @@ public class RobotContainer {
 	}
 
 	private void addAutonomousRoutines() {
-		chooser.addOption("Three Note", new ThreeNote(swerve, shooter, arm, indexer, intake));
+		chooser.addOption("Three Note Amp Side", new ThreeNoteCloseToAmp(swerve, shooter, arm, indexer, intake));
 		chooser.addOption("Two Note Amp Side", new TwoNoteCloseToAmp(swerve, shooter, arm, indexer, intake));
 		chooser.addOption("One Note and Taxi",
 				new SequentialCommandGroup(
+						Commands.runOnce(
+								() -> swerve.setYawForTeleopEntry(
+										SwerveDrive.jankFlipHeading(59.86))),
+						new IntakeNote(intake, indexer),
 						new ShootNote(shooter, indexer),
 						new DefaultDriveCommand(swerve, 0.7d, 0.0d, 0.0d, true).withTimeout(1)));
 		chooser.addOption("Null", new InstantCommand());

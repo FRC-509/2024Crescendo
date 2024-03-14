@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.63,
-      "y": 6.62
+      "x": 0.72,
+      "y": 6.65
     },
-    "rotation": 59.47
+    "rotation": 59.86
   },
   "command": {
     "type": "sequential",
@@ -14,19 +14,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "DriveToNote"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Intake"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "DriveToNoteRev"
+            "pathName": "D2N_TwoNoteAmpSide"
           }
         },
         {
