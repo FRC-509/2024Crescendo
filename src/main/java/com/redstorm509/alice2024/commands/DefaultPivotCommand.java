@@ -23,6 +23,8 @@ public class DefaultPivotCommand extends Command {
 
 	@Override
 	public void execute() {
+		arm.setPivotOutput(pivotOutputSup.getAsDouble());
+		/*-
 		if (rawOutputMode.getAsBoolean()) {
 			enteredRawOutputMode = true;
 			// System.out.println("Doing Raw Output");
@@ -35,5 +37,6 @@ public class DefaultPivotCommand extends Command {
 			// System.out.println("Being normal");
 			arm.setPivotOutput(pivotOutputSup.getAsDouble());
 		}
+		 */
 	}
 }

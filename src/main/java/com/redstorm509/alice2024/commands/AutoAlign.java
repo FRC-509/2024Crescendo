@@ -1,6 +1,5 @@
 package com.redstorm509.alice2024.commands;
 
-import edu.wpi.first.math.MathShared;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -15,7 +14,6 @@ import java.util.Optional;
 import java.util.function.DoubleSupplier;
 
 import com.redstorm509.alice2024.Constants;
-import com.redstorm509.alice2024.subsystems.ArmIS;
 import com.redstorm509.alice2024.subsystems.ArmIS;
 import com.redstorm509.alice2024.subsystems.drive.SwerveDrive;
 import com.redstorm509.alice2024.subsystems.vision.Limelight;
@@ -52,7 +50,6 @@ public class AutoAlign extends Command {
 		this.rotationSupplier = rotationSupplier;
 		this.specificTag = false;
 
-		SmartDashboard.putNumber("AAOffsetDeg", 34);
 		addRequirements(swerve, arm);
 	}
 
@@ -73,7 +70,6 @@ public class AutoAlign extends Command {
 
 		this.targetTagID = alignmentTagID;
 		this.specificTag = true;
-		SmartDashboard.putNumber("AAOffsetDeg", 34);
 		addRequirements(swerve, arm);
 	}
 
@@ -95,18 +91,11 @@ public class AutoAlign extends Command {
 			case 4: // Red Alliance
 			case 7: // Blue Alliance
 				desiredRotation = -Math.toRadians(limelight.getTX() * 4.5);
-				// desiredArmPivot = SmartDashboard.getNumber("AAOffsetDeg", desiredRotation) -
-				// limelight.getTY() + Constants.Arm.kMinPivot;
 				desiredArmPivot = -0.677626 * limelight.getTY() - 32.9009;
 
 				if (!limelight.getTV()) {
 					desiredArmPivot = arm.getPivotDegrees();
 				}
-
-				// VERIFY SIGNS & AXES
-				/*-
-				desiredArmPivot = Math.toDegrees(Math.atan(2 * RobotToTag.getZ() / Math.hypot(RobotToTag.getX(), RobotToTag.getY())));
-				*/
 
 				return new Pose2d(new Translation2d(0, 0),
 						new Rotation2d(desiredRotation));
@@ -136,7 +125,6 @@ public class AutoAlign extends Command {
 
 		limelight.setLEDMode_ForceBlink();
 
-		// change ll settings back
 		Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
 		if (alliance.isPresent()) {
 			if (alliance.get() == DriverStation.Alliance.Blue) {
@@ -164,7 +152,6 @@ public class AutoAlign extends Command {
 
 		// TEST VALUES TO MAKE SURE WORKS AS EXPECTED
 
-		// inverted tag centric version
 		Pose3d TagToRobotPose = Limelight.toPose3D(limelight.getBotPose_TargetSpace());
 		RobotToTag = new Translation3d(-TagToRobotPose.getZ(), -TagToRobotPose.getX(), -TagToRobotPose.getY());
 
@@ -218,9 +205,6 @@ public class AutoAlign extends Command {
 		SmartDashboard.putNumber("X to target position", outputTranslation.getX());
 		SmartDashboard.putNumber("Y to target position", outputTranslation.getY());
 		 */
-
-		SmartDashboard.putNumber("Degrees to Target Heading",
-				offsetPose.getRotation().getDegrees() - swerve.getYaw().getDegrees());
 	}
 
 	@Override

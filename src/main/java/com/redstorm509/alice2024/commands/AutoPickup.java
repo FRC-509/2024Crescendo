@@ -1,5 +1,6 @@
 package com.redstorm509.alice2024.commands;
 
+import java.util.Optional;
 import java.util.function.DoubleSupplier;
 
 import com.redstorm509.alice2024.Constants;
@@ -11,6 +12,8 @@ import com.redstorm509.alice2024.subsystems.vision.Limelight;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class AutoPickup extends Command {
@@ -51,11 +54,23 @@ public class AutoPickup extends Command {
 
 	@Override
 	public void initialize() {
-		beganIntaking = false;
 		isFinished = false;
+		beganIntaking = false;
+		indexer.ignoreBBLogic = false;
 		lostTarget = false;
 		lastTX = 0.0;
-		indexer.ignoreBBLogic = false;
+		lastDistanceToTarget = (Constants.Vision.kIntakeCameraHeightFromGround
+				/ Math.tan(Math.toRadians(-limelight.getTY() + -Constants.Vision.kIntakeCameraAngleOffset)));
+
+		// worst case scneario go back to manually changing to leftmost or rightmost
+		Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+		if (alliance.isPresent()) {
+			if (alliance.get() == DriverStation.Alliance.Blue) {
+				limelight.setPriorityTagID(7); // DOUBLE CHECK
+			} else {
+				limelight.setPriorityTagID(4);
+			}
+		}
 
 		limelight.setLEDMode_ForceBlink();
 		limelight.setPipelineIndex(Constants.Vision.Pipeline.NeuralNetwork);
@@ -86,16 +101,20 @@ public class AutoPickup extends Command {
 			// checks if target is the same target that has been tracking, if not follows
 			// last known path (slightly jank, but test)
 			double travelDistanceY;
+			double useTX;
 			if (!lostTarget) {
 				if (Math.abs(distanceToTargetY) < Math
 						.abs(lastDistanceToTarget + Constants.Vision.kMaxTargetDistanceVariation)) {
 					travelDistanceY = distanceToTargetY;
+					useTX = limelight.getTX();
 				} else {
 					travelDistanceY = lastDistanceToTarget;
+					useTX = lastTX;
 					lostTarget = true;
 				}
 			} else {
 				travelDistanceY = lastDistanceToTarget / 2;
+				useTX = lastTX / 2;
 				limelight.setLEDMode_ForceBlink();
 			}
 
@@ -103,11 +122,10 @@ public class AutoPickup extends Command {
 					new Translation2d(
 							MathUtil.clamp(travelDistanceY * 2, -Constants.kMaxSpeed, Constants.kMaxSpeed), // tune
 							MathUtil.clamp(distanceToTargetX * 3, -Constants.kMaxSpeed, Constants.kMaxSpeed)),
-					MathUtil.clamp(Math.toRadians(limelight.getTX() * 2),
+					MathUtil.clamp(Math.toRadians(-useTX * 3),
 							-Constants.kMaxAngularVelocity, Constants.kMaxAngularVelocity), // tune this
 					false,
 					false);
-			lastTX = limelight.getTX();
 		} else {
 			swerve.drive(
 					new Translation2d(xSupplier.getAsDouble(), ySupplier.getAsDouble()).times(Constants.kMaxSpeed),
@@ -141,6 +159,8 @@ public class AutoPickup extends Command {
 				intake.intake(true);
 			}
 		}
+
+		SmartDashboard.putNumber("TX", -limelight.getTX());
 	}
 
 	@Override

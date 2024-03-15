@@ -414,11 +414,10 @@ public class SwerveDrive extends SubsystemBase {
 		}
 		field2d.setRobotPose(getRawOdometeryPose());
 
-		/*-
-		SmartDashboard.putNumber("roll", pigeon.getRoll().getValueAsDouble());
-		SmartDashboard.putNumber("pitch", pigeon.getPitch().getValueAsDouble());
 		SmartDashboard.putNumber("yaw", getYaw().getDegrees());
 		SmartDashboard.putBoolean("Heading Correction Enabled?", !alwaysOmitRotationalCorrection);
+		/*-
+		SmartDashboard.putNumber("pitch", pigeon.getPitch().getValueAsDouble());
 		
 		SmartDashboard.putNumber("x-velocity", getChassisSpeeds().vxMetersPerSecond);
 		SmartDashboard.putNumber("y-velocity", getChassisSpeeds().vyMetersPerSecond);

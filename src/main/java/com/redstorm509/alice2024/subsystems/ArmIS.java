@@ -144,6 +144,7 @@ public class ArmIS extends SubsystemBase {
 		}
 		wasLimitSwitchTripped = limitSwitch.get();
 		SmartDashboard.putBoolean("PivotLimitSwitch", limitSwitch.get());
+		/*-
 		SmartDashboard.putNumber("PivotIntegratedRaw", pivotLeader.getPosition().getValueAsDouble());
 		SmartDashboard.putNumber("PivotLIntegrated",
 				Conversions.falconToDegrees(pivotLeader.getPosition().getValue(), Constants.Arm.kPivotGearRatio));
@@ -151,6 +152,7 @@ public class ArmIS extends SubsystemBase {
 				Conversions.falconToDegrees(pivotFollower.getPosition().getValue(), Constants.Arm.kPivotGearRatio));
 		SmartDashboard.putNumber("PivotEncoder (Relative)",
 				pivotEncoder.getPosition().getValue() * 360.0);
+		 */
 		SmartDashboard.putNumber("PivotEncoder (Absolute)",
 				pivotEncoder.getAbsolutePosition().getValue() * 360.0);
 	}

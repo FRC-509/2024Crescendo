@@ -23,8 +23,6 @@ public class SwerveM2D {
 	private MechanismRoot2d backRightRoot;
 	private MechanismLigament2d backRight;
 
-	private StructArrayPublisher<SwerveModuleState> publisher;
-
 	public SwerveM2D() {
 		layout = new Mechanism2d(6, 6);
 
@@ -40,9 +38,6 @@ public class SwerveM2D {
 		backRightRoot = layout.getRoot("root4", 4.5, 1.5);
 		backRight = backRightRoot.append(new MechanismLigament2d("motor4", 1, 0));
 
-		publisher = NetworkTableInstance.getDefault()
-				.getStructArrayTopic("SwerveModuleStates", SwerveModuleState.struct)
-				.publish();
 		SmartDashboard.putData("Swerve Drive State", layout);
 	}
 
@@ -60,6 +55,5 @@ public class SwerveM2D {
 		backRight.setLength(states[3].speedMetersPerSecond);
 
 		SmartDashboard.putData("Swerve Drive State", layout);
-		publisher.set(states);
 	}
 }

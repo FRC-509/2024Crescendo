@@ -129,8 +129,10 @@ public class ArmRS extends SubsystemBase {
 		}
 		wasLimitSwitchTripped = limitSwitch.get();
 		SmartDashboard.putBoolean("PivotLimitSwitch", limitSwitch.get());
+		/*-
 		SmartDashboard.putNumber("PivotRaw", pivotLeader.getPosition().getValue());
 		SmartDashboard.putNumber("PivotL", pivotLeader.getPosition().getValue() * 360.0d);
 		SmartDashboard.putNumber("PivotF", pivotFollower.getPosition().getValue() * 360.0d);
+		 */
 	}
 }

@@ -20,8 +20,8 @@ public class Shooter extends SubsystemBase {
 	// TODO: Define coordinate space!
 	public Shooter() {
 		TalonFXConfiguration shootConf = new TalonFXConfiguration();
-		shootConf.CurrentLimits.SupplyCurrentLimitEnable = false;
-		shootConf.CurrentLimits.SupplyCurrentLimit = 0.0;
+		shootConf.CurrentLimits.SupplyCurrentLimitEnable = true;
+		shootConf.CurrentLimits.SupplyCurrentLimit = 40.0;
 		shootConf.Slot0.kP = Constants.Shooter.kFlyWheelP;
 		shootConf.Slot0.kI = Constants.Shooter.kFlyWheelI;
 		shootConf.Slot0.kD = Constants.Shooter.kFlyWheelD;
@@ -48,7 +48,5 @@ public class Shooter extends SubsystemBase {
 	@Override
 	public void periodic() {
 		SmartDashboard.putNumber("Shooter Velocity (rot/s)", shooterLeader.getVelocity().getValue());
-		SmartDashboard.putNumber("Shooter Velocity (m/s)",
-				Constants.Shooter.kFlyWheelCircumference * shooterLeader.getVelocity().getValue());
 	}
 }

@@ -20,6 +20,7 @@ public class Climber extends SubsystemBase {
 	private Solenoid rightSol = new Solenoid(PneumaticsModuleType.REVPH, 15);
 
 	private double bootRoll = 0.0d;
+	private Pigeon2 pigeon;
 
 	public Climber(Pigeon2 pigeon) {
 		TalonFXConfiguration conf = new TalonFXConfiguration();
@@ -30,6 +31,7 @@ public class Climber extends SubsystemBase {
 		leftClimbMotor.getConfigurator().apply(conf);
 		rightClimbMotor.getConfigurator().apply(conf);
 		bootRoll = pigeon.getRoll().waitForUpdate(1).getValueAsDouble();
+		this.pigeon = pigeon;
 	}
 
 	public double getBootRoll() {
@@ -78,16 +80,17 @@ public class Climber extends SubsystemBase {
 	}
 
 	public double getLeftExtension() {
-		return leftClimbMotor.getPosition().getValueAsDouble() * 0.0; // REPLACE ME rotations to milimeters conversion
+		return leftClimbMotor.getPosition().getValueAsDouble(); // REPLACE ME rotations to milimeters conversion
 	}
 
 	public double getRightExtension() {
-		return rightClimbMotor.getPosition().getValueAsDouble() * 0.0; // REPLACE ME rotations to milimeters conversion
+		return rightClimbMotor.getPosition().getValueAsDouble(); // REPLACE ME rotations to milimeters conversion
 	}
 
 	@Override
 	public void periodic() {
 		SmartDashboard.putBoolean("LeftSol", leftSol.get());
 		SmartDashboard.putBoolean("RightSol", rightSol.get());
+		SmartDashboard.putNumber("roll", pigeon.getRoll().getValueAsDouble() - bootRoll);
 	}
 }

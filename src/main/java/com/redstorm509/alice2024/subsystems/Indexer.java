@@ -114,9 +114,9 @@ public class Indexer extends SubsystemBase {
 			setNoteless();
 		}
 		SmartDashboard.putString("Indexer State", indexingNoteState.toString());
-		SmartDashboard.putBoolean("Is IM Stage BB Tripped?", !imStageBB.get());
-		SmartDashboard.putBoolean("Is Indexer BB Tripped?", !indexerBB.get());
-		SmartDashboard.putBoolean("Is Shooter BB Tripped?", !shooterBB.get());
+		// SmartDashboard.putBoolean("Is IM Stage BB Tripped?", !imStageBB.get());
+		// SmartDashboard.putBoolean("Is Indexer BB Tripped?", !indexerBB.get());
+		// SmartDashboard.putBoolean("Is Shooter BB Tripped?", !shooterBB.get());
 
 	}
 }
