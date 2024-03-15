@@ -75,7 +75,7 @@ public class RobotContainer {
 				() -> nonInvSquare(-driverLeft.getY()),
 				() -> nonInvSquare(-driverLeft.getX()),
 				() -> nonInvSquare(-driverRight.getX()),
-				() -> !driverLeft.isDown(StickButton.Left)));
+				() -> true));
 
 		// Binds heading locks to the left stick's dpad. Pressing up will face forward,
 		// pressing down will face backward.
@@ -164,8 +164,7 @@ public class RobotContainer {
 		// unlocked position.
 		/*-
 		climber.setDefaultCommand(new DefaultClimbCommand(climber,
-				() -> MathUtil.applyDeadband(operator.getRightTriggerAxis(), 0.5),
-				() -> MathUtil.applyDeadband(operator.getLeftTriggerAxis(), 0.5),
+				() -> MathUtil.applyDeadband(-operator.getRightY(), 0.1),
 				() -> operator.getHID().getPOV() == 270,
 				() -> operator.getHID().getPOV() == 90,
 				() -> operator.getHID().getXButton(),

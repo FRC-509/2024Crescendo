@@ -14,8 +14,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class DefaultClimbCommand extends Command {
 
 	private Climber climber;
-	private DoubleSupplier extendSupplier;
-	private DoubleSupplier retractSupplier;
+	// private DoubleSupplier extendSupplier;
+	// private DoubleSupplier retractSupplier;
+	private DoubleSupplier outputSupplier;
 	private BooleanSupplier leftOnlySupplier;
 	private BooleanSupplier rightOnlySupplier;
 	private BooleanSupplier toggleLockSupplier;
@@ -26,16 +27,18 @@ public class DefaultClimbCommand extends Command {
 
 	public DefaultClimbCommand(
 			Climber climber,
-			DoubleSupplier extendSupplier,
-			DoubleSupplier retractSupplier,
+			// DoubleSupplier extendSupplier,
+			// DoubleSupplier retractSupplier,
+			DoubleSupplier outputSupplier,
 			BooleanSupplier leftOnlySupplier,
 			BooleanSupplier rightOnlySupplier,
 			BooleanSupplier toggleLockSupplier,
 			Pigeon2 pigeon,
 			boolean usesRollCompensation) {
 		this.climber = climber;
-		this.extendSupplier = extendSupplier;
-		this.retractSupplier = retractSupplier;
+		// this.extendSupplier = extendSupplier;
+		// this.retractSupplier = retractSupplier;
+		this.outputSupplier = outputSupplier;
 		this.leftOnlySupplier = leftOnlySupplier;
 		this.rightOnlySupplier = rightOnlySupplier;
 		this.toggleLockSupplier = toggleLockSupplier;
@@ -60,9 +63,11 @@ public class DefaultClimbCommand extends Command {
 			climber.toggleLockRight();
 			toggleDelay.reset();
 		}
-
-		boolean extending = Math.abs(extendSupplier.getAsDouble()) > 0.1;
-		boolean retracting = Math.abs(retractSupplier.getAsDouble()) > 0.1;
+		double output = outputSupplier.getAsDouble();
+		boolean extending = output > 0.1;
+		boolean retracting = output < -0.1;
+		// boolean extending = Math.abs(extendSupplier.getAsDouble()) > 0.1;
+		// boolean retracting = Math.abs(retractSupplier.getAsDouble()) > 0.1;
 
 		double roll = pigeon.getRoll().getValueAsDouble() - climber.getBootRoll();
 
@@ -72,9 +77,11 @@ public class DefaultClimbCommand extends Command {
 				: 0.0;
 
 		if (extending || retracting) {
-			double output = extending ? extendSupplier.getAsDouble() : -retractSupplier.getAsDouble();
-			double compensatedOutput = extending ? extendSupplier.getAsDouble() - rollCompensation
-					: -retractSupplier.getAsDouble() + rollCompensation;
+			// double output = extending ? extendSupplier.getAsDouble() :
+			// -retractSupplier.getAsDouble();
+			// double compensatedOutput = extending ? extendSupplier.getAsDouble() -
+			// rollCompensation : -retractSupplier.getAsDouble() + rollCompensation;
+			double compensatedOutput = extending ? output - rollCompensation : output + rollCompensation;
 
 			// confirm which side is positive roll
 			if (leftOnlySupplier.getAsBoolean()) {
