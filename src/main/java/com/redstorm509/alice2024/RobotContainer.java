@@ -209,15 +209,6 @@ public class RobotContainer {
 		} else {
 			swerve.setTargetHeading(pigeon.getYaw().getValue());
 		}
-		Optional<Alliance> alliance = DriverStation.getAlliance();
-
-		if (alliance.isPresent()) {
-			if (alliance.get() == Alliance.Blue) {
-				led.setMode(BlinkinLedMode.SolidBlue);
-			} else {
-				led.setMode(BlinkinLedMode.SolidRed);
-			}
-		}
 		// climber.unlockLeft();
 		// climber.unlockRight();
 	}
