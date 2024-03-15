@@ -504,6 +504,10 @@ public class Limelight {
 		return getLimelightNTDoubleArray("botpose");
 	}
 
+	public void setPriorityTagID(int ID) {
+		setLimelightNTDouble("priorityid", ID);
+	}
+
 	/**
 	 * Gets the Pose2d for easy use with Odometry vision pose estimator
 	 * (addVisionMeasurement)

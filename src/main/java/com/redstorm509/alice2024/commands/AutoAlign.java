@@ -7,9 +7,11 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
+import java.util.Optional;
 import java.util.function.DoubleSupplier;
 
 import com.redstorm509.alice2024.Constants;
@@ -97,13 +99,6 @@ public class AutoAlign extends Command {
 				// limelight.getTY() + Constants.Arm.kMinPivot;
 				desiredArmPivot = -0.677626 * limelight.getTY() - 32.9009;
 
-				// Dylan i dont think we should do this thing but i have it here if you want
-				/*-
-				if (limelight.getTY() >= 32) {
-					desiredArmPivot = Constants.Arm.kMinPivot;
-				}
-				 */
-
 				if (!limelight.getTV()) {
 					desiredArmPivot = arm.getPivotDegrees();
 				}
@@ -140,6 +135,16 @@ public class AutoAlign extends Command {
 		limelight.setPipelineIndex(Constants.Vision.Pipeline.AprilTags);
 
 		limelight.setLEDMode_ForceBlink();
+
+		// change ll settings back
+		Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+		if (alliance.isPresent()) {
+			if (alliance.get() == DriverStation.Alliance.Blue) {
+				limelight.setPriorityTagID(7); // DOUBLE CHECK
+			} else {
+				limelight.setPriorityTagID(4);
+			}
+		}
 	}
 
 	@Override
@@ -203,14 +208,16 @@ public class AutoAlign extends Command {
 					false);
 		}
 
+		/*-
 		SmartDashboard.putNumber("Targeted April Tag", limelight.getFiducialID());
-
+		
 		SmartDashboard.putNumber("X to Tag", RobotToTag.getX());
 		SmartDashboard.putNumber("Y to Tag", RobotToTag.getY());
 		SmartDashboard.putNumber("Z to tag", RobotToTag.getZ());
-
+		
 		SmartDashboard.putNumber("X to target position", outputTranslation.getX());
 		SmartDashboard.putNumber("Y to target position", outputTranslation.getY());
+		 */
 
 		SmartDashboard.putNumber("Degrees to Target Heading",
 				offsetPose.getRotation().getDegrees() - swerve.getYaw().getDegrees());
@@ -218,10 +225,13 @@ public class AutoAlign extends Command {
 
 	@Override
 	public boolean isFinished() {
+		/*-
 		return MathUtil.isNear(0, outputTranslation.getX(), Constants.Vision.kAlignmentTranslationTolerance) &&
 				MathUtil.isNear(0, outputTranslation.getY(), Constants.Vision.kAlignmentTranslationTolerance) &&
 				MathUtil.isNear(getAlignmentOffset(targetTagID).getRotation().getDegrees(),
 						swerve.getYaw().getDegrees(), Constants.Vision.kAlignmentRotationTolerance);
+		 */
+		return false;
 	}
 
 	@Override
