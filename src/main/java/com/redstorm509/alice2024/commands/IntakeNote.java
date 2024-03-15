@@ -22,6 +22,7 @@ public class IntakeNote extends Command {
 	@Override
 	public void initialize() {
 		isFinished = false;
+		indexer.ignoreBBLogic = false;
 	}
 
 	@Override
@@ -32,13 +33,13 @@ public class IntakeNote extends Command {
 			indexer.rawIndexer(-Constants.Indexer.kSpinSpeed);
 			intake.intake(true);
 		} else if (indexer.indexingNoteState == IndexerState.NoteTooShooter) {
-			indexer.rawIndexer(Constants.Indexer.kSpinSpeed * 0.5); // increase if needed
+			indexer.rawIndexer(Constants.Indexer.kReducedSpinSpeed); // increase if needed
 			intake.stop();
 		} else if (indexer.indexingNoteState == IndexerState.NoteTooShooterExtreme) {
 			indexer.rawIndexer(Constants.Indexer.kSpinSpeed);
 			intake.stop();
 		} else if (indexer.indexingNoteState == IndexerState.NoteTooIntake) {
-			indexer.rawIndexer(-Constants.Indexer.kSpinSpeed * 0.5); // increase if needed
+			indexer.rawIndexer(-Constants.Indexer.kReducedSpinSpeed); // increase if needed
 			intake.stop();
 		} else if (indexer.indexingNoteState == IndexerState.NoteTooIntakeExtreme) {
 			indexer.rawIndexer(-Constants.Indexer.kSpinSpeed);
@@ -55,5 +56,6 @@ public class IntakeNote extends Command {
 	public void end(boolean wasInterrupted) {
 		indexer.rawIndexer(0.0);
 		intake.stop();
+		indexer.ignoreBBLogic = true;
 	}
 }

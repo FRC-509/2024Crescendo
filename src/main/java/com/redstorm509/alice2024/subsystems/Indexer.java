@@ -2,6 +2,9 @@ package com.redstorm509.alice2024.subsystems;
 
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+
+import org.opencv.features2d.FastFeatureDetector;
+
 import com.revrobotics.CANSparkMax;
 
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -41,6 +44,7 @@ public class Indexer extends SubsystemBase {
 
 	public IndexerState indexingNoteState;
 	private IndexerState prevIndexerState;
+	public boolean ignoreBBLogic = true;
 
 	public boolean indexerInvalidState;
 	private Timer currentStateTimer = new Timer();
@@ -56,6 +60,7 @@ public class Indexer extends SubsystemBase {
 		indexer.burnFlash();
 		indexingNoteState = IndexerState.Noteless;
 		indexerInvalidState = false;
+		ignoreBBLogic = true;
 		currentStateTimer.start();
 	}
 
@@ -73,31 +78,33 @@ public class Indexer extends SubsystemBase {
 
 	@Override
 	public void periodic() {
-		if (!indexerBB.get() && !shooterBB.get() && imStageBB.get()) {
-			// Note is where we want it to be
-			prevIndexerState = indexingNoteState;
-			indexingNoteState = IndexerState.HasNote;
-			indexerInvalidState = false;
-		} else if (!indexerBB.get() && shooterBB.get() && imStageBB.get()) {
-			// Note is too far out shooter side
-			prevIndexerState = indexingNoteState;
-			indexingNoteState = IndexerState.NoteTooShooter;
-			indexerInvalidState = false;
-		} else if (!indexerBB.get() && shooterBB.get() && !imStageBB.get()) {
-			// Note is too far out intermediate stage side
-			prevIndexerState = indexingNoteState;
-			indexingNoteState = IndexerState.NoteTooIntake;
-			indexerInvalidState = false;
-		} else if (indexerBB.get() && !shooterBB.get() && imStageBB.get()) {
-			// Note is way too sticking out shooter
-			prevIndexerState = indexingNoteState;
-			indexingNoteState = IndexerState.NoteTooShooterExtreme;
-			indexerInvalidState = false;
-		} else if (indexerBB.get() && shooterBB.get() && !imStageBB.get()) {
-			// Note is way too sticking out shooter
-			prevIndexerState = indexingNoteState;
-			indexingNoteState = IndexerState.NoteTooIntakeExtreme;
-			indexerInvalidState = false;
+		if (!ignoreBBLogic) {
+			if (!indexerBB.get() && !shooterBB.get() && imStageBB.get()) {
+				// Note is where we want it to be
+				prevIndexerState = indexingNoteState;
+				indexingNoteState = IndexerState.HasNote;
+				indexerInvalidState = false;
+			} else if (!indexerBB.get() && shooterBB.get() && imStageBB.get()) {
+				// Note is too far out shooter side
+				prevIndexerState = indexingNoteState;
+				indexingNoteState = IndexerState.NoteTooShooter;
+				indexerInvalidState = false;
+			} else if (!indexerBB.get() && shooterBB.get() && !imStageBB.get()) {
+				// Note is too far out intermediate stage side
+				prevIndexerState = indexingNoteState;
+				indexingNoteState = IndexerState.NoteTooIntake;
+				indexerInvalidState = false;
+			} else if (indexerBB.get() && !shooterBB.get() && imStageBB.get()) {
+				// Note is way too sticking out shooter
+				prevIndexerState = indexingNoteState;
+				indexingNoteState = IndexerState.NoteTooShooterExtreme;
+				indexerInvalidState = false;
+			} else if (indexerBB.get() && shooterBB.get() && !imStageBB.get()) {
+				// Note is way too sticking out shooter
+				prevIndexerState = indexingNoteState;
+				indexingNoteState = IndexerState.NoteTooIntakeExtreme;
+				indexerInvalidState = false;
+			}
 		}
 
 		if (indexingNoteState == prevIndexerState && indexingNoteState != IndexerState.NoteTooShooter) {
@@ -107,5 +114,9 @@ public class Indexer extends SubsystemBase {
 			setNoteless();
 		}
 		SmartDashboard.putString("Indexer State", indexingNoteState.toString());
+		SmartDashboard.putBoolean("Is IM Stage BB Tripped?", !imStageBB.get());
+		SmartDashboard.putBoolean("Is Indexer BB Tripped?", !indexerBB.get());
+		SmartDashboard.putBoolean("Is Shooter BB Tripped?", !shooterBB.get());
+
 	}
 }

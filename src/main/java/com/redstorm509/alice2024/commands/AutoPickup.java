@@ -55,6 +55,7 @@ public class AutoPickup extends Command {
 		isFinished = false;
 		lostTarget = false;
 		lastTX = 0.0;
+		indexer.ignoreBBLogic = false;
 
 		limelight.setLEDMode_ForceBlink();
 		limelight.setPipelineIndex(Constants.Vision.Pipeline.NeuralNetwork);
@@ -126,13 +127,13 @@ public class AutoPickup extends Command {
 				indexer.rawIndexer(-Constants.Indexer.kSpinSpeed);
 				intake.intake(true);
 			} else if (indexer.indexingNoteState == IndexerState.NoteTooShooter) {
-				indexer.rawIndexer(Constants.Indexer.kSpinSpeed * 0.5); // increase if needed
+				indexer.rawIndexer(Constants.Indexer.kReducedSpinSpeed); // increase if needed
 				intake.stop();
 			} else if (indexer.indexingNoteState == IndexerState.NoteTooShooterExtreme) {
 				indexer.rawIndexer(Constants.Indexer.kSpinSpeed);
 				intake.stop();
 			} else if (indexer.indexingNoteState == IndexerState.NoteTooIntake) {
-				indexer.rawIndexer(-Constants.Indexer.kSpinSpeed * 0.5); // increase if needed
+				indexer.rawIndexer(-Constants.Indexer.kReducedSpinSpeed); // increase if needed
 				intake.stop();
 			} else if (indexer.indexingNoteState == IndexerState.NoteTooIntakeExtreme) {
 				indexer.rawIndexer(-Constants.Indexer.kSpinSpeed);
@@ -152,5 +153,6 @@ public class AutoPickup extends Command {
 		limelight.setLEDMode_ForceOff();
 		intake.stop();
 		indexer.rawIndexer(0.0);
+		indexer.ignoreBBLogic = true;
 	}
 }
