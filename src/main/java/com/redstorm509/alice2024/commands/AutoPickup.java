@@ -96,6 +96,7 @@ public class AutoPickup extends Command {
 				}
 			} else {
 				travelDistanceY = lastDistanceToTarget / 2;
+				limelight.setLEDMode_ForceBlink();
 			}
 
 			swerve.drive(

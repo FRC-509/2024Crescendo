@@ -60,7 +60,7 @@ public class ShootNoteExperimentalQuestionmark extends Command {
 		if (indexer.indexingNoteState == IndexerState.Noteless) {
 			isFinished = true;
 		}
-		SmartDashboard.putNumber("AAAA", indexerTimer.get());
+		SmartDashboard.putNumber("Indexer Timer", indexerTimer.get());
 	}
 
 	@Override
