@@ -7,10 +7,9 @@ import com.redstorm509.alice2024.subsystems.Shooter;
 import com.redstorm509.alice2024.subsystems.Indexer.IndexerState;
 
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
-public class ShootNote extends Command {
+public class AutoShootJank extends Command {
 	private Shooter shooter;
 	private Indexer indexer;
 	private Timer timer = new Timer();
@@ -18,7 +17,7 @@ public class ShootNote extends Command {
 
 	private boolean isFinished = false;
 
-	public ShootNote(Shooter shooter, Indexer indexer) {
+	public AutoShootJank(Shooter shooter, Indexer indexer) {
 		this.shooter = shooter;
 		this.indexer = indexer;
 
@@ -27,10 +26,9 @@ public class ShootNote extends Command {
 
 	@Override
 	public void initialize() {
-		isFinished = !indexer.hasNote();
 		shooter.setShooterVelocity(-Constants.Shooter.kTargetSpeed);
 		timer.start();
-		indexer.ignoreBBLogic = false;
+		indexer.ignoreBBLogic = true;
 		firstReached = false;
 	}
 
@@ -42,11 +40,11 @@ public class ShootNote extends Command {
 			timer.reset();
 		} else if (firstReached && timer.get() > 1) {
 			indexer.rawIndexer(-1.0);
+			if (timer.get() >= 3.0) {
+				isFinished = true;
+			}
 		}
 
-		if (indexer.indexingNoteState == IndexerState.Noteless) {
-			isFinished = true;
-		}
 	}
 
 	@Override

@@ -76,6 +76,10 @@ public class Indexer extends SubsystemBase {
 		indexingNoteState = IndexerState.Noteless;
 	}
 
+	public void setHasNote() {
+		indexingNoteState = IndexerState.HasNote;
+	}
+
 	@Override
 	public void periodic() {
 		if (!ignoreBBLogic) {
@@ -113,7 +117,8 @@ public class Indexer extends SubsystemBase {
 		if (indexingNoteState == IndexerState.NoteTooShooter && currentStateTimer.get() >= 0.75) {
 			setNoteless();
 		}
-		SmartDashboard.putString("Indexer State", indexingNoteState.toString());
+		SmartDashboard.putBoolean("Note Picked Up", indexingNoteState != IndexerState.Noteless);
+		SmartDashboard.putBoolean("Has Note", indexingNoteState == IndexerState.HasNote);
 		// SmartDashboard.putBoolean("Is IM Stage BB Tripped?", !imStageBB.get());
 		// SmartDashboard.putBoolean("Is Indexer BB Tripped?", !indexerBB.get());
 		// SmartDashboard.putBoolean("Is Shooter BB Tripped?", !shooterBB.get());

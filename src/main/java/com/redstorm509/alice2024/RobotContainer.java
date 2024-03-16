@@ -125,7 +125,7 @@ public class RobotContainer {
 				() -> nonInvSquare(-driverRight.getX())));
 
 		// Basic intake and outake commands
-		driverLeft.isDownBind(StickButton.Trigger, new IntakeNote(intake, indexer));
+		driverLeft.isDownBind(StickButton.Trigger, new IntakeNote(intake, indexer, arm));
 		driverRight.isDownBind(StickButton.Trigger, Commands.startEnd(
 				() -> {
 					intake.intake(false);
@@ -141,22 +141,20 @@ public class RobotContainer {
 
 		// raw indexer
 		driverLeft.isDownBind(StickButton.Right, Commands.startEnd(() -> {
-			indexer.rawIndexer(-Constants.Indexer.kSpinSpeed);
+			indexer.rawIndexer(-Constants.Indexer.kSpinSpeed / 6);
 		}, () -> {
 			indexer.rawIndexer(0);
 
 		}, indexer));
 		driverRight.isDownBind(StickButton.Left, Commands.startEnd(() -> {
-			indexer.rawIndexer(Constants.Indexer.kSpinSpeed);
+			indexer.rawIndexer(Constants.Indexer.kSpinSpeed / 6);
 		}, () -> {
 			indexer.rawIndexer(0);
 		}, indexer));
 
 		operator.rightBumper().whileTrue(new ShootNote(shooter, indexer));
 
-		operator.leftBumper().whileTrue(Commands.startEnd(
-				() -> indexer.rawIndexer(Constants.Indexer.kSpinSpeed),
-				() -> indexer.rawIndexer(0), shooter));
+		operator.leftBumper().onTrue(Commands.runOnce(() -> indexer.setHasNote(), indexer));
 
 		operator.a().onTrue(new SetPivot(arm, 43));
 		// operator.y().onTrue(new SetPivot(arm, Constants.Arm.kMinPivot));
@@ -188,10 +186,11 @@ public class RobotContainer {
 						Commands.runOnce(
 								() -> swerve.setYawForTeleopEntry(
 										SwerveDrive.jankFlipHeading(59.86))),
-						new IntakeNote(intake, indexer),
+						new IntakeNote(intake, indexer, arm),
 						new ShootNote(shooter, indexer),
 						new DefaultDriveCommand(swerve, 0.7d, 0.0d, 0.0d, true).withTimeout(1)));
 		chooser.addOption("Null", new InstantCommand());
+		chooser.addOption("SHOOT NTOE", new ShootNote(shooter, indexer));
 		SmartDashboard.putData("Auto Mode", chooser);
 
 		if (RobotBase.isSimulation()) {
@@ -209,6 +208,7 @@ public class RobotContainer {
 		} else {
 			swerve.setTargetHeading(pigeon.getYaw().getValue());
 		}
+		indexer.ignoreBBLogic = false;
 		// climber.unlockLeft();
 		// climber.unlockRight();
 	}

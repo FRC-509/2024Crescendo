@@ -135,6 +135,10 @@ public class ArmIS extends SubsystemBase {
 		}
 	}
 
+	public boolean isLimitSwitchTripped() {
+		return limitSwitch.get();
+	}
+
 	@Override
 	public void periodic() {
 		// DIO channels default to high in sim so we dont run this code if we're in sim.
