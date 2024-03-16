@@ -3,6 +3,7 @@ package com.redstorm509.alice2024.autonomous;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.redstorm509.alice2024.Constants;
+import com.redstorm509.alice2024.commands.AutoShootJank;
 import com.redstorm509.alice2024.commands.DefaultDriveCommand;
 import com.redstorm509.alice2024.commands.IntakeNote;
 import com.redstorm509.alice2024.commands.SetPivot;
@@ -26,7 +27,7 @@ public class ThreeNoteCloseToAmp extends SequentialCommandGroup {
 		Pose2d startPose = new Pose2d(0.72, 6.65, Rotation2d.fromDegrees(59.86));
 		Command paths = Commands.sequence(
 				Commands.runOnce(() -> indexer.setHasNote(), indexer),
-				new ShootNote(shooter, indexer).withTimeout(3),
+				new AutoShootJank(shooter, indexer).withTimeout(3),
 				SwerveDrive.resetOdometryCmd(swerve, startPose),
 				Commands.parallel(
 						Commands.sequence(
@@ -37,7 +38,7 @@ public class ThreeNoteCloseToAmp extends SequentialCommandGroup {
 								Commands.runOnce(() -> swerve.stopModules(), swerve)),
 						new IntakeNote(intake, indexer, arm)),
 				new SetPivot(arm, -45),
-				new ShootNote(shooter, indexer).withTimeout(3),
+				new AutoShootJank(shooter, indexer).withTimeout(3),
 				new SetPivot(arm, Constants.Arm.kMinPivot),
 				Commands.parallel(
 						Commands.sequence(
@@ -47,7 +48,7 @@ public class ThreeNoteCloseToAmp extends SequentialCommandGroup {
 						new IntakeNote(intake, indexer, arm)),
 				new DefaultDriveCommand(swerve, 0.0, 0.0, 0.0, true).withTimeout(0.4),
 				new SetPivot(arm, -45),
-				new ShootNote(shooter, indexer),
+				new AutoShootJank(shooter, indexer),
 				Commands.runOnce(
 						() -> swerve.setYawForTeleopEntry(
 								SwerveDrive.jankFlipHeading(59.86) + SwerveDrive.jankFlipHeading(-27)),

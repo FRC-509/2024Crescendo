@@ -141,20 +141,28 @@ public class RobotContainer {
 
 		// raw indexer
 		driverLeft.isDownBind(StickButton.Right, Commands.startEnd(() -> {
-			indexer.rawIndexer(-Constants.Indexer.kSpinSpeed / 6);
+			indexer.rawIndexer(-Constants.Indexer.kSpinSpeed / 3);
 		}, () -> {
 			indexer.rawIndexer(0);
-
 		}, indexer));
 		driverRight.isDownBind(StickButton.Left, Commands.startEnd(() -> {
-			indexer.rawIndexer(Constants.Indexer.kSpinSpeed / 6);
+			indexer.rawIndexer(Constants.Indexer.kSpinSpeed / 3);
 		}, () -> {
 			indexer.rawIndexer(0);
 		}, indexer));
 
 		operator.rightBumper().whileTrue(new ShootNote(shooter, indexer));
 
-		operator.leftBumper().onTrue(Commands.runOnce(() -> indexer.setHasNote(), indexer));
+		operator.leftBumper().whileTrue(Commands.runEnd(() -> {
+			shooter.setShooterVelocity(-Constants.Shooter.kTargetSpeed);
+			SmartDashboard.putBoolean("Is Winding Up", true);
+		}, () -> {
+			shooter.setShooterVelocity(0.0);
+			SmartDashboard.putBoolean("Is Winding Up", false);
+		}, shooter));
+
+		// operator.leftBumper().onTrue(Commands.runOnce(() -> indexer.setHasNote(),
+		// indexer));
 
 		operator.a().onTrue(new SetPivot(arm, 43));
 		// operator.y().onTrue(new SetPivot(arm, Constants.Arm.kMinPivot));

@@ -7,14 +7,13 @@ import com.redstorm509.alice2024.subsystems.Shooter;
 import com.redstorm509.alice2024.subsystems.Indexer.IndexerState;
 
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class ShootNote extends Command {
 	private Shooter shooter;
 	private Indexer indexer;
 	private Timer timer = new Timer();
-	private boolean firstReached = false;
+	private boolean atSpeed = false;
 
 	private boolean isFinished = false;
 
@@ -27,25 +26,25 @@ public class ShootNote extends Command {
 
 	@Override
 	public void initialize() {
-		isFinished = !indexer.hasNote();
 		shooter.setShooterVelocity(-Constants.Shooter.kTargetSpeed);
 		timer.start();
-		indexer.ignoreBBLogic = false;
-		firstReached = false;
+		indexer.ignoreBBLogic = true;
+		atSpeed = false;
 	}
 
 	@Override
 	public void execute() {
-		boolean atSpeed = Math.abs(Math.abs(shooter.getShooterVelocity()) - Constants.Shooter.kTargetSpeed) <= 2.0d;
-		if (atSpeed && !firstReached) {
-			firstReached = true;
+		if (Math.abs(Math.abs(shooter.getShooterVelocity()) - Constants.Shooter.kTargetSpeed) <= 2.0d) {
+			atSpeed = true;
 			timer.reset();
-		} else if (firstReached && timer.get() > 1) {
-			indexer.rawIndexer(-1.0);
 		}
-
-		if (indexer.indexingNoteState == IndexerState.Noteless) {
-			isFinished = true;
+		if (atSpeed) {
+			if (timer.get() > 0.4) {
+				indexer.rawIndexer(-1.0);
+				if (timer.get() >= 5.0) {
+					isFinished = true;
+				}
+			}
 		}
 	}
 

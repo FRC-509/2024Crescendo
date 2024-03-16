@@ -44,7 +44,6 @@ public class AutoShootJank extends Command {
 				isFinished = true;
 			}
 		}
-
 	}
 
 	@Override
