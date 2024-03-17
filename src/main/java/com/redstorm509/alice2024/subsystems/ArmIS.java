@@ -21,7 +21,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /** THIS USES THE INTERNAL SENSOR!!!! */
 public class ArmIS extends SubsystemBase {
-	private TalonFX pivotLeader = new TalonFX(13); // Labelled PIVOTL
+	public TalonFX pivotLeader = new TalonFX(13); // Labelled PIVOTL
 	private TalonFX pivotFollower = new TalonFX(14); // Labelled PIVOTR
 	private CANcoder pivotEncoder = new CANcoder(17);
 	private DigitalInput limitSwitch = new DigitalInput(6);

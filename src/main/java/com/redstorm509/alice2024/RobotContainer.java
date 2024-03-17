@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
+import com.redstorm509.alice2024.autonomous.SabotageAuto;
 import com.redstorm509.alice2024.autonomous.ThreeNoteCloseToAmp;
 import com.redstorm509.alice2024.autonomous.TwoNoteCloseToAmp;
 import com.redstorm509.alice2024.commands.*;
@@ -141,12 +142,12 @@ public class RobotContainer {
 
 		// raw indexer
 		driverLeft.isDownBind(StickButton.Right, Commands.startEnd(() -> {
-			indexer.rawIndexer(-Constants.Indexer.kSpinSpeed / 3);
+			indexer.rawIndexer(-Constants.Indexer.kSpinSpeed / 2);
 		}, () -> {
 			indexer.rawIndexer(0);
 		}, indexer));
 		driverRight.isDownBind(StickButton.Left, Commands.startEnd(() -> {
-			indexer.rawIndexer(Constants.Indexer.kSpinSpeed / 3);
+			indexer.rawIndexer(Constants.Indexer.kSpinSpeed / 2);
 		}, () -> {
 			indexer.rawIndexer(0);
 		}, indexer));
@@ -190,8 +191,8 @@ public class RobotContainer {
 
 		climber.setDefaultCommand(new DefaultClimbCommand(climber,
 				() -> MathUtil.applyDeadband(operator.getRightY(), Constants.kStickDeadband) / 5,
-				() -> operator.getHID().getPOV() == 270,
 				() -> operator.getHID().getPOV() == 90,
+				() -> operator.getHID().getPOV() == 270,
 				() -> operator.getHID().getXButton(),
 				pigeon,
 				false));
@@ -200,16 +201,18 @@ public class RobotContainer {
 	private void addAutonomousRoutines() {
 		chooser.addOption("Three Note Amp Side", new ThreeNoteCloseToAmp(swerve, shooter, arm, indexer, intake));
 		chooser.addOption("Two Note Amp Side", new TwoNoteCloseToAmp(swerve, shooter, arm, indexer, intake));
-		chooser.addOption("One Note and Taxi",
+		chooser.addOption("One Note and Taxi (womp womp)",
 				new SequentialCommandGroup(
 						Commands.runOnce(
 								() -> swerve.setYawForTeleopEntry(
 										SwerveDrive.jankFlipHeading(59.86))),
 						new IntakeNote(intake, indexer, arm),
 						new ShootNote(shooter, indexer),
-						new DefaultDriveCommand(swerve, 0.7d, 0.0d, 0.0d, true).withTimeout(1)));
+						new DefaultDriveCommand(swerve, 0.7d, 0.0d, 0.0d, false).withTimeout(1)));
+		chooser.addOption("SABOTAGE AUTO!!!!", new SabotageAuto(swerve));
+		chooser.addOption("SHOOT NTOE", new AutoShootJank(shooter, indexer));
+		chooser.addOption("Set Pivot to Arbitrrary", new AUTOPIVOTAHH(arm, -50));
 		chooser.addOption("Null", new InstantCommand());
-		chooser.addOption("SHOOT NTOE", new ShootNote(shooter, indexer));
 		SmartDashboard.putData("Auto Mode", chooser);
 
 		if (RobotBase.isSimulation()) {
