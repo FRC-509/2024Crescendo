@@ -174,6 +174,9 @@ public class AutoPickup extends Command {
 		limelight.setLEDMode_ForceOff();
 		intake.stop();
 		indexer.rawIndexer(0.0);
-		indexer.ignoreBBLogic = true;
+		if (!wasInterrupted) {
+			indexer.ignoreBBLogic = true;
+			indexer.setHasNote();
+		}
 	}
 }

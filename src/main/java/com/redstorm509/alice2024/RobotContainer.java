@@ -151,13 +151,24 @@ public class RobotContainer {
 			indexer.rawIndexer(0);
 		}, indexer));
 
-		operator.rightBumper().whileTrue(new ShootNote(shooter, indexer));
+		// operator.rightBumper().whileTrue(new ShootNote(shooter, indexer));
+
+		operator.rightBumper().whileTrue(Commands.runEnd(() -> {
+			indexer.rawIndexer(Constants.Indexer.kShootSpeed);
+			SmartDashboard.putBoolean("Is Shooting", true);
+		}, () -> {
+			indexer.rawIndexer(0.0);
+			indexer.setNoteless();
+			SmartDashboard.putBoolean("Is Shooting", false);
+		}, indexer));
 
 		operator.leftBumper().whileTrue(Commands.runEnd(() -> {
 			shooter.setShooterVelocity(-Constants.Shooter.kTargetSpeed);
+			SmartDashboard.putBoolean("Is At Shoot Speed", shooter.isAtShooterVelocity());
 			SmartDashboard.putBoolean("Is Winding Up", true);
 		}, () -> {
 			shooter.setShooterVelocity(0.0);
+			SmartDashboard.putBoolean("Is At Shoot Speed", false);
 			SmartDashboard.putBoolean("Is Winding Up", false);
 		}, shooter));
 
