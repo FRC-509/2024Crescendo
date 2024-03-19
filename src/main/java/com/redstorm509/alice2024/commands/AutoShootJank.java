@@ -28,7 +28,6 @@ public class AutoShootJank extends Command {
 	public void initialize() {
 		shooter.setShooterVelocity(-Constants.Shooter.kTargetSpeed);
 		timer.start();
-		indexer.ignoreBBLogic = true;
 		firstReached = false;
 	}
 
@@ -51,7 +50,6 @@ public class AutoShootJank extends Command {
 		shooter.setShooterVelocity(0.0);
 		indexer.rawIndexer(0.0);
 		indexer.setNoteless();
-		indexer.ignoreBBLogic = false;
 	}
 
 	@Override

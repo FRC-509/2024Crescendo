@@ -7,7 +7,6 @@ import com.redstorm509.alice2024.commands.AutoShootJank;
 import com.redstorm509.alice2024.commands.DefaultDriveCommand;
 import com.redstorm509.alice2024.commands.IntakeNote;
 import com.redstorm509.alice2024.commands.SetPivot;
-import com.redstorm509.alice2024.commands.ShootNote;
 import com.redstorm509.alice2024.subsystems.ArmIS;
 import com.redstorm509.alice2024.subsystems.Indexer;
 import com.redstorm509.alice2024.subsystems.Intake;
@@ -26,7 +25,6 @@ public class ThreeNoteCloseToAmp extends SequentialCommandGroup {
 	public ThreeNoteCloseToAmp(SwerveDrive swerve, Shooter shooter, ArmIS arm, Indexer indexer, Intake intake) {
 		Pose2d startPose = new Pose2d(0.72, 6.65, Rotation2d.fromDegrees(59.86));
 		Command paths = Commands.sequence(
-				Commands.runOnce(() -> indexer.setHasNote(), indexer),
 				new AutoShootJank(shooter, indexer).withTimeout(3),
 				SwerveDrive.resetOdometryCmd(swerve, startPose),
 				Commands.parallel(

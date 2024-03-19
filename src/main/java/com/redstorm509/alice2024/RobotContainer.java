@@ -152,8 +152,6 @@ public class RobotContainer {
 			indexer.rawIndexer(0);
 		}, indexer));
 
-		// operator.rightBumper().whileTrue(new ShootNote(shooter, indexer));
-
 		operator.rightBumper().whileTrue(Commands.runEnd(() -> {
 			indexer.rawIndexer(Constants.Indexer.kShootSpeed);
 			SmartDashboard.putBoolean("Is Shooting", true);
@@ -172,9 +170,6 @@ public class RobotContainer {
 			SmartDashboard.putBoolean("Is At Shoot Speed", false);
 			SmartDashboard.putBoolean("Is Winding Up", false);
 		}, shooter));
-
-		// operator.leftBumper().onTrue(Commands.runOnce(() -> indexer.setHasNote(),
-		// indexer));
 
 		operator.a().onTrue(new SetPivot(arm, 43));
 		// operator.y().onTrue(new SetPivot(arm, Constants.Arm.kMinPivot));
@@ -207,7 +202,7 @@ public class RobotContainer {
 								() -> swerve.setYawForTeleopEntry(
 										SwerveDrive.jankFlipHeading(59.86))),
 						new IntakeNote(intake, indexer, arm),
-						new ShootNote(shooter, indexer),
+						new AutoShootJank(shooter, indexer),
 						new DefaultDriveCommand(swerve, 0.7d, 0.0d, 0.0d, false).withTimeout(1)));
 		chooser.addOption("SABOTAGE AUTO!!!!", new SabotageAuto(swerve));
 		chooser.addOption("SHOOT NTOE", new AutoShootJank(shooter, indexer));
@@ -230,7 +225,6 @@ public class RobotContainer {
 		} else {
 			swerve.setTargetHeading(pigeon.getYaw().getValue());
 		}
-		indexer.ignoreBBLogic = false;
 		// climber.unlockLeft();
 		// climber.unlockRight();
 	}

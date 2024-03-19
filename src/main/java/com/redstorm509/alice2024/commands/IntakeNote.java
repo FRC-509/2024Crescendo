@@ -33,7 +33,6 @@ public class IntakeNote extends Command {
 		}
 		 */
 		isFinished = false;
-		indexer.ignoreBBLogic = false;
 	}
 
 	@Override
@@ -68,7 +67,6 @@ public class IntakeNote extends Command {
 		indexer.rawIndexer(0.0);
 		intake.stop();
 		if (indexer.indexingNoteState == IndexerState.HasNote) {
-			indexer.ignoreBBLogic = true;
 		}
 	}
 }
