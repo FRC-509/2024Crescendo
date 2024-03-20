@@ -37,8 +37,8 @@ public class ArmRS extends SubsystemBase {
 		pivotConf.Slot0.kP = Constants.Arm.kPivotRSP;
 		pivotConf.Slot0.kI = Constants.Arm.kPivotRSI;
 		pivotConf.Slot0.kD = Constants.Arm.kPivotRSD;
-		pivotConf.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-		pivotConf.MotorOutput.DutyCycleNeutralDeadband = 0.02;
+		pivotConf.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+		// pivotConf.MotorOutput.DutyCycleNeutralDeadband = 0.02;
 
 		pivotConf.Feedback.FeedbackRemoteSensorID = pivotEncoder.getDeviceID();
 		pivotConf.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
@@ -64,7 +64,7 @@ public class ArmRS extends SubsystemBase {
 	}
 
 	public void onRobotEnable() {
-		double angle = pivotLeader.getPosition().waitForUpdate(1.0).getValueAsDouble() * 360.0d;
+		double angle = pivotLeader.getPosition().getValueAsDouble() * 360.0d;
 		setPivotDegrees(angle);
 	}
 
@@ -99,13 +99,14 @@ public class ArmRS extends SubsystemBase {
 
 		if (percentOutput <= 0.0d && getPivotDegrees() < (Constants.Arm.kMinPivot + 5.0d)) {
 			if (!limitSwitch.get()) {
-				System.out.println("Doig a thing");
+				System.out.println("Doig a thing" + percentOutput);
 				pivotLeader.setControl(openLoop.withOutput(percentOutput));
 			}
 		} else if (percentOutput <= 0 && getPivotDegrees() < Constants.Arm.kMinPivot) {
-			System.out.println("Doig a thing but also");
+			System.out.println("Doig a thing but also" + percentOutput);
 			pivotLeader.setControl(openLoop.withOutput(percentOutput));
 		} else {
+			System.out.println("NOT doing a thing" + percentOutput);
 			/*-
 			This is where we will add softstops
 			if (percentOutput < 0.0d && !isValidState(pivotTarget.getTarget(), getArmLength())) {
@@ -135,9 +136,13 @@ public class ArmRS extends SubsystemBase {
 		wasLimitSwitchTripped = limitSwitch.get();
 		SmartDashboard.putBoolean("PivotLimitSwitch", limitSwitch.get());
 		SmartDashboard.putNumber("PivotL", pivotLeader.getPosition().getValue() * 360.0d);
+		SmartDashboard.putNumber("Target Pivot", pivotTarget.getTarget());
+		SmartDashboard.putNumber("Absolute Pivot", pivotEncoder.getPosition().getValue() * 360.0d);
+
 		/*-
 		SmartDashboard.putNumber("PivotRaw", pivotLeader.getPosition().getValue());
-		SmartDashboard.putNumber("PivotF", pivotFollower.getPosition().getValue() * 360.0d);
+		SmartDashboar
+		d.putNumber("PivotF", pivotFollower.getPosition().getValue() * 360.0d);
 		 */
 	}
 }
