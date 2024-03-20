@@ -14,14 +14,14 @@ import java.util.Optional;
 import java.util.function.DoubleSupplier;
 
 import com.redstorm509.alice2024.Constants;
-import com.redstorm509.alice2024.subsystems.ArmIS;
+import com.redstorm509.alice2024.subsystems.ArmRS;
 import com.redstorm509.alice2024.subsystems.drive.SwerveDrive;
 import com.redstorm509.alice2024.subsystems.vision.Limelight;
 
 public class AutoAlign extends Command {
 
 	private SwerveDrive swerve;
-	private ArmIS arm;
+	private ArmRS arm;
 	private Limelight limelight;
 	private DoubleSupplier xSupplier;
 	private DoubleSupplier ySupplier;
@@ -39,7 +39,7 @@ public class AutoAlign extends Command {
 	// Meant to be an "isDownBind" command
 	public AutoAlign(
 			SwerveDrive swerve,
-			ArmIS arm,
+			ArmRS arm,
 			Limelight limelight,
 			DoubleSupplier xSupplier,
 			DoubleSupplier ySupplier,
@@ -69,12 +69,15 @@ public class AutoAlign extends Command {
 			// AMP TAG OFFSET
 			case 5: // Red Alliance
 			case 6: // Blue Alliance
-				return new Pose2d(new Translation2d(0, 0), new Rotation2d());
+				desiredRotation = Math.toRadians(limelight.getTX())
+						- (Math.atan(Math.abs(RobotToTag.getX()) / Math.abs(RobotToTag.getY())));
+
+				return new Pose2d(new Translation2d(0, 0), new Rotation2d(desiredRotation));
 
 			// SPEAKER TAG OFFSET
 			case 4: // Red Alliance
 			case 7: // Blue Alliance
-				desiredRotation = -Math.toRadians(limelight.getTX() * 4.5);
+				desiredRotation = Math.toRadians(-limelight.getTX() * 4.5);
 				desiredArmPivot = kAASlope * limelight.getTY() + kAAIntercept;
 
 				if (!limelight.getTV()) {

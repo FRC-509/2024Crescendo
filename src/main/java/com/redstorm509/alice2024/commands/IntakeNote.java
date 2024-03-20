@@ -1,7 +1,7 @@
 package com.redstorm509.alice2024.commands;
 
 import com.redstorm509.alice2024.Constants;
-import com.redstorm509.alice2024.subsystems.ArmIS;
+import com.redstorm509.alice2024.subsystems.ArmRS;
 import com.redstorm509.alice2024.subsystems.Indexer.IndexerState;
 import com.redstorm509.alice2024.subsystems.Indexer;
 import com.redstorm509.alice2024.subsystems.Intake;
@@ -11,10 +11,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class IntakeNote extends Command {
 	private final Intake intake;
 	private final Indexer indexer;
-	private final ArmIS arm;
+	private final ArmRS arm;
 	private boolean isFinished = false;
 
-	public IntakeNote(Intake intake, Indexer indexer, ArmIS arm) {
+	public IntakeNote(Intake intake, Indexer indexer, ArmRS arm) {
 		this.intake = intake;
 		this.indexer = indexer;
 		this.arm = arm;

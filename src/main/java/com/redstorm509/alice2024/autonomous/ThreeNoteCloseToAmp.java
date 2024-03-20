@@ -7,7 +7,7 @@ import com.redstorm509.alice2024.commands.AutoShootJank;
 import com.redstorm509.alice2024.commands.DefaultDriveCommand;
 import com.redstorm509.alice2024.commands.IntakeNote;
 import com.redstorm509.alice2024.commands.SetPivot;
-import com.redstorm509.alice2024.subsystems.ArmIS;
+import com.redstorm509.alice2024.subsystems.ArmRS;
 import com.redstorm509.alice2024.subsystems.Indexer;
 import com.redstorm509.alice2024.subsystems.Intake;
 import com.redstorm509.alice2024.subsystems.Shooter;
@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 public class ThreeNoteCloseToAmp extends SequentialCommandGroup {
 
-	public ThreeNoteCloseToAmp(SwerveDrive swerve, Shooter shooter, ArmIS arm, Indexer indexer, Intake intake) {
+	public ThreeNoteCloseToAmp(SwerveDrive swerve, Shooter shooter, ArmRS arm, Indexer indexer, Intake intake) {
 		Pose2d startPose = new Pose2d(0.72, 6.65, Rotation2d.fromDegrees(59.86));
 		Command paths = Commands.sequence(
 				new AutoShootJank(shooter, indexer).withTimeout(3),

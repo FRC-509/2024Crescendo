@@ -107,5 +107,8 @@ public class Indexer extends SubsystemBase {
 		pollState();
 		SmartDashboard.putBoolean("Note Picked Up", indexingNoteState != IndexerState.Noteless);
 		SmartDashboard.putBoolean("Has Note", indexingNoteState == IndexerState.HasNote);
+		// SmartDashboard.putBoolean("ShootBB", shooterBB.get());
+		// SmartDashboard.putBoolean("indexerBB", indexerBB.get());
+		// SmartDashboard.putBoolean("intakeBB", imStageBB.get());
 	}
 }

@@ -41,7 +41,7 @@ public final class Constants {
 		public static final double kPivotIntegratedI = 0.72;
 		public static final double kPivotIntegratedD = 0.24;
 
-		public static final double kPivotRSP = 10 * 12;
+		public static final double kPivotRSP = 5 * 12;
 		public static final double kPivotRSI = 1.44 * 12;
 		public static final double kPivotRSD = 0.48 * 12;
 
@@ -57,7 +57,7 @@ public final class Constants {
 		public static final double kFlyWheelA = 0.0;
 
 		public static final double kTargetSpeed = kFalconFreeSpeedRPS * 1.0;
-		public static final double kFlyWheelCircumference = Units.inchesToMeters(4) * Math.PI; // 0.3192 meters
+		public static final double kFlyWheelCircumference = Units.inchesToMeters(3.8) * Math.PI; // 0.3192 meters
 	}
 
 	public static class Indexer {
