@@ -35,14 +35,14 @@ public final class Constants {
 		public static final double kMaxPivot = 71.834;
 		public static final double kMaxPivotSpeed = 250.0d;
 
-		public static final double kPivotMagnetOffset = -0.19;
+		public static final double kPivotMagnetOffset = -145.880844;
 
 		public static final double kPivotIntegratedP = 5.1;
 		public static final double kPivotIntegratedI = 0.72;
 		public static final double kPivotIntegratedD = 0.24;
 
-		public static final double kPivotRSP = 10 * 12;
-		public static final double kPivotRSI = 1.44 * 12;
+		public static final double kPivotRSP = 8 * 12;
+		public static final double kPivotRSI = 0 * 12;
 		public static final double kPivotRSD = 0.48 * 12;
 
 		public static final double kPivotGearRatio = 168.719419;// 512.0d / 3.0d;
@@ -61,8 +61,9 @@ public final class Constants {
 	}
 
 	public static class Indexer {
-		public static final double kSpinSpeed = 0.7;
-		public static final double kReducedSpinSpeed = kSpinSpeed * 0.625;
+		public static final double kShootSpeed = -1.0;
+		public static final double kSpinSpeed = 0.55; // 0.7
+		public static final double kReducedSpinSpeed = 0.4;
 	}
 
 	public static class Intake {
@@ -123,7 +124,7 @@ public final class Constants {
 	public static final double kSteerAngleD = 0.0;
 
 	// Tune Me!
-	public static final double kHeadingPassiveP = 14.0;
+	public static final double kHeadingPassiveP = 8.0;
 	public static final double kHeadingPassiveI = 0.15;
 	public static final double kHeadingPassiveD = 0.4;
 	public static final double kHeadingAggressiveP = 11.5;

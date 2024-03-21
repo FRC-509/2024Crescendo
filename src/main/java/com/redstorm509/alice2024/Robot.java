@@ -1,5 +1,11 @@
 package com.redstorm509.alice2024;
 
+import java.util.Optional;
+
+import com.redstorm509.alice2024.util.drivers.REVBlinkin.BlinkinLedMode;
+
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -29,6 +35,16 @@ public class Robot extends TimedRobot {
 		// and put our
 		// autonomous chooser on the dashboard.
 		m_robotContainer = new RobotContainer();
+
+		Optional<Alliance> alliance = DriverStation.getAlliance();
+
+		if (alliance.isPresent()) {
+			if (alliance.get() == Alliance.Blue) {
+				m_robotContainer.led.setMode(BlinkinLedMode.SolidBlue);
+			} else {
+				m_robotContainer.led.setMode(BlinkinLedMode.SolidRed);
+			}
+		}
 	}
 
 	/**
@@ -53,6 +69,11 @@ public class Robot extends TimedRobot {
 		CommandScheduler.getInstance().run();
 	}
 
+	@Override
+	public void disabledExit() {
+		m_robotContainer.onRobotEnable();
+	}
+
 	/** This function is called once each time the robot enters Disabled mode. */
 	@Override
 	public void disabledInit() {
@@ -69,7 +90,6 @@ public class Robot extends TimedRobot {
 	@Override
 	public void autonomousInit() {
 		m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-
 		// schedule the autonomous command (example)
 		if (m_autonomousCommand != null) {
 			m_autonomousCommand.schedule();

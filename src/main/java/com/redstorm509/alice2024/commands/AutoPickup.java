@@ -56,7 +56,6 @@ public class AutoPickup extends Command {
 	public void initialize() {
 		isFinished = false;
 		beganIntaking = false;
-		indexer.ignoreBBLogic = false;
 		lostTarget = false;
 		lastTX = 0.0;
 		lastDistanceToTarget = (Constants.Vision.kIntakeCameraHeightFromGround
@@ -93,11 +92,11 @@ public class AutoPickup extends Command {
 		double angleToTarget = -limelight.getTY() + -Constants.Vision.kIntakeCameraAngleOffset;
 		double distanceToTargetY = (Constants.Vision.kIntakeCameraHeightFromGround
 				/ Math.tan(Math.toRadians(angleToTarget)));
-		double distanceToTargetX = -(distanceToTargetY * Math.tan(Math.toRadians(limelight.getTX())));
+		double distanceToTargetX = -(distanceToTargetY * Math.sin(Math.toRadians(limelight.getTX())));
 
 		// double check correct sign, double negatives l
 
-		if (limelight.getTV() && indexer.indexingNoteState == IndexerState.Noteless && distanceToTargetY < 3.0) {
+		if ((limelight.getTV() && indexer.indexingNoteState == IndexerState.Noteless && distanceToTargetY < 3.0)) {
 			// checks if target is the same target that has been tracking, if not follows
 			// last known path (slightly jank, but test)
 			double travelDistanceY;
@@ -174,6 +173,5 @@ public class AutoPickup extends Command {
 		limelight.setLEDMode_ForceOff();
 		intake.stop();
 		indexer.rawIndexer(0.0);
-		indexer.ignoreBBLogic = true;
 	}
 }

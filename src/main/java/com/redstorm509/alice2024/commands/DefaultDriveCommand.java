@@ -50,4 +50,11 @@ public class DefaultDriveCommand extends Command {
 		swerve.drive(trans, rotationSupplier.getAsDouble() * Constants.kMaxAngularVelocity,
 				fieldRelativeSupplier.getAsBoolean(), false);
 	}
+	/*-
+	@Override
+	public void end(boolean wasInterrupted) {
+		swerve.stopModules();
+		// swerve.drive(new Translation2d(), 0, false, false);
+	}
+	 */
 }

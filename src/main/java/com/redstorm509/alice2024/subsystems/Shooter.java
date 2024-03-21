@@ -45,6 +45,10 @@ public class Shooter extends SubsystemBase {
 		return shooterLeader.getVelocity().getValueAsDouble();
 	}
 
+	public boolean isAtShooterVelocity() {
+		return Math.abs(Math.abs(getShooterVelocity()) - Constants.Shooter.kTargetSpeed) <= 2.0d;
+	}
+
 	@Override
 	public void periodic() {
 		SmartDashboard.putNumber("Shooter Velocity (rot/s)", shooterLeader.getVelocity().getValue());

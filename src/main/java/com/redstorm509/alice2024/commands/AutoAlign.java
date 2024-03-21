@@ -14,14 +14,14 @@ import java.util.Optional;
 import java.util.function.DoubleSupplier;
 
 import com.redstorm509.alice2024.Constants;
-import com.redstorm509.alice2024.subsystems.ArmIS;
+import com.redstorm509.alice2024.subsystems.ArmRS;
 import com.redstorm509.alice2024.subsystems.drive.SwerveDrive;
 import com.redstorm509.alice2024.subsystems.vision.Limelight;
 
 public class AutoAlign extends Command {
 
 	private SwerveDrive swerve;
-	private ArmIS arm;
+	private ArmRS arm;
 	private Limelight limelight;
 	private DoubleSupplier xSupplier;
 	private DoubleSupplier ySupplier;
@@ -33,11 +33,13 @@ public class AutoAlign extends Command {
 	private Translation3d RobotToTag;
 	private Translation2d outputTranslation;
 	private double desiredArmPivot = Constants.Arm.kMinPivot;
+	private double kAASlope = -0.677626;
+	private double kAAIntercept = -32.9009; // -32.9009
 
 	// Meant to be an "isDownBind" command
 	public AutoAlign(
 			SwerveDrive swerve,
-			ArmIS arm,
+			ArmRS arm,
 			Limelight limelight,
 			DoubleSupplier xSupplier,
 			DoubleSupplier ySupplier,
@@ -51,26 +53,8 @@ public class AutoAlign extends Command {
 		this.specificTag = false;
 
 		addRequirements(swerve, arm);
-	}
-
-	public AutoAlign(
-			int alignmentTagID,
-			SwerveDrive swerve,
-			ArmIS arm,
-			Limelight limelight,
-			DoubleSupplier xSupplier,
-			DoubleSupplier ySupplier,
-			DoubleSupplier rotationSupplier) {
-		this.swerve = swerve;
-		this.arm = arm;
-		this.limelight = limelight;
-		this.xSupplier = xSupplier;
-		this.ySupplier = ySupplier;
-		this.rotationSupplier = rotationSupplier;
-
-		this.targetTagID = alignmentTagID;
-		this.specificTag = true;
-		addRequirements(swerve, arm);
+		SmartDashboard.putNumber("AutoAlignmentSlope", kAASlope);
+		SmartDashboard.putNumber("AutoAlignmentSlope", kAAIntercept);
 	}
 
 	public Pose2d getAlignmentOffset(int TagID) {
@@ -85,13 +69,16 @@ public class AutoAlign extends Command {
 			// AMP TAG OFFSET
 			case 5: // Red Alliance
 			case 6: // Blue Alliance
-				return new Pose2d(new Translation2d(0, 0), new Rotation2d());
+				desiredRotation = Math.toRadians(limelight.getTX())
+						- (Math.atan(Math.abs(RobotToTag.getX()) / Math.abs(RobotToTag.getY())));
+
+				return new Pose2d(new Translation2d(0, 0), new Rotation2d(desiredRotation));
 
 			// SPEAKER TAG OFFSET
 			case 4: // Red Alliance
 			case 7: // Blue Alliance
-				desiredRotation = -Math.toRadians(limelight.getTX() * 4.5);
-				desiredArmPivot = -0.677626 * limelight.getTY() - 32.9009;
+				desiredRotation = Math.toRadians(-limelight.getTX() * 4.5);
+				desiredArmPivot = kAASlope * limelight.getTY() + kAAIntercept;
 
 				if (!limelight.getTV()) {
 					desiredArmPivot = arm.getPivotDegrees();
@@ -128,7 +115,7 @@ public class AutoAlign extends Command {
 		Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
 		if (alliance.isPresent()) {
 			if (alliance.get() == DriverStation.Alliance.Blue) {
-				limelight.setPriorityTagID(7); // DOUBLE CHECK
+				limelight.setPriorityTagID(7);
 			} else {
 				limelight.setPriorityTagID(4);
 			}
@@ -149,6 +136,9 @@ public class AutoAlign extends Command {
 		} else {
 			limelight.setLEDMode_ForceBlink();
 		}
+
+		kAAIntercept = SmartDashboard.getNumber("AutoAlignmentSlope", kAAIntercept);
+		kAASlope = SmartDashboard.getNumber("AutoAlignmentSlope", kAASlope);
 
 		// TEST VALUES TO MAKE SURE WORKS AS EXPECTED
 

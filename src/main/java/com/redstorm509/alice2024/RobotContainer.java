@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
+import com.redstorm509.alice2024.autonomous.SabotageAuto;
 import com.redstorm509.alice2024.autonomous.ThreeNoteCloseToAmp;
 import com.redstorm509.alice2024.autonomous.TwoNoteCloseToAmp;
 import com.redstorm509.alice2024.commands.*;
@@ -39,8 +40,8 @@ public class RobotContainer {
 	private final Intake intake;
 	public final Indexer indexer;
 	public final Shooter shooter;
-	private final ArmIS arm;
-	private final Climber climber;
+	private final ArmRS arm;
+	// private final Climber climber;
 	public final REVBlinkin led;
 	public final Limelight intakeCamera = new Limelight("limelight-intake");
 	private final Limelight shooterCamera = new Limelight("limelight-arm");
@@ -52,8 +53,8 @@ public class RobotContainer {
 		this.intake = new Intake();
 		this.indexer = new Indexer();
 		this.shooter = new Shooter();
-		this.arm = new ArmIS();
-		this.climber = new Climber(pigeon);
+		this.arm = new ArmRS();
+		// this.climber = new Climber(pigeon);
 		this.led = new REVBlinkin(9);
 
 		intakeCamera.setLEDMode_ForceOff();
@@ -125,7 +126,7 @@ public class RobotContainer {
 				() -> nonInvSquare(-driverRight.getX())));
 
 		// Basic intake and outake commands
-		driverLeft.isDownBind(StickButton.Trigger, new IntakeNote(intake, indexer));
+		driverLeft.isDownBind(StickButton.Trigger, new IntakeNote(intake, indexer, arm));
 		driverRight.isDownBind(StickButton.Trigger, Commands.startEnd(
 				() -> {
 					intake.intake(false);
@@ -141,22 +142,34 @@ public class RobotContainer {
 
 		// raw indexer
 		driverLeft.isDownBind(StickButton.Right, Commands.startEnd(() -> {
-			indexer.rawIndexer(-Constants.Indexer.kSpinSpeed);
+			indexer.rawIndexer(-Constants.Indexer.kSpinSpeed / 2);
 		}, () -> {
 			indexer.rawIndexer(0);
-
 		}, indexer));
 		driverRight.isDownBind(StickButton.Left, Commands.startEnd(() -> {
-			indexer.rawIndexer(Constants.Indexer.kSpinSpeed);
+			indexer.rawIndexer(Constants.Indexer.kSpinSpeed / 2);
 		}, () -> {
 			indexer.rawIndexer(0);
 		}, indexer));
 
-		operator.rightBumper().whileTrue(new ShootNote(shooter, indexer));
+		operator.rightBumper().whileTrue(Commands.runEnd(() -> {
+			indexer.rawIndexer(Constants.Indexer.kShootSpeed);
+			SmartDashboard.putBoolean("Is Shooting", true);
+		}, () -> {
+			indexer.rawIndexer(0.0);
+			indexer.setNoteless();
+			SmartDashboard.putBoolean("Is Shooting", false);
+		}, indexer));
 
-		operator.leftBumper().whileTrue(Commands.startEnd(
-				() -> indexer.rawIndexer(Constants.Indexer.kSpinSpeed),
-				() -> indexer.rawIndexer(0), shooter));
+		operator.leftBumper().whileTrue(Commands.runEnd(() -> {
+			shooter.setShooterVelocity(-Constants.Shooter.kTargetSpeed);
+			SmartDashboard.putBoolean("Is At Shoot Speed", shooter.isAtShooterVelocity());
+			SmartDashboard.putBoolean("Is Winding Up", true);
+		}, () -> {
+			shooter.setShooterVelocity(0.0);
+			SmartDashboard.putBoolean("Is At Shoot Speed", false);
+			SmartDashboard.putBoolean("Is Winding Up", false);
+		}, shooter));
 
 		operator.a().onTrue(new SetPivot(arm, 43));
 		// operator.y().onTrue(new SetPivot(arm, Constants.Arm.kMinPivot));
@@ -171,26 +184,30 @@ public class RobotContainer {
 		// should actuate. The X button toggles the solenoids between their locked and
 		// unlocked position.
 
+		/*-
 		climber.setDefaultCommand(new DefaultClimbCommand(climber,
 				() -> MathUtil.applyDeadband(operator.getRightY(), Constants.kStickDeadband) / 5,
-				() -> operator.getHID().getPOV() == 270,
 				() -> operator.getHID().getPOV() == 90,
+				() -> operator.getHID().getPOV() == 270,
 				() -> operator.getHID().getXButton(),
 				pigeon,
 				false));
+		*/
 	}
 
 	private void addAutonomousRoutines() {
 		chooser.addOption("Three Note Amp Side", new ThreeNoteCloseToAmp(swerve, shooter, arm, indexer, intake));
 		chooser.addOption("Two Note Amp Side", new TwoNoteCloseToAmp(swerve, shooter, arm, indexer, intake));
-		chooser.addOption("One Note and Taxi",
+		chooser.addOption("One Note and Taxi (womp womp)",
 				new SequentialCommandGroup(
 						Commands.runOnce(
 								() -> swerve.setYawForTeleopEntry(
 										SwerveDrive.jankFlipHeading(59.86))),
-						new IntakeNote(intake, indexer),
-						new ShootNote(shooter, indexer),
-						new DefaultDriveCommand(swerve, 0.7d, 0.0d, 0.0d, true).withTimeout(1)));
+						new IntakeNote(intake, indexer, arm),
+						new AutoShootJank(shooter, indexer),
+						new DefaultDriveCommand(swerve, 0.7d, 0.0d, 0.0d, false).withTimeout(1)));
+		chooser.addOption("SABOTAGE AUTO!!!!", new SabotageAuto(swerve));
+		chooser.addOption("SHOOT NTOE", new AutoShootJank(shooter, indexer));
 		chooser.addOption("Null", new InstantCommand());
 		SmartDashboard.putData("Auto Mode", chooser);
 
@@ -203,20 +220,15 @@ public class RobotContainer {
 		return chooser.getSelected();
 	}
 
+	public void onRobotEnable() {
+		arm.onRobotEnable();
+	}
+
 	public void onTeleopEntry() {
 		if (DriverStation.isFMSAttached()) {
 			swerve.setTargetHeading(0);
 		} else {
-			swerve.setTargetHeading(pigeon.getYaw().getValue());
-		}
-		Optional<Alliance> alliance = DriverStation.getAlliance();
-
-		if (alliance.isPresent()) {
-			if (alliance.get() == Alliance.Blue) {
-				led.setMode(BlinkinLedMode.SolidBlue);
-			} else {
-				led.setMode(BlinkinLedMode.SolidRed);
-			}
+			swerve.setTargetHeading(0);
 		}
 		// climber.unlockLeft();
 		// climber.unlockRight();
