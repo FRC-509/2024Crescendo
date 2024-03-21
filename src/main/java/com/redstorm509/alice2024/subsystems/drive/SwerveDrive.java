@@ -306,9 +306,12 @@ public class SwerveDrive extends SubsystemBase {
 						flip = alliance.get() == DriverStation.Alliance.Red;
 					}
 					if (flip) {
-						swerve.resetOdometry(GeometryUtil.flipFieldPose(pose));
+						Pose2d flipped = GeometryUtil.flipFieldPose(pose);
+						swerve.pigeon.setYaw(flipped.getRotation().getDegrees());
+						swerve.resetOdometry(new Pose2d(flipped.getTranslation(), new Rotation2d()));
 					} else {
-						swerve.resetOdometry(pose);
+						swerve.pigeon.setYaw(pose.getRotation().getDegrees());
+						swerve.resetOdometry(new Pose2d(pose.getTranslation(), new Rotation2d()));
 					}
 				}, swerve);
 	}
@@ -344,7 +347,7 @@ public class SwerveDrive extends SubsystemBase {
 	}
 
 	public Pose2d getRawOdometeryPose() {
-		return odometry.getPoseMeters();
+		return poseEstimator.getEstimatedPosition();
 	}
 
 	public Pose2d getEstimatedPose() {

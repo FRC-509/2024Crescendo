@@ -228,7 +228,7 @@ public class RobotContainer {
 		if (DriverStation.isFMSAttached()) {
 			swerve.setTargetHeading(0);
 		} else {
-			swerve.setTargetHeading(pigeon.getYaw().getValue());
+			swerve.setTargetHeading(0);
 		}
 		// climber.unlockLeft();
 		// climber.unlockRight();
