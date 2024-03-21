@@ -99,14 +99,17 @@ public class ArmRS extends SubsystemBase {
 
 		if (percentOutput <= 0.0d && getPivotDegrees() < (Constants.Arm.kMinPivot + 5.0d)) {
 			if (!limitSwitch.get()) {
-				System.out.println("Doig a thing" + percentOutput);
 				pivotLeader.setControl(openLoop.withOutput(percentOutput));
+			} else {
+				pivotLeader.setControl(openLoop.withOutput(0));
 			}
 		} else if (percentOutput <= 0 && getPivotDegrees() < Constants.Arm.kMinPivot) {
-			System.out.println("Doig a thing but also" + percentOutput);
-			pivotLeader.setControl(openLoop.withOutput(percentOutput));
+			if (!limitSwitch.get()) {
+				pivotLeader.setControl(openLoop.withOutput(percentOutput));
+			} else {
+				pivotLeader.setControl(openLoop.withOutput(0));
+			}
 		} else {
-			System.out.println("NOT doing a thing" + percentOutput);
 			/*-
 			This is where we will add softstops
 			if (percentOutput < 0.0d && !isValidState(pivotTarget.getTarget(), getArmLength())) {

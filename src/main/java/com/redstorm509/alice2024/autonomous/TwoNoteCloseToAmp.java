@@ -35,7 +35,7 @@ public class TwoNoteCloseToAmp extends SequentialCommandGroup {
 								new DefaultDriveCommand(swerve, 0.0, 0.0, 0.0, true).withTimeout(0.5),
 
 								Commands.runOnce(() -> swerve.stopModules(), swerve)),
-						new IntakeNote(intake, indexer, arm)),
+						new IntakeNote(intake, indexer)),
 				new SetPivot(arm, -50),
 				// new AUTOPIVOTAHH(arm, -48.976).withTimeout(3),
 				new AutoShootJank(shooter, indexer));

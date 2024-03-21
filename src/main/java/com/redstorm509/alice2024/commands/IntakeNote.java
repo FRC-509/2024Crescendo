@@ -15,17 +15,15 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class IntakeNote extends Command {
 	private final Intake intake;
 	private final Indexer indexer;
-	private final ArmRS arm;
 	private boolean isFinished = false;
 	private double fastSpeed = Constants.Indexer.kSpinSpeed;
 	private double slowSpeed = Constants.Indexer.kReducedSpinSpeed;
 
-	public IntakeNote(Intake intake, Indexer indexer, ArmRS arm) {
+	public IntakeNote(Intake intake, Indexer indexer) {
 		this.intake = intake;
 		this.indexer = indexer;
-		this.arm = arm;
 
-		addRequirements(intake, indexer, arm);
+		addRequirements(intake, indexer);
 
 		SmartDashboard.putNumber("Fast Indexer Speed", Constants.Indexer.kSpinSpeed);
 		SmartDashboard.putNumber("Slow Indexer Speed", Constants.Indexer.kReducedSpinSpeed);

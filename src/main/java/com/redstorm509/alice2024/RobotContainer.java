@@ -7,10 +7,12 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.proto.Controller;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 import com.redstorm509.alice2024.autonomous.SabotageAuto;
@@ -126,7 +128,7 @@ public class RobotContainer {
 				() -> nonInvSquare(-driverRight.getX())));
 
 		// Basic intake and outake commands
-		driverLeft.isDownBind(StickButton.Trigger, new IntakeNote(intake, indexer, arm));
+		driverLeft.isDownBind(StickButton.Trigger, new IntakeNote(intake, indexer));
 		driverRight.isDownBind(StickButton.Trigger, Commands.startEnd(
 				() -> {
 					intake.intake(false);
@@ -203,7 +205,7 @@ public class RobotContainer {
 						Commands.runOnce(
 								() -> swerve.setYawForTeleopEntry(
 										SwerveDrive.jankFlipHeading(59.86))),
-						new IntakeNote(intake, indexer, arm),
+						new IntakeNote(intake, indexer),
 						new AutoShootJank(shooter, indexer),
 						new DefaultDriveCommand(swerve, 0.7d, 0.0d, 0.0d, false).withTimeout(1)));
 		chooser.addOption("SABOTAGE AUTO!!!!", new SabotageAuto(swerve));
@@ -226,8 +228,6 @@ public class RobotContainer {
 
 	public void onTeleopEntry() {
 		if (DriverStation.isFMSAttached()) {
-			swerve.setTargetHeading(0);
-		} else {
 			swerve.setTargetHeading(0);
 		}
 		// climber.unlockLeft();

@@ -96,7 +96,14 @@ public class AutoPickup extends Command {
 
 		// double check correct sign, double negatives l
 
-		if ((limelight.getTV() && indexer.indexingNoteState == IndexerState.Noteless && distanceToTargetY < 3.0)) {
+		if (indexer.indexingNoteState != IndexerState.Noteless) {
+			swerve.drive(
+					new Translation2d(xSupplier.getAsDouble(), ySupplier.getAsDouble()).times(Constants.kMaxSpeed),
+					rotationSupplier.getAsDouble() * Constants.kMaxAngularVelocity,
+					true,
+					false);
+		} else if ((limelight.getTV() && indexer.indexingNoteState == IndexerState.Noteless
+				&& distanceToTargetY < 3.0)) {
 			// checks if target is the same target that has been tracking, if not follows
 			// last known path (slightly jank, but test)
 			double travelDistanceY;
