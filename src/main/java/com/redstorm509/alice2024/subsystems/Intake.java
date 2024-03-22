@@ -15,7 +15,6 @@ public class Intake extends SubsystemBase {
 	private final CANSparkMax preCompressorMotors = new CANSparkMax(10, MotorType.kBrushed);
 	private final CANSparkMax intermediateStage = new CANSparkMax(16, MotorType.kBrushless);
 	private VoltageOut openLoopVoltage = new VoltageOut(0);
-	private boolean isIntaking = false;
 
 	public Intake() {
 		TalonFXConfiguration conf = new TalonFXConfiguration();
@@ -35,24 +34,20 @@ public class Intake extends SubsystemBase {
 	}
 
 	public void intake(boolean inwards) {
-		if (!isIntaking) {
-			if (inwards) {
-				intakeMotor.setControl(openLoopVoltage.withOutput(-Constants.Intake.kIntakeSpinSpeed * 12));
-				preCompressorMotors.set(-Constants.Intake.kPreCompressorSpinSpeed);
-				intermediateStage.set(-Constants.Intake.kIntermediateStageSpinSpeed);
+		if (inwards) {
+			intakeMotor.setControl(openLoopVoltage.withOutput(-Constants.Intake.kIntakeSpinSpeed * 12));
+			preCompressorMotors.set(-Constants.Intake.kPreCompressorSpinSpeed);
+			intermediateStage.set(-Constants.Intake.kIntermediateStageSpinSpeed);
 			} else {
 				intakeMotor.setControl(openLoopVoltage.withOutput(Constants.Intake.kIntakeSpinSpeed * 12));
 				preCompressorMotors.set(Constants.Intake.kPreCompressorSpinSpeed);
 				intermediateStage.set(Constants.Intake.kIntermediateStageSpinSpeed);
 			}
-			isIntaking = true;
-		}
 	}
 
 	public void stop() {
 		intakeMotor.setControl(openLoopVoltage.withOutput(0));
 		preCompressorMotors.set(0);
 		intermediateStage.set(0);
-		isIntaking = false;
 	}
 }

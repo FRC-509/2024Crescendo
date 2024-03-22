@@ -27,6 +27,7 @@ public class AutoShootJank extends Command {
 	@Override
 	public void initialize() {
 		shooter.setShooterVelocity(-Constants.Shooter.kTargetSpeed);
+		timer.reset();
 		timer.start();
 		firstReached = false;
 	}
@@ -39,7 +40,7 @@ public class AutoShootJank extends Command {
 			timer.reset();
 		} else if (firstReached && timer.get() > 1) {
 			indexer.rawIndexer(-1.0);
-			if (timer.get() >= 3.0) {
+			if (timer.get() >= 1.3) {
 				isFinished = true;
 			}
 		}
@@ -49,7 +50,7 @@ public class AutoShootJank extends Command {
 	public void end(boolean wasInterrupted) {
 		shooter.setShooterVelocity(0.0);
 		indexer.rawIndexer(0.0);
-		indexer.setNoteless();
+		// indexer.setNoteless();
 	}
 
 	@Override

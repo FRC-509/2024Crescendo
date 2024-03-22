@@ -14,12 +14,15 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.SerialPort.StopBits;
 
+import com.redstorm509.alice2024.autonomous.FourNote;
 import com.redstorm509.alice2024.autonomous.SabotageAuto;
 import com.redstorm509.alice2024.autonomous.ThreeNoteCloseToAmp;
 import com.redstorm509.alice2024.autonomous.TwoNoteCloseToAmp;
 import com.redstorm509.alice2024.commands.*;
 import com.redstorm509.alice2024.subsystems.*;
+import com.redstorm509.alice2024.subsystems.Indexer.IndexerState;
 import com.redstorm509.alice2024.subsystems.drive.*;
 import com.redstorm509.alice2024.subsystems.vision.*;
 import com.redstorm509.alice2024.util.drivers.REVBlinkin;
@@ -174,7 +177,7 @@ public class RobotContainer {
 		}, shooter));
 
 		operator.a().onTrue(new SetPivot(arm, 43));
-		// operator.y().onTrue(new SetPivot(arm, Constants.Arm.kMinPivot));
+		operator.y().onTrue(new SetPivot(arm, Constants.Arm.kMinPivot + 10));
 
 		// When the B button is held down, the arm goes into raw output mode; there are
 		// no safeties.
@@ -198,19 +201,15 @@ public class RobotContainer {
 	}
 
 	private void addAutonomousRoutines() {
-		chooser.addOption("Three Note Amp Side", new ThreeNoteCloseToAmp(swerve, shooter, arm, indexer, intake));
-		chooser.addOption("Two Note Amp Side", new TwoNoteCloseToAmp(swerve, shooter, arm, indexer, intake));
-		chooser.addOption("One Note and Taxi (womp womp)",
-				new SequentialCommandGroup(
-						Commands.runOnce(
-								() -> swerve.setYawForTeleopEntry(
-										SwerveDrive.jankFlipHeading(59.86))),
-						new IntakeNote(intake, indexer),
-						new AutoShootJank(shooter, indexer),
-						new DefaultDriveCommand(swerve, 0.7d, 0.0d, 0.0d, false).withTimeout(1)));
-		chooser.addOption("SABOTAGE AUTO!!!!", new SabotageAuto(swerve));
-		chooser.addOption("SHOOT NTOE", new AutoShootJank(shooter, indexer));
+		// chooser.addOption("Two Note Amp Side", new TwoNoteCloseToAmp(swerve, shooter,
+		// arm, indexer, intake));
+		// chooser.addOption("Three Note Amp Side", new ThreeNoteCloseToAmp(swerve,
+		// shooter, arm, indexer, intake));
+		chooser.addOption("Four Note Amp Side", new FourNote(swerve, shooter, arm, indexer, intake));
+		// chooser.addOption("SABOTAGE AUTO!!!!", new SabotageAuto(swerve));
+		// chooser.addOption("SHOOT NTOE", new AutoShootJank(shooter, indexer));
 		chooser.addOption("Null", new InstantCommand());
+		chooser.addOption("ShotIntakeShot", Commands.sequence(new IntakeNote(intake, indexer), new AutoShootJank(shooter, indexer), new IntakeNote(intake, indexer)));
 		SmartDashboard.putData("Auto Mode", chooser);
 
 		if (RobotBase.isSimulation()) {
@@ -224,6 +223,7 @@ public class RobotContainer {
 
 	public void onRobotEnable() {
 		arm.onRobotEnable();
+		// indexer.indexingNoteState = IndexerState.HasNote;
 	}
 
 	public void onTeleopEntry() {

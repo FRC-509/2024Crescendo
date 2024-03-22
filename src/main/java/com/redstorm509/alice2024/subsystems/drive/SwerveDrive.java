@@ -300,9 +300,13 @@ public class SwerveDrive extends SubsystemBase {
 	public static Command resetOdometryCmd(SwerveDrive swerve, Pose2d pose) {
 		return Commands.runOnce(
 				() -> {
+					
 					boolean flip = false;
 					Optional<Alliance> alliance = DriverStation.getAlliance();
+					SmartDashboard.putString("ALLIANCE COLOR", "I DONT FUCKING KNOW");
 					if (alliance.isPresent()) {
+						if (alliance.get() == Alliance.Red) SmartDashboard.putString("ALLIANCE COLOR", "Red");
+						if (alliance.get() == Alliance.Blue) SmartDashboard.putString("ALLIANCE COLOR", "Blue");
 						flip = alliance.get() == DriverStation.Alliance.Red;
 					}
 					if (flip) {
@@ -347,7 +351,7 @@ public class SwerveDrive extends SubsystemBase {
 	}
 
 	public Pose2d getRawOdometeryPose() {
-		return poseEstimator.getEstimatedPosition();
+		return odometry.getPoseMeters();
 	}
 
 	public Pose2d getEstimatedPose() {

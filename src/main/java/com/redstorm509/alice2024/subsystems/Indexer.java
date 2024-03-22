@@ -56,6 +56,8 @@ public class Indexer extends SubsystemBase {
 		indexer.setIdleMode(IdleMode.kCoast);
 		indexer.burnFlash();
 		indexingNoteState = IndexerState.Noteless;
+		prevIndexerState = IndexerState.Noteless;
+
 		currentStateTimer.start();
 	}
 
@@ -72,7 +74,7 @@ public class Indexer extends SubsystemBase {
 	}
 
 	public void pollState() {
-		if (!indexerBB.get() && !shooterBB.get() && imStageBB.get()) {
+		if (!indexerBB.get() && !shooterBB.get() && !imStageBB.get()) {
 			// Note is where we want it to be
 			prevIndexerState = indexingNoteState;
 			indexingNoteState = IndexerState.HasNote;
@@ -97,7 +99,7 @@ public class Indexer extends SubsystemBase {
 		if (indexingNoteState == prevIndexerState && indexingNoteState != IndexerState.NoteTooShooter) {
 			currentStateTimer.reset();
 		}
-		if (indexingNoteState == IndexerState.NoteTooShooter && currentStateTimer.get() >= 0.75) {
+		if (indexingNoteState == IndexerState.NoteTooShooterExtreme && currentStateTimer.get() >= 0.75) {
 			setNoteless();
 		}
 	}
@@ -108,8 +110,8 @@ public class Indexer extends SubsystemBase {
 		SmartDashboard.putBoolean("Note Picked Up", indexingNoteState != IndexerState.Noteless);
 		SmartDashboard.putBoolean("Has Note", indexingNoteState == IndexerState.HasNote);
 		SmartDashboard.putString("IndexingState", indexingNoteState.toString());
-		// SmartDashboard.putBoolean("ShootBB", shooterBB.get());
-		// SmartDashboard.putBoolean("indexerBB", indexerBB.get());
-		// SmartDashboard.putBoolean("intakeBB", imStageBB.get());
+		SmartDashboard.putBoolean("ShootBB", shooterBB.get());
+		SmartDashboard.putBoolean("indexerBB", indexerBB.get());
+		SmartDashboard.putBoolean("intakeBB", imStageBB.get());
 	}
 }

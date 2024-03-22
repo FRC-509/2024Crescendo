@@ -14,7 +14,7 @@ public class SabotageAuto extends SequentialCommandGroup {
 		Pose2d startPose = new Pose2d(0.46, 4.12, Rotation2d.fromDegrees(0));
 		addCommands(
 				SwerveDrive.resetOdometryCmd(swerve, startPose),
-				AutoBuilder.followPath(PathPlannerPath.fromPathFile("SweatySabotageAuto")),
+				AutoBuilder.followPath(PathPlannerPath.fromPathFile("Sabotage/SweatySabotageAuto")),
 				Commands.runOnce(() -> swerve.stopModules(), swerve));
 	}
 }

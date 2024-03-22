@@ -136,6 +136,7 @@ public class ArmRS extends SubsystemBase {
 		if (!RobotBase.isSimulation() && !wasLimitSwitchTripped && limitSwitch.get()) {
 			pivotLeader.setPosition(Constants.Arm.kMinPivot / 360.0);
 		}
+
 		wasLimitSwitchTripped = limitSwitch.get();
 		SmartDashboard.putBoolean("PivotLimitSwitch", limitSwitch.get());
 		SmartDashboard.putNumber("PivotL", pivotLeader.getPosition().getValue() * 360.0d);

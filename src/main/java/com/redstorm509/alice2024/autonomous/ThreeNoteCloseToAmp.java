@@ -29,7 +29,9 @@ public class ThreeNoteCloseToAmp extends SequentialCommandGroup {
 				SwerveDrive.resetOdometryCmd(swerve, startPose),
 				Commands.parallel(
 						Commands.sequence(
-								AutoBuilder.followPath(PathPlannerPath.fromPathFile("D2N_TwoNoteAmpSide")),
+								AutoBuilder
+										.followPath(
+												PathPlannerPath.fromPathFile("FD2N_TwoNoteAmpSide")),
 								Commands.runOnce(() -> swerve.setTargetHeading(SwerveDrive.jankFlipHeading(-27)),
 										swerve),
 								new DefaultDriveCommand(swerve, 0.0, 0.0, 0.0, true).withTimeout(0.75),
@@ -40,8 +42,10 @@ public class ThreeNoteCloseToAmp extends SequentialCommandGroup {
 				new SetPivot(arm, Constants.Arm.kMinPivot),
 				Commands.parallel(
 						Commands.sequence(
-								AutoBuilder.followPath(PathPlannerPath.fromPathFile("DriveToSecondNote")),
-								AutoBuilder.followPath(PathPlannerPath.fromPathFile("DriveToSecondNoteRev")),
+								AutoBuilder
+										.followPath(PathPlannerPath.fromPathFile("DriveToSecondNote")),
+								AutoBuilder.followPath(
+										PathPlannerPath.fromPathFile("DriveToSecondNoteRev")),
 								Commands.runOnce(() -> swerve.stopModules(), swerve)),
 						new IntakeNote(intake, indexer)),
 				new DefaultDriveCommand(swerve, 0.0, 0.0, 0.0, true).withTimeout(0.4),
