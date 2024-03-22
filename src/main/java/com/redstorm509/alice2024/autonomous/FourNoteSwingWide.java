@@ -21,12 +21,12 @@ public class FourNoteSwingWide extends SequentialCommandGroup {
 	public FourNoteSwingWide(SwerveDrive swerve, Shooter shooter, ArmRS arm, Indexer indexer, Intake intake) {
 		Pose2d startPose = new Pose2d(0.72, 6.65, Rotation2d.fromDegrees(59.86));
 		Command paths = Commands.sequence(
-				SwerveDrive.resetOdometryCmd(swerve, startPose),
+			swerve.resetOdometryCmd(startPose),
 				Commands.parallel(
 						Commands.sequence(
 								AutoBuilder.followPath(
 										PathPlannerPath.fromPathFile("FD2N_TwoNoteAmpSide")),
-								Commands.runOnce(() -> swerve.setTargetHeading(SwerveDrive.jankFlipHeading(27)),
+								Commands.runOnce(() -> swerve.setTargetHeading(swerve.jankFlipHeading(27)),
 										swerve),
 								new DefaultDriveCommand(swerve, 0.0, 0.0, 0.0, true).withTimeout(0.5),
 								AutoBuilder

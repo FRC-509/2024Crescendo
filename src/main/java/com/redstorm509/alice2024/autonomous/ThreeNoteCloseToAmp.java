@@ -26,13 +26,13 @@ public class ThreeNoteCloseToAmp extends SequentialCommandGroup {
 		Pose2d startPose = new Pose2d(0.72, 6.65, Rotation2d.fromDegrees(59.86));
 		Command paths = Commands.sequence(
 				new AutoShootJank(shooter, indexer).withTimeout(3),
-				SwerveDrive.resetOdometryCmd(swerve, startPose),
+				swerve.resetOdometryCmd(startPose),
 				Commands.parallel(
 						Commands.sequence(
 								AutoBuilder
 										.followPath(
 												PathPlannerPath.fromPathFile("FD2N_TwoNoteAmpSide")),
-								Commands.runOnce(() -> swerve.setTargetHeading(SwerveDrive.jankFlipHeading(-27)),
+								Commands.runOnce(() -> swerve.setTargetHeading(swerve.jankFlipHeading(-27)),
 										swerve),
 								new DefaultDriveCommand(swerve, 0.0, 0.0, 0.0, true).withTimeout(0.75),
 								Commands.runOnce(() -> swerve.stopModules(), swerve)),
@@ -53,7 +53,7 @@ public class ThreeNoteCloseToAmp extends SequentialCommandGroup {
 				new AutoShootJank(shooter, indexer),
 				Commands.runOnce(
 						() -> swerve.setYawForTeleopEntry(
-								SwerveDrive.jankFlipHeading(59.86) + SwerveDrive.jankFlipHeading(-27)),
+							swerve.jankFlipHeading(59.86) + swerve.jankFlipHeading(-27)),
 						swerve));
 		addCommands(paths);
 	}

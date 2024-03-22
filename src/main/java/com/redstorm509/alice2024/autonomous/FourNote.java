@@ -25,12 +25,12 @@ public class FourNote extends SequentialCommandGroup {
 		Command paths = Commands.sequence(
 			new IntakeNote(intake, indexer),
 			new AutoShootJank(shooter, indexer),
-				SwerveDrive.resetOdometryCmd(swerve, startPose),
+				swerve.resetOdometryCmd(startPose),
 				Commands.parallel(
 					AutoBuilder.followPath(PathPlannerPath.fromPathFile("FD2N_TwoNoteAmpSide")),
 					new IntakeNote(intake, indexer)
 				),
-				Commands.runOnce(() -> swerve.setTargetHeading(SwerveDrive.jankFlipHeading(27)),	swerve),
+				Commands.runOnce(() -> swerve.setTargetHeading(swerve.jankFlipHeading(27)),	swerve),
 				new DefaultDriveCommand(swerve, 0.0, 0.0, 0.0, true).withTimeout(0.5),
 				Commands.runOnce(() -> swerve.stopModules(), swerve),
 				new AutoShootJank(shooter, indexer),

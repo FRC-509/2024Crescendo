@@ -135,6 +135,7 @@ public class ArmRS extends SubsystemBase {
 		// DIO channels default to high in sim so we dont run this code if we're in sim.
 		if (!RobotBase.isSimulation() && !wasLimitSwitchTripped && limitSwitch.get()) {
 			pivotLeader.setPosition(Constants.Arm.kMinPivot / 360.0);
+			pivotLeader.setControl(new VoltageOut(0));
 		}
 
 		wasLimitSwitchTripped = limitSwitch.get();
