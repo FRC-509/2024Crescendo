@@ -50,7 +50,6 @@ public class AutoShootJank extends Command {
 	public void end(boolean wasInterrupted) {
 		shooter.setShooterVelocity(0.0);
 		indexer.rawIndexer(0.0);
-		// indexer.setNoteless();
 	}
 
 	@Override

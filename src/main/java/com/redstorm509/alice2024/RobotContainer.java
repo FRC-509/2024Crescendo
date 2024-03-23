@@ -16,15 +16,19 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.SerialPort.StopBits;
 
-import com.redstorm509.alice2024.autonomous.FourNote;
+import com.redstorm509.alice2024.autonomous.FourNoteAmpSideFar;
+import com.redstorm509.alice2024.autonomous.OneNote;
+import com.redstorm509.alice2024.autonomous.OneNoteAndTaxi;
 import com.redstorm509.alice2024.autonomous.SabotageAuto;
-import com.redstorm509.alice2024.autonomous.ThreeNoteCloseToAmp;
-import com.redstorm509.alice2024.autonomous.TwoNoteCloseToAmp;
+import com.redstorm509.alice2024.autonomous.ThreeNoteAmpSide;
+import com.redstorm509.alice2024.autonomous.TwoNoteAmpSide;
+import com.redstorm509.alice2024.autonomous.WIPFourNoteAmpSideNear;
 import com.redstorm509.alice2024.commands.*;
 import com.redstorm509.alice2024.subsystems.*;
 import com.redstorm509.alice2024.subsystems.Indexer.IndexerState;
 import com.redstorm509.alice2024.subsystems.drive.*;
 import com.redstorm509.alice2024.subsystems.vision.*;
+import com.redstorm509.alice2024.util.PigeonWrapper;
 import com.redstorm509.alice2024.util.drivers.REVBlinkin;
 import com.redstorm509.alice2024.util.drivers.REVBlinkin.BlinkinLedMode;
 
@@ -35,7 +39,7 @@ import com.redstorm509.stormkit.controllers.ThrustmasterJoystick;
 import com.redstorm509.stormkit.controllers.ThrustmasterJoystick.StickButton;
 
 public class RobotContainer {
-	private final Pigeon2 pigeon = new Pigeon2(30, Constants.kCANIvore);
+	private final PigeonWrapper pigeon = new PigeonWrapper(30, Constants.kCANIvore);
 
 	private ThrustmasterJoystick driverLeft = new ThrustmasterJoystick(0);
 	private ThrustmasterJoystick driverRight = new ThrustmasterJoystick(1);
@@ -201,14 +205,14 @@ public class RobotContainer {
 	}
 
 	private void addAutonomousRoutines() {
-		// chooser.addOption("Three Note Amp Side", new ThreeNoteCloseToAmp(swerve,
-		// shooter, arm, indexer, intake));
-		chooser.addOption("Two Note Amp Side", new TwoNoteCloseToAmp(swerve, shooter, arm, indexer, intake));
-		chooser.addOption("Four Note Amp Side", new FourNote(swerve, shooter, arm, indexer, intake));
-		// chooser.addOption("SABOTAGE AUTO!!!!", new SabotageAuto(swerve));
-		// chooser.addOption("SHOOT NTOE", new AutoShootJank(shooter, indexer));
-		chooser.addOption("Null", new InstantCommand());
-		chooser.addOption("Shoot, Intake, Shoot", Commands.sequence(new AutonomousIntakeNote(intake, indexer), new AutoShootJank(shooter, indexer), new AutonomousIntakeNote(intake, indexer)));
+		chooser.addOption("Four Note (Far) [AMP SIDE]", new FourNoteAmpSideFar(swerve, shooter, arm, indexer, intake));
+		chooser.addOption("Four Note (Close) [AMP SIDE]", new WIPFourNoteAmpSideNear(swerve, shooter, arm, indexer, intake));
+		chooser.addOption("Three Note (Close) [AMP SIDE]", new ThreeNoteAmpSide(swerve, shooter, arm, indexer, intake));
+		chooser.addOption("Two Note (Close) [AMP SIDE]", new TwoNoteAmpSide(swerve, shooter, arm, indexer, intake));
+		chooser.addOption("One Note [ANY]", new OneNote(swerve, shooter, arm, indexer, intake));
+		chooser.addOption("One Note and Taxi [SOURCE SIDE]", new OneNoteAndTaxi(swerve, shooter, arm, indexer, intake));
+		chooser.addOption("Sabotage / The Samin Special", new SabotageAuto(swerve));
+		chooser.addOption("\"Go AFK\" (Null)", new InstantCommand());
 		SmartDashboard.putData("Auto Mode", chooser);
 
 		if (RobotBase.isSimulation()) {

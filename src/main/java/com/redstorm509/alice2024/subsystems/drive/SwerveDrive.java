@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.redstorm509.alice2024.Constants;
 import com.redstorm509.alice2024.Constants.Chassis;
 import com.redstorm509.alice2024.subsystems.vision.Limelight;
+import com.redstorm509.alice2024.util.PigeonWrapper;
 import com.redstorm509.alice2024.util.math.LoggablePID;
 
 import java.util.Optional;
@@ -61,7 +62,7 @@ public class SwerveDrive extends SubsystemBase {
 	public SwerveDriveOdometry odometry;
 	public SwerveDrivePoseEstimator poseEstimator;
 	private Field2d field2d;
-	private Pigeon2 pigeon;
+	private PigeonWrapper pigeon;
 
 	private Interpolator headingInterplator;
 
@@ -83,7 +84,7 @@ public class SwerveDrive extends SubsystemBase {
 	private Limelight shooterCamera;
 	private SendableChooser<Alliance> allianceSelector = new SendableChooser<>();
 
-	public SwerveDrive(Pigeon2 pigeon, Limelight shooterCamera) {
+	public SwerveDrive(PigeonWrapper pigeon, Limelight shooterCamera) {
 		this.manualRotationTimer = new Timer();
 		manualRotationTimer.start();
 
@@ -95,7 +96,7 @@ public class SwerveDrive extends SubsystemBase {
 		this.allianceSelector.setDefaultOption("Blue", Alliance.Blue);
 		this.allianceSelector.addOption("Red", Alliance.Red);
 
-		pigeon.setYaw(0.0d, 1.0d);
+		pigeon.setYaw(0.0d);
 
 		swerveModules = new SwerveModule[] {
 				new SwerveModule(Constants.kFrontRight),
@@ -315,10 +316,10 @@ public class SwerveDrive extends SubsystemBase {
 					flip = alliance == DriverStation.Alliance.Red;
 					if (flip) {
 						Pose2d flipped = GeometryUtil.flipFieldPose(pose);
-						pigeon.setYaw(flipped.getRotation().getDegrees(),0.5);
+						pigeon.setYaw(flipped.getRotation().getDegrees());
 						resetOdometry(new Pose2d(flipped.getTranslation(), new Rotation2d()));
 					} else {
-						pigeon.setYaw(pose.getRotation().getDegrees(),0.5);
+						pigeon.setYaw(pose.getRotation().getDegrees());
 						resetOdometry(new Pose2d(pose.getTranslation(), new Rotation2d()));
 					}
 				}, this);

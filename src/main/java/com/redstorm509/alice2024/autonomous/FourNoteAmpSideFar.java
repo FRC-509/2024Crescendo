@@ -19,31 +19,28 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
-public class FourNote extends SequentialCommandGroup {
-	public FourNote(SwerveDrive swerve, Shooter shooter, ArmRS arm, Indexer indexer, Intake intake) {
+public class FourNoteAmpSideFar extends SequentialCommandGroup {
+	public FourNoteAmpSideFar(SwerveDrive swerve, Shooter shooter, ArmRS arm, Indexer indexer, Intake intake) {
 		Pose2d startPose = new Pose2d(0.72, 6.65, Rotation2d.fromDegrees(59.86));
 		Command paths = Commands.sequence(
-			new IntakeNote(intake, indexer),
-			new AutoShootJank(shooter, indexer),
+				new IntakeNote(intake, indexer),
+				new AutoShootJank(shooter, indexer),
 				swerve.resetOdometryCmd(startPose),
 				Commands.parallel(
-					AutoBuilder.followPath(PathPlannerPath.fromPathFile("FD2N_TwoNoteAmpSide")),
-					new IntakeNote(intake, indexer)
-				),
-				Commands.runOnce(() -> swerve.setTargetHeading(swerve.jankFlipHeading(27)),	swerve),
+						AutoBuilder.followPath(PathPlannerPath.fromPathFile("FD2N_TwoNoteAmpSide")),
+						new IntakeNote(intake, indexer)),
+				Commands.runOnce(() -> swerve.setTargetHeading(swerve.jankFlipHeading(27)), swerve),
 				new DefaultDriveCommand(swerve, 0.0, 0.0, 0.0, true).withTimeout(0.5),
 				Commands.runOnce(() -> swerve.stopModules(), swerve),
 				new AutoShootJank(shooter, indexer),
 				Commands.parallel(
-					AutoBuilder.followPath(PathPlannerPath.fromPathFile("DriveToSecondNote")),
-					new IntakeNote(intake, indexer)
-				),
+						AutoBuilder.followPath(PathPlannerPath.fromPathFile("DriveToSecondNote")),
+						new IntakeNote(intake, indexer)),
 				AutoBuilder.followPath(PathPlannerPath.fromPathFile("DriveToSecondNoteRev")),
 				new AutoShootJank(shooter, indexer),
 				Commands.parallel(
-					AutoBuilder.followPath(PathPlannerPath.fromPathFile("DriveToThirdNote")),
-					new IntakeNote(intake, indexer)
-				),
+						AutoBuilder.followPath(PathPlannerPath.fromPathFile("DriveToThirdNote")),
+						new IntakeNote(intake, indexer)),
 				AutoBuilder.followPath(PathPlannerPath.fromPathFile("DriveToThirdNoteRev")),
 				new AutoShootJank(shooter, indexer),
 				Commands.runOnce(() -> swerve.stopModules(), swerve));

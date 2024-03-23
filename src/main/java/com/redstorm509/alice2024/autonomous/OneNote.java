@@ -16,10 +16,9 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 public class OneNote extends SequentialCommandGroup {
 	public OneNote(SwerveDrive swerve, Shooter shooter, ArmRS arm, Indexer indexer, Intake intake) {
-		Pose2d startPose = new Pose2d(0.72, 6.65, Rotation2d.fromDegrees(59.86));
-		Command paths = Commands.sequence(swerve.resetOdometryCmd(startPose), 			
-		new IntakeNote(intake, indexer),
-			new AutoShootJank(shooter, indexer));
+		Pose2d startPose = new Pose2d(0.73, 4.47, Rotation2d.fromDegrees(-59.86));
+		Command paths = Commands.sequence(swerve.resetOdometryCmd(startPose), new IntakeNote(intake, indexer),
+				new AutoShootJank(shooter, indexer));
 		addCommands(paths);
 	}
 }

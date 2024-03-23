@@ -41,7 +41,7 @@ public final class Constants {
 		public static final double kPivotIntegratedI = 0.72;
 		public static final double kPivotIntegratedD = 0.24;
 
-		public static final double kPivotRSP = 8 * 12;
+		public static final double kPivotRSP = 9 * 12;
 		public static final double kPivotRSI = 0 * 12;
 		public static final double kPivotRSD = 0 * 12;
 
