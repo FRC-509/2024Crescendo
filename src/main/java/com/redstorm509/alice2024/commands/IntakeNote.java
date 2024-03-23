@@ -24,9 +24,6 @@ public class IntakeNote extends Command {
 		this.indexer = indexer;
 
 		addRequirements(intake, indexer);
-
-		SmartDashboard.putNumber("Fast Indexer Speed", Constants.Indexer.kSpinSpeed);
-		SmartDashboard.putNumber("Slow Indexer Speed", Constants.Indexer.kReducedSpinSpeed);
 	}
 
 	@Override
@@ -44,9 +41,6 @@ public class IntakeNote extends Command {
 
 	@Override
 	public void execute() {
-		fastSpeed = SmartDashboard.getNumber("Fast Indexer Speed", fastSpeed);
-		slowSpeed = SmartDashboard.getNumber("Slow Indexer Speed", slowSpeed);
-
 		if (indexer.indexingNoteState == IndexerState.HasNote) {
 			isFinished = true;
 		} else if (indexer.indexingNoteState == IndexerState.Noteless) {

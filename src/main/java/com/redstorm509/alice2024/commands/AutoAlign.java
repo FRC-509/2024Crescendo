@@ -53,8 +53,6 @@ public class AutoAlign extends Command {
 		this.specificTag = false;
 
 		addRequirements(swerve, arm);
-		SmartDashboard.putNumber("AutoAlignmentSlope", kAASlope);
-		SmartDashboard.putNumber("AutoAlignmentIntercept", kAAIntercept);
 	}
 
 	public Pose2d getAlignmentOffset(int TagID) {
@@ -108,7 +106,8 @@ public class AutoAlign extends Command {
 	public void initialize() {
 		limelight.setPipelineIndex(Constants.Vision.Pipeline.AprilTags);
 
-		limelight.setLEDMode_ForceBlink();
+		// limelight.setLEDMode_ForceBlink();
+		SmartDashboard.putBoolean("Autonomous Lock On", false);
 
 		Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
 		if (alliance.isPresent()) {
@@ -124,19 +123,19 @@ public class AutoAlign extends Command {
 	public void execute() {
 		if (limelight.getTV()) {
 			if ((int) limelight.getFiducialID() == 8 || (int) limelight.getFiducialID() == 3) {
-				limelight.setLEDMode_ForceBlink();
+				// limelight.setLEDMode_ForceBlink();
+				SmartDashboard.putBoolean("Autonomous Lock On", false);
 			} else {
-				limelight.setLEDMode_ForceOn();
+				// limelight.setLEDMode_ForceOn();
+				SmartDashboard.putBoolean("Autonomous Lock On", true);
 			}
 			if (!specificTag) {
 				targetTagID = (int) limelight.getFiducialID();
 			}
 		} else {
-			limelight.setLEDMode_ForceBlink();
+			// limelight.setLEDMode_ForceBlink();
+			SmartDashboard.putBoolean("Autonomous Lock On", false);
 		}
-
-		kAAIntercept = SmartDashboard.getNumber("AutoAlignmentIntercept", kAAIntercept);
-		kAASlope = SmartDashboard.getNumber("AutoAlignmentSlope", kAASlope);
 
 		// TEST VALUES TO MAKE SURE WORKS AS EXPECTED
 
@@ -170,7 +169,7 @@ public class AutoAlign extends Command {
 						true);
 			}
 
-			SmartDashboard.putNumber("Desired Arm Pivot", desiredArmPivot);
+			// SmartDashboard.putNumber("Desired Arm Pivot", desiredArmPivot);
 
 			arm.setPivotDegrees(MathUtil.clamp(desiredArmPivot, Constants.Arm.kMinPivot, Constants.Arm.kMaxPivot));
 		} else {
@@ -185,7 +184,7 @@ public class AutoAlign extends Command {
 
 		SmartDashboard.putNumber("Targeted April Tag", limelight.getFiducialID());
 
-		SmartDashboard.putNumber("TY", limelight.getTY());
+		// SmartDashboard.putNumber("TY", limelight.getTY());
 
 		// SmartDashboard.putNumber("X to Tag", RobotToTag.getX());
 		// SmartDashboard.putNumber("Y to Tag", RobotToTag.getY());
@@ -215,7 +214,8 @@ public class AutoAlign extends Command {
 
 	@Override
 	public void end(boolean wasInterrupted) {
-		limelight.setLEDMode_ForceOff();
+		// limelight.setLEDMode_ForceOff();
+		SmartDashboard.putBoolean("Autonomous Lock On", false);
 		swerve.drive(new Translation2d(0, 0), 0, true, false);
 		swerve.setTargetHeading(swerve.getYaw().getDegrees());
 	}

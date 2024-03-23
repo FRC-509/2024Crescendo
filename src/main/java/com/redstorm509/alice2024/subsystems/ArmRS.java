@@ -140,8 +140,9 @@ public class ArmRS extends SubsystemBase {
 
 		wasLimitSwitchTripped = limitSwitch.get();
 		SmartDashboard.putBoolean("PivotLimitSwitch", limitSwitch.get());
-		SmartDashboard.putNumber("PivotL", pivotLeader.getPosition().getValue() * 360.0d);
-		SmartDashboard.putNumber("Target Pivot", pivotTarget.getTarget());
+		// SmartDashboard.putNumber("PivotL", pivotLeader.getPosition().getValue() *
+		// 360.0d);
+		// SmartDashboard.putNumber("Target Pivot", pivotTarget.getTarget());
 		SmartDashboard.putNumber("Absolute Pivot", pivotEncoder.getPosition().getValue() * 360.0d);
 
 		/*-

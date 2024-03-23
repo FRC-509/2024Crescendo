@@ -50,7 +50,7 @@ public class RobotContainer {
 	public final Indexer indexer;
 	public final Shooter shooter;
 	private final ArmRS arm;
-	// private final Climber climber;
+	private final Climber climber;
 	public final REVBlinkin led;
 	public final Limelight intakeCamera = new Limelight("limelight-intake");
 	private final Limelight shooterCamera = new Limelight("limelight-arm");
@@ -63,7 +63,7 @@ public class RobotContainer {
 		this.indexer = new Indexer();
 		this.shooter = new Shooter();
 		this.arm = new ArmRS();
-		// this.climber = new Climber(pigeon);
+		this.climber = new Climber(pigeon);
 		this.led = new REVBlinkin(9);
 
 		intakeCamera.setLEDMode_ForceOff();
@@ -193,7 +193,6 @@ public class RobotContainer {
 		// should actuate. The X button toggles the solenoids between their locked and
 		// unlocked position.
 
-		/*-
 		climber.setDefaultCommand(new DefaultClimbCommand(climber,
 				() -> MathUtil.applyDeadband(operator.getRightY(), Constants.kStickDeadband) / 5,
 				() -> operator.getHID().getPOV() == 90,
@@ -201,12 +200,12 @@ public class RobotContainer {
 				() -> operator.getHID().getXButton(),
 				pigeon,
 				false));
-		*/
 	}
 
 	private void addAutonomousRoutines() {
 		chooser.addOption("Four Note (Far) [AMP SIDE]", new FourNoteAmpSideFar(swerve, shooter, arm, indexer, intake));
-		chooser.addOption("Four Note (Close) [AMP SIDE]", new WIPFourNoteAmpSideNear(swerve, shooter, arm, indexer, intake));
+		chooser.addOption("Four Note (Close) [AMP SIDE]",
+				new WIPFourNoteAmpSideNear(swerve, shooter, arm, indexer, intake));
 		chooser.addOption("Three Note (Close) [AMP SIDE]", new ThreeNoteAmpSide(swerve, shooter, arm, indexer, intake));
 		chooser.addOption("Two Note (Close) [AMP SIDE]", new TwoNoteAmpSide(swerve, shooter, arm, indexer, intake));
 		chooser.addOption("One Note [ANY]", new OneNote(swerve, shooter, arm, indexer, intake));
@@ -233,6 +232,10 @@ public class RobotContainer {
 		if (DriverStation.isFMSAttached()) {
 			swerve.setTargetHeading(0);
 		}
+
+		intakeCamera.setLEDMode_ForceOff();
+		shooterCamera.setLEDMode_ForceOff();
+
 		// climber.unlockLeft();
 		// climber.unlockRight();
 	}
