@@ -62,11 +62,19 @@ public class Climber extends SubsystemBase {
 	}
 
 	public void leftClimb(double speed) {
-		leftClimbMotor.setControl(openLoopVoltage.withOutput(speed * 12.0));
+		if (!leftSol.get()) {
+			leftClimbMotor.setControl(openLoopVoltage.withOutput(0.0));
+		} else {
+			leftClimbMotor.setControl(openLoopVoltage.withOutput(speed * 12.0));
+		}
 	}
 
 	public void rightClimb(double speed) {
-		rightClimbMotor.setControl(openLoopVoltage.withOutput(speed * 12.0));
+		if (!rightSol.get()) {
+			rightClimbMotor.setControl(openLoopVoltage.withOutput(0.0));
+		} else {
+			rightClimbMotor.setControl(openLoopVoltage.withOutput(speed * 12.0));
+		}
 	}
 
 	public void climb(double speed) {

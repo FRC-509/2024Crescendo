@@ -64,7 +64,7 @@ public class DefaultClimbCommand extends Command {
 			climber.toggleLockRight();
 			toggleDelay.reset();
 		}
-		double output = outputSupplier.getAsDouble();
+		double output = outputSupplier.getAsDouble() * 0.40;
 		boolean extending = output > 0.1;
 		boolean retracting = output < -0.1;
 		// boolean extending = Math.abs(extendSupplier.getAsDouble()) > 0.1;
@@ -82,6 +82,7 @@ public class DefaultClimbCommand extends Command {
 			// -retractSupplier.getAsDouble();
 			// double compensatedOutput = extending ? extendSupplier.getAsDouble() -
 			// rollCompensation : -retractSupplier.getAsDouble() + rollCompensation;
+
 			double compensatedOutput = extending ? output - rollCompensation : output + rollCompensation;
 
 			// confirm which side is positive roll

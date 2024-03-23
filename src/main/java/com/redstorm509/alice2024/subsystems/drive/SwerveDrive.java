@@ -92,7 +92,7 @@ public class SwerveDrive extends SubsystemBase {
 		this.shooterCamera = shooterCamera;
 		this.headingInterplator = new Interpolator(Constants.kMaxAngularVelocity);
 		this.targetHeading = 0.0;
-		
+
 		this.allianceSelector.setDefaultOption("Blue", Alliance.Blue);
 		this.allianceSelector.addOption("Red", Alliance.Red);
 
@@ -302,7 +302,7 @@ public class SwerveDrive extends SubsystemBase {
 			mod.setDesiredState(targetStates[mod.moduleNumber], true);
 		}
 	}
-	
+
 	/**
 	 * Generates a command to reset the odometer to the given pose. Must be relative
 	 * to the BLUE ALLIANCE origin!
@@ -310,17 +310,17 @@ public class SwerveDrive extends SubsystemBase {
 	public Command resetOdometryCmd(Pose2d pose) {
 		return Commands.runOnce(
 				() -> {
-					
+
 					boolean flip = false;
 					Alliance alliance = getAlliance();
 					flip = alliance == DriverStation.Alliance.Red;
 					if (flip) {
 						Pose2d flipped = GeometryUtil.flipFieldPose(pose);
 						pigeon.setYaw(flipped.getRotation().getDegrees());
-						resetOdometry(new Pose2d(flipped.getTranslation(), new Rotation2d()));
+						resetOdometry(new Pose2d(flipped.getTranslation(), getYaw()));
 					} else {
 						pigeon.setYaw(pose.getRotation().getDegrees());
-						resetOdometry(new Pose2d(pose.getTranslation(), new Rotation2d()));
+						resetOdometry(new Pose2d(pose.getTranslation(), getYaw()));
 					}
 				}, this);
 	}
@@ -334,21 +334,6 @@ public class SwerveDrive extends SubsystemBase {
 		} else {
 			return heading;
 		}
-	}
-
-	public double jankFlipInitialHolonomicRot(double heading) {
-		boolean flip = false;
-		Alliance alliance = getAlliance();
-		flip = alliance == DriverStation.Alliance.Red;
-		if (flip) {
-			return 180 - heading;
-		} else {
-			return heading;
-		}
-	}
-
-	public void setYawForTeleopEntry(double yaw) {
-		pigeon.setYaw(yaw);
 	}
 
 	public Pose2d getRawOdometeryPose() {

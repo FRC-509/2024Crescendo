@@ -42,9 +42,8 @@ public class Indexer extends SubsystemBase {
 
 	public IndexerState indexingNoteState;
 	private IndexerState prevIndexerState;
-	// private AtomicReference<IndexerState> indexingNoteState;
-	// private Thread indexingStateManager;
 	private Timer currentStateTimer = new Timer();
+	private boolean isInvalidState;
 
 	private CANSparkMax indexer = new CANSparkMax(12, MotorType.kBrushed);
 	private DigitalInput shooterBB = new DigitalInput(4); // CHANGE TO REAL PORTS
@@ -57,6 +56,7 @@ public class Indexer extends SubsystemBase {
 		indexer.burnFlash();
 		indexingNoteState = IndexerState.Noteless;
 		prevIndexerState = IndexerState.Noteless;
+		isInvalidState = false;
 
 		currentStateTimer.start();
 	}
@@ -73,27 +73,38 @@ public class Indexer extends SubsystemBase {
 		indexingNoteState = IndexerState.Noteless;
 	}
 
+	public boolean isInvalidState() {
+		return isInvalidState;
+	}
+
 	public void pollState() {
 		if (!indexerBB.get() && !shooterBB.get() && !imStageBB.get()) {
 			// Note is where we want it to be
 			prevIndexerState = indexingNoteState;
 			indexingNoteState = IndexerState.HasNote;
+			isInvalidState = false;
 		} else if (!indexerBB.get() && shooterBB.get() && imStageBB.get()) {
 			// Note is too far out shooter side
 			prevIndexerState = indexingNoteState;
 			indexingNoteState = IndexerState.NoteTooShooter;
+			isInvalidState = false;
 		} else if (!indexerBB.get() && shooterBB.get() && !imStageBB.get()) {
 			// Note is too far out intermediate stage side
 			prevIndexerState = indexingNoteState;
 			indexingNoteState = IndexerState.NoteTooIntake;
+			isInvalidState = false;
 		} else if (indexerBB.get() && !shooterBB.get() && imStageBB.get()) {
 			// Note is way too sticking out shooter
 			prevIndexerState = indexingNoteState;
 			indexingNoteState = IndexerState.NoteTooShooterExtreme;
+			isInvalidState = false;
 		} else if (indexerBB.get() && shooterBB.get() && !imStageBB.get()) {
 			// Note is way too sticking out shooter
 			prevIndexerState = indexingNoteState;
 			indexingNoteState = IndexerState.NoteTooIntakeExtreme;
+			isInvalidState = false;
+		} else {
+			isInvalidState = true;
 		}
 
 		if (indexingNoteState == prevIndexerState && indexingNoteState != IndexerState.NoteTooShooterExtreme) {

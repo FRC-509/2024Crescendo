@@ -20,6 +20,7 @@ import com.redstorm509.alice2024.autonomous.FourNoteAmpSideFar;
 import com.redstorm509.alice2024.autonomous.OneNote;
 import com.redstorm509.alice2024.autonomous.OneNoteAndTaxi;
 import com.redstorm509.alice2024.autonomous.SabotageAuto;
+import com.redstorm509.alice2024.autonomous.TESTING;
 import com.redstorm509.alice2024.autonomous.ThreeNoteAmpSide;
 import com.redstorm509.alice2024.autonomous.TwoNoteAmpSide;
 import com.redstorm509.alice2024.autonomous.WIPFourNoteAmpSideNear;
@@ -194,7 +195,7 @@ public class RobotContainer {
 		// unlocked position.
 
 		climber.setDefaultCommand(new DefaultClimbCommand(climber,
-				() -> MathUtil.applyDeadband(operator.getRightY(), Constants.kStickDeadband) / 5,
+				() -> MathUtil.applyDeadband(operator.getRightY(), Constants.kStickDeadband),
 				() -> operator.getHID().getPOV() == 90,
 				() -> operator.getHID().getPOV() == 270,
 				() -> operator.getHID().getXButton(),
@@ -225,18 +226,14 @@ public class RobotContainer {
 
 	public void onRobotEnable() {
 		arm.onRobotEnable();
-		// indexer.indexingNoteState = IndexerState.HasNote;
-	}
-
-	public void onTeleopEntry() {
-		if (DriverStation.isFMSAttached()) {
-			swerve.setTargetHeading(0);
-		}
+		pigeon.onEnable();
 
 		intakeCamera.setLEDMode_ForceOff();
 		shooterCamera.setLEDMode_ForceOff();
 
-		// climber.unlockLeft();
-		// climber.unlockRight();
+		// indexer.indexingNoteState = IndexerState.HasNote;
+	}
+
+	public void onTeleopEntry() {
 	}
 }
