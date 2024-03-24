@@ -187,11 +187,12 @@ public class RobotContainer {
 	private void addAutonomousRoutines() {
 		// chooser.addOption("Four Note (Far) [AMP SIDE]", new
 		// FourNoteAmpSideFar(swerve, shooter, arm, indexer, intake));
-		chooser.addOption("Four Note (Close) [AMP SIDE]",
-				new WIPFourNoteAmpSideNear(swerve, shooter, arm, indexer, intake));
+		// chooser.addOption("Four Note (Close) [AMP SIDE]",
+		// new WIPFourNoteAmpSideNear(swerve, shooter, arm, indexer, intake));
 		chooser.addOption("Four Note (Close) [AMP SIDE] {Drives Back Before Shooting, Goes Far (!!)}",
 				new FourNoteAmpSideDriveBack(swerve, shooter, arm, indexer, intake));
-		chooser.addOption("Three Note (Close) [AMP SIDE]", new ThreeNoteAmpSide(swerve, shooter, arm, indexer, intake));
+		// chooser.addOption("Three Note (Close) [AMP SIDE]", new
+		// ThreeNoteAmpSide(swerve, shooter, arm, indexer, intake));
 		chooser.addOption("Three Note (Close) [AMP SIDE] {Drives Back Before Shooting, Goes Far (!!)}",
 				new ThreeNoteAmpSideDriveBackGoFar(swerve, shooter, arm, indexer, intake));
 
