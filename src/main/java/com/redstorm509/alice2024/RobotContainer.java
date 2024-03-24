@@ -20,8 +20,8 @@ import com.redstorm509.alice2024.autonomous.FourNoteAmpSideFar;
 import com.redstorm509.alice2024.autonomous.OneNote;
 import com.redstorm509.alice2024.autonomous.OneNoteAndTaxi;
 import com.redstorm509.alice2024.autonomous.SabotageAuto;
-import com.redstorm509.alice2024.autonomous.TESTING;
 import com.redstorm509.alice2024.autonomous.ThreeNoteAmpSide;
+import com.redstorm509.alice2024.autonomous.ThreeNoteAmpSideDriveBack;
 import com.redstorm509.alice2024.autonomous.TwoNoteAmpSide;
 import com.redstorm509.alice2024.autonomous.WIPFourNoteAmpSideNear;
 import com.redstorm509.alice2024.commands.*;
@@ -210,12 +210,13 @@ public class RobotContainer {
 		chooser.addOption("Four Note (Close) [AMP SIDE]",
 				new WIPFourNoteAmpSideNear(swerve, shooter, arm, indexer, intake));
 		chooser.addOption("Three Note (Close) [AMP SIDE]", new ThreeNoteAmpSide(swerve, shooter, arm, indexer, intake));
+		chooser.addOption("Three Note (Close) [AMP SIDE] {Drives Back Before Shooting}",
+				new ThreeNoteAmpSideDriveBack(swerve, shooter, arm, indexer, intake));
+
 		chooser.addOption("Two Note (Close) [AMP SIDE]", new TwoNoteAmpSide(swerve, shooter, arm, indexer, intake));
 		chooser.addOption("One Note [ANY]", new OneNote(swerve, shooter, arm, indexer, intake));
 		chooser.addOption("One Note and Taxi [SOURCE SIDE]", new OneNoteAndTaxi(swerve, shooter, arm, indexer, intake));
 		chooser.addOption("Sabotage / The Samin Special", new SabotageAuto(swerve));
-		// chooser.addOption("SHOOT (DO NOT SELECT)", new AutoShootJank(shooter,
-		// indexer));
 		chooser.addOption("\"Go AFK\" (Null)", new InstantCommand());
 		SmartDashboard.putData("Auto Mode", chooser);
 

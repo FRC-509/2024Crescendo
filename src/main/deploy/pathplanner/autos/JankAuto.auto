@@ -1,0 +1,55 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.72,
+      "y": 6.65
+    },
+    "rotation": 59.68
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "FD2N_TwoNoteAmpSide"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "JankAutoPart2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "JankAutoPart3"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "JankAutoPart4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "JankAutoPart5"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "JankAutoPart6"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}
