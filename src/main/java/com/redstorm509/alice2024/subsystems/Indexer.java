@@ -78,7 +78,8 @@ public class Indexer extends SubsystemBase {
 	}
 
 	public void pollState() {
-		if (!indexerBB.get() && !shooterBB.get() && !imStageBB.get()) {
+		if ((!indexerBB.get() && !shooterBB.get() && !imStageBB.get())
+				|| (!indexerBB.get() && !shooterBB.get() && imStageBB.get())) {
 			// Note is where we want it to be
 			prevIndexerState = indexingNoteState;
 			indexingNoteState = IndexerState.HasNote;

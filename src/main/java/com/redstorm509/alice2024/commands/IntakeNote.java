@@ -37,9 +37,11 @@ public class IntakeNote extends Command {
 		}
 		 */
 		isFinished = false;
+		/*-
 		if (indexer.isInvalidState()) {
 			indexer.setNoteless();
 		}
+		*/
 	}
 
 	@Override

@@ -1,5 +1,6 @@
-package com.redstorm509.alice2024.commands;
+package com.redstorm509.alice2024.commands.autonomous;
 
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.fasterxml.jackson.databind.ser.AnyGetterWriter;
 import com.redstorm509.alice2024.Constants;
 import com.redstorm509.alice2024.subsystems.Indexer;
@@ -14,6 +15,7 @@ public class AutoShootJank extends Command {
 	private Indexer indexer;
 	private Timer timer = new Timer();
 	private boolean firstReached = false;
+	private boolean startedindexing = false;
 
 	private boolean isFinished = false;
 
@@ -30,6 +32,8 @@ public class AutoShootJank extends Command {
 		timer.reset();
 		timer.start();
 		firstReached = false;
+		startedindexing = false;
+
 	}
 
 	@Override
@@ -38,17 +42,20 @@ public class AutoShootJank extends Command {
 		if (atSpeed && !firstReached) {
 			firstReached = true;
 			timer.reset();
-		} else if (firstReached && timer.get() > 1) {
-			indexer.rawIndexer(-1.0);
-			if (timer.get() >= 1.3) {
-				isFinished = true;
-			}
+		}
+		if (firstReached && timer.get() > 1.6) {
+			indexer.rawIndexer(Constants.Indexer.kShootSpeed);
+			startedindexing = true;
+		}
+
+		if (timer.get() >= 3.0 && startedindexing == true) {
+			isFinished = true;
 		}
 	}
 
 	@Override
 	public void end(boolean wasInterrupted) {
-		shooter.setShooterVelocity(0.0);
+		shooter.shooterLeader.setControl(new VoltageOut(0.0));
 		indexer.rawIndexer(0.0);
 	}
 

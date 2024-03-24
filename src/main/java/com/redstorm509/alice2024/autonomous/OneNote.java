@@ -1,7 +1,7 @@
 package com.redstorm509.alice2024.autonomous;
 
-import com.redstorm509.alice2024.commands.AutoShootJank;
 import com.redstorm509.alice2024.commands.IntakeNote;
+import com.redstorm509.alice2024.commands.autonomous.AutoShootJank;
 import com.redstorm509.alice2024.subsystems.ArmRS;
 import com.redstorm509.alice2024.subsystems.Indexer;
 import com.redstorm509.alice2024.subsystems.Intake;

@@ -3,11 +3,11 @@ package com.redstorm509.alice2024.autonomous;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.redstorm509.alice2024.Constants;
-import com.redstorm509.alice2024.commands.AutoShootJank;
-import com.redstorm509.alice2024.commands.AutonomousIntakeNote;
 import com.redstorm509.alice2024.commands.DefaultDriveCommand;
 import com.redstorm509.alice2024.commands.IntakeNote;
 import com.redstorm509.alice2024.commands.SetPivot;
+import com.redstorm509.alice2024.commands.autonomous.AutoShootJank;
+import com.redstorm509.alice2024.commands.autonomous.AutonomousIntakeNote;
 import com.redstorm509.alice2024.subsystems.ArmRS;
 import com.redstorm509.alice2024.subsystems.ArmRS;
 import com.redstorm509.alice2024.subsystems.Indexer;
@@ -26,7 +26,6 @@ public class TwoNoteAmpSide extends SequentialCommandGroup {
 		Pose2d startPose = new Pose2d(0.72, 6.65, Rotation2d.fromDegrees(59.86));
 		Command paths = Commands.sequence(
 				new AutonomousIntakeNote(intake, indexer),
-				new SetPivot(arm, -50.5),
 				new AutoShootJank(shooter, indexer),
 				new SetPivot(arm, Constants.Arm.kMinPivot),
 				swerve.resetOdometryCmd(startPose),

@@ -25,6 +25,7 @@ import com.redstorm509.alice2024.autonomous.ThreeNoteAmpSide;
 import com.redstorm509.alice2024.autonomous.TwoNoteAmpSide;
 import com.redstorm509.alice2024.autonomous.WIPFourNoteAmpSideNear;
 import com.redstorm509.alice2024.commands.*;
+import com.redstorm509.alice2024.commands.autonomous.AutoShootJank;
 import com.redstorm509.alice2024.subsystems.*;
 import com.redstorm509.alice2024.subsystems.Indexer.IndexerState;
 import com.redstorm509.alice2024.subsystems.drive.*;
@@ -35,6 +36,7 @@ import com.redstorm509.alice2024.util.drivers.REVBlinkin.BlinkinLedMode;
 
 import java.util.Optional;
 
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.redstorm509.stormkit.controllers.ThrustmasterJoystick;
 import com.redstorm509.stormkit.controllers.ThrustmasterJoystick.StickButton;
@@ -176,7 +178,7 @@ public class RobotContainer {
 			SmartDashboard.putBoolean("Is At Shoot Speed", shooter.isAtShooterVelocity());
 			SmartDashboard.putBoolean("Is Winding Up", true);
 		}, () -> {
-			shooter.setShooterVelocity(0.0);
+			shooter.shooterLeader.setControl(new VoltageOut(0.0));
 			SmartDashboard.putBoolean("Is At Shoot Speed", false);
 			SmartDashboard.putBoolean("Is Winding Up", false);
 		}, shooter));
@@ -212,6 +214,8 @@ public class RobotContainer {
 		chooser.addOption("One Note [ANY]", new OneNote(swerve, shooter, arm, indexer, intake));
 		chooser.addOption("One Note and Taxi [SOURCE SIDE]", new OneNoteAndTaxi(swerve, shooter, arm, indexer, intake));
 		chooser.addOption("Sabotage / The Samin Special", new SabotageAuto(swerve));
+		// chooser.addOption("SHOOT (DO NOT SELECT)", new AutoShootJank(shooter,
+		// indexer));
 		chooser.addOption("\"Go AFK\" (Null)", new InstantCommand());
 		SmartDashboard.putData("Auto Mode", chooser);
 
@@ -230,10 +234,9 @@ public class RobotContainer {
 
 		intakeCamera.setLEDMode_ForceOff();
 		shooterCamera.setLEDMode_ForceOff();
-
-		// indexer.indexingNoteState = IndexerState.HasNote;
 	}
 
 	public void onTeleopEntry() {
+		indexer.setNoteless();
 	}
 }

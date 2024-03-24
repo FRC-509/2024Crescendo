@@ -1,4 +1,4 @@
-package com.redstorm509.alice2024.commands;
+package com.redstorm509.alice2024.commands.autonomous;
 
 import javax.swing.text.StyleContext.SmallAttributeSet;
 
@@ -50,7 +50,7 @@ public class AutonomousIntakeNote extends Command {
 		if (indexer.indexingNoteState == IndexerState.HasNote) {
 			isFinished = true;
 		} else if (indexer.indexingNoteState == IndexerState.Noteless) {
-			indexer.rawIndexer(-Constants.Indexer.kSpinSpeed); 
+			indexer.rawIndexer(-Constants.Indexer.kSpinSpeed);
 			intake.intake(true);
 		} else if (indexer.indexingNoteState == IndexerState.NoteTooShooter) {
 			indexer.rawIndexer(Constants.Indexer.kReducedSpinSpeed); // increase if needed
