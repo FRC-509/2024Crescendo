@@ -20,8 +20,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
-public class ThreeNoteAmpSideDriveBack extends SequentialCommandGroup {
-	public ThreeNoteAmpSideDriveBack(SwerveDrive swerve, Shooter shooter, ArmRS arm, Indexer indexer,
+public class ThreeNoteAmpSideDriveBackGoFar extends SequentialCommandGroup {
+	public ThreeNoteAmpSideDriveBackGoFar(SwerveDrive swerve, Shooter shooter, ArmRS arm, Indexer indexer,
 			Intake intake) {
 		Pose2d startPose = new Pose2d(0.72, 6.65, Rotation2d.fromDegrees(59.86));
 		Command paths = Commands.sequence(
@@ -37,15 +37,12 @@ public class ThreeNoteAmpSideDriveBack extends SequentialCommandGroup {
 				Commands.runOnce(() -> swerve.stopModules(), swerve),
 				new AutoShootMoreJank(shooter, indexer),
 				Commands.parallel(
-						AutoBuilder.followPath(PathPlannerPath.fromPathFile("JankAutoPart3")),
+						AutoBuilder.followPath(PathPlannerPath.fromPathFile("JankAutoPart5")),
 						new AutonomousIntakeNote(intake, indexer)),
-				AutoBuilder.followPath(PathPlannerPath.fromPathFile("JankAutoPart4")),
+				AutoBuilder.followPath(PathPlannerPath.fromPathFile("JankAutoPart6")),
 				Commands.runOnce(() -> swerve.stopModules(), swerve),
 				new AutoShootMoreJank(shooter, indexer),
-				Commands.runOnce(() -> shooter.shooterLeader.setControl(new VoltageOut(0)), shooter),
-				Commands.parallel(
-						AutoBuilder.followPath(PathPlannerPath.fromPathFile("JankAutoPart5")),
-						new AutonomousIntakeNote(intake, indexer)));
+				Commands.runOnce(() -> shooter.shooterLeader.setControl(new VoltageOut(0)), shooter));
 		addCommands(paths);
 	}
 

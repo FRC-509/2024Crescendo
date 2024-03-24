@@ -3,41 +3,20 @@ package com.redstorm509.alice2024;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.proto.Controller;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.SerialPort.StopBits;
-
-import com.redstorm509.alice2024.autonomous.FourNoteAmpSideFar;
-import com.redstorm509.alice2024.autonomous.OneNote;
-import com.redstorm509.alice2024.autonomous.OneNoteAndTaxi;
-import com.redstorm509.alice2024.autonomous.SabotageAuto;
-import com.redstorm509.alice2024.autonomous.ThreeNoteAmpSide;
-import com.redstorm509.alice2024.autonomous.ThreeNoteAmpSideDriveBack;
-import com.redstorm509.alice2024.autonomous.TwoNoteAmpSide;
-import com.redstorm509.alice2024.autonomous.WIPFourNoteAmpSideNear;
+import com.redstorm509.alice2024.autonomous.*;
 import com.redstorm509.alice2024.commands.*;
-import com.redstorm509.alice2024.commands.autonomous.AutoShootJank;
 import com.redstorm509.alice2024.subsystems.*;
-import com.redstorm509.alice2024.subsystems.Indexer.IndexerState;
 import com.redstorm509.alice2024.subsystems.drive.*;
 import com.redstorm509.alice2024.subsystems.vision.*;
 import com.redstorm509.alice2024.util.PigeonWrapper;
 import com.redstorm509.alice2024.util.drivers.REVBlinkin;
-import com.redstorm509.alice2024.util.drivers.REVBlinkin.BlinkinLedMode;
-
-import java.util.Optional;
-
 import com.ctre.phoenix6.controls.VoltageOut;
-import com.ctre.phoenix6.hardware.Pigeon2;
 import com.redstorm509.stormkit.controllers.ThrustmasterJoystick;
 import com.redstorm509.stormkit.controllers.ThrustmasterJoystick.StickButton;
 
@@ -206,17 +185,21 @@ public class RobotContainer {
 	}
 
 	private void addAutonomousRoutines() {
-		chooser.addOption("Four Note (Far) [AMP SIDE]", new FourNoteAmpSideFar(swerve, shooter, arm, indexer, intake));
+		// chooser.addOption("Four Note (Far) [AMP SIDE]", new
+		// FourNoteAmpSideFar(swerve, shooter, arm, indexer, intake));
 		chooser.addOption("Four Note (Close) [AMP SIDE]",
 				new WIPFourNoteAmpSideNear(swerve, shooter, arm, indexer, intake));
+		chooser.addOption("Four Note (Close) [AMP SIDE] {Drives Back Before Shooting, Goes Far (!!)}",
+				new FourNoteAmpSideDriveBack(swerve, shooter, arm, indexer, intake));
 		chooser.addOption("Three Note (Close) [AMP SIDE]", new ThreeNoteAmpSide(swerve, shooter, arm, indexer, intake));
-		chooser.addOption("Three Note (Close) [AMP SIDE] {Drives Back Before Shooting}",
-				new ThreeNoteAmpSideDriveBack(swerve, shooter, arm, indexer, intake));
+		chooser.addOption("Three Note (Close) [AMP SIDE] {Drives Back Before Shooting, Goes Far (!!)}",
+				new ThreeNoteAmpSideDriveBackGoFar(swerve, shooter, arm, indexer, intake));
 
 		chooser.addOption("Two Note (Close) [AMP SIDE]", new TwoNoteAmpSide(swerve, shooter, arm, indexer, intake));
 		chooser.addOption("One Note [ANY]", new OneNote(swerve, shooter, arm, indexer, intake));
 		chooser.addOption("One Note and Taxi [SOURCE SIDE]", new OneNoteAndTaxi(swerve, shooter, arm, indexer, intake));
-		chooser.addOption("Sabotage / The Samin Special", new SabotageAuto(swerve));
+		chooser.addOption("Sabotage / The Samin Special / James Auto",
+				new SabotageAuto(swerve, intake, indexer, shooter));
 		chooser.addOption("\"Go AFK\" (Null)", new InstantCommand());
 		SmartDashboard.putData("Auto Mode", chooser);
 
