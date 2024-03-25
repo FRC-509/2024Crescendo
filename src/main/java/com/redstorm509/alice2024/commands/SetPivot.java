@@ -23,6 +23,6 @@ public class SetPivot extends Command {
 
 	@Override
 	public boolean isFinished() {
-		return MathUtil.isNear(targetAngle, arm.getPivotDegrees(), 10.0);
+		return MathUtil.isNear(targetAngle, arm.getPivotDegrees(), 6.0);
 	}
 }

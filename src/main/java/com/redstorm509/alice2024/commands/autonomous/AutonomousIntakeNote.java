@@ -1,4 +1,4 @@
-package com.redstorm509.alice2024.commands;
+package com.redstorm509.alice2024.commands.autonomous;
 
 import javax.swing.text.StyleContext.SmallAttributeSet;
 
@@ -12,18 +12,21 @@ import com.redstorm509.alice2024.subsystems.Intake;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
-public class IntakeNote extends Command {
+public class AutonomousIntakeNote extends Command {
 	private final Intake intake;
 	private final Indexer indexer;
 	private boolean isFinished = false;
 	private double fastSpeed = Constants.Indexer.kSpinSpeed;
 	private double slowSpeed = Constants.Indexer.kReducedSpinSpeed;
 
-	public IntakeNote(Intake intake, Indexer indexer) {
+	public AutonomousIntakeNote(Intake intake, Indexer indexer) {
 		this.intake = intake;
 		this.indexer = indexer;
 
 		addRequirements(intake, indexer);
+
+		SmartDashboard.putNumber("Fast Indexer Speed", Constants.Indexer.kSpinSpeed);
+		SmartDashboard.putNumber("Slow Indexer Speed", Constants.Indexer.kReducedSpinSpeed);
 	}
 
 	@Override
@@ -37,31 +40,29 @@ public class IntakeNote extends Command {
 		}
 		 */
 		isFinished = false;
-		/*-
-		if (indexer.isInvalidState()) {
-			indexer.setNoteless();
-		}
-		*/
 	}
 
 	@Override
 	public void execute() {
+		fastSpeed = SmartDashboard.getNumber("Fast Indexer Speed", fastSpeed);
+		slowSpeed = SmartDashboard.getNumber("Slow Indexer Speed", slowSpeed);
+
 		if (indexer.indexingNoteState == IndexerState.HasNote) {
 			isFinished = true;
 		} else if (indexer.indexingNoteState == IndexerState.Noteless) {
-			indexer.rawIndexer(-fastSpeed);
+			indexer.rawIndexer(-Constants.Indexer.kSpinSpeed);
 			intake.intake(true);
 		} else if (indexer.indexingNoteState == IndexerState.NoteTooShooter) {
-			indexer.rawIndexer(slowSpeed); // increase if needed
-			intake.stop();
+			indexer.rawIndexer(Constants.Indexer.kReducedSpinSpeed); // increase if needed
+			intake.intake(true);
 		} else if (indexer.indexingNoteState == IndexerState.NoteTooShooterExtreme) {
-			indexer.rawIndexer(fastSpeed);
-			intake.stop();
+			indexer.rawIndexer(Constants.Indexer.kSpinSpeed);
+			intake.intake(true);
 		} else if (indexer.indexingNoteState == IndexerState.NoteTooIntake) {
-			indexer.rawIndexer(-slowSpeed); // increase if needed
-			intake.stop();
+			indexer.rawIndexer(-Constants.Indexer.kReducedSpinSpeed); // increase if needed
+			intake.intake(true);
 		} else if (indexer.indexingNoteState == IndexerState.NoteTooIntakeExtreme) {
-			indexer.rawIndexer(-fastSpeed);
+			indexer.rawIndexer(-Constants.Indexer.kSpinSpeed);
 			intake.intake(true);
 		}
 	}

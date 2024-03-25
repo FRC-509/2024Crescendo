@@ -33,8 +33,8 @@ public class AutoAlign extends Command {
 	private Translation3d RobotToTag;
 	private Translation2d outputTranslation;
 	private double desiredArmPivot = Constants.Arm.kMinPivot;
-	private double kAASlope = -0.677626;
-	private double kAAIntercept = -32.9009; // -32.9009
+	private double kAASlope = -0.781014; // -0.677626
+	private double kAAIntercept = -27.165; // -32.9009
 
 	// Meant to be an "isDownBind" command
 	public AutoAlign(
@@ -53,8 +53,6 @@ public class AutoAlign extends Command {
 		this.specificTag = false;
 
 		addRequirements(swerve, arm);
-		SmartDashboard.putNumber("AutoAlignmentSlope", kAASlope);
-		SmartDashboard.putNumber("AutoAlignmentSlope", kAAIntercept);
 	}
 
 	public Pose2d getAlignmentOffset(int TagID) {
@@ -69,10 +67,9 @@ public class AutoAlign extends Command {
 			// AMP TAG OFFSET
 			case 5: // Red Alliance
 			case 6: // Blue Alliance
-				desiredRotation = Math.toRadians(limelight.getTX())
-						- (Math.atan(Math.abs(RobotToTag.getX()) / Math.abs(RobotToTag.getY())));
-
-				return new Pose2d(new Translation2d(0, 0), new Rotation2d(desiredRotation));
+				// desiredRotation = Math.toRadians(limelight.getTX())
+				// - (Math.atan(Math.abs(RobotToTag.getX()) / Math.abs(RobotToTag.getY())));
+				return new Pose2d(new Translation2d(0, 0), new Rotation2d());
 
 			// SPEAKER TAG OFFSET
 			case 4: // Red Alliance
@@ -84,8 +81,7 @@ public class AutoAlign extends Command {
 					desiredArmPivot = arm.getPivotDegrees();
 				}
 
-				return new Pose2d(new Translation2d(0, 0),
-						new Rotation2d(desiredRotation));
+				return new Pose2d(new Translation2d(0, 0), new Rotation2d(desiredRotation));
 
 			// SPEAKER SIDE TAG OFFSETS (43 cm to the right of central tags)
 			case 3: // Red Alliance
@@ -110,7 +106,8 @@ public class AutoAlign extends Command {
 	public void initialize() {
 		limelight.setPipelineIndex(Constants.Vision.Pipeline.AprilTags);
 
-		limelight.setLEDMode_ForceBlink();
+		// limelight.setLEDMode_ForceBlink();
+		SmartDashboard.putBoolean("Autonomous Lock On", false);
 
 		Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
 		if (alliance.isPresent()) {
@@ -126,19 +123,19 @@ public class AutoAlign extends Command {
 	public void execute() {
 		if (limelight.getTV()) {
 			if ((int) limelight.getFiducialID() == 8 || (int) limelight.getFiducialID() == 3) {
-				limelight.setLEDMode_ForceBlink();
+				// limelight.setLEDMode_ForceBlink();
+				SmartDashboard.putBoolean("Autonomous Lock On", false);
 			} else {
-				limelight.setLEDMode_ForceOn();
+				// limelight.setLEDMode_ForceOn();
+				SmartDashboard.putBoolean("Autonomous Lock On", true);
 			}
 			if (!specificTag) {
 				targetTagID = (int) limelight.getFiducialID();
 			}
 		} else {
-			limelight.setLEDMode_ForceBlink();
+			// limelight.setLEDMode_ForceBlink();
+			SmartDashboard.putBoolean("Autonomous Lock On", false);
 		}
-
-		kAAIntercept = SmartDashboard.getNumber("AutoAlignmentSlope", kAAIntercept);
-		kAASlope = SmartDashboard.getNumber("AutoAlignmentSlope", kAASlope);
 
 		// TEST VALUES TO MAKE SURE WORKS AS EXPECTED
 
@@ -172,7 +169,7 @@ public class AutoAlign extends Command {
 						true);
 			}
 
-			SmartDashboard.putNumber("Desired Arm Pivot", desiredArmPivot);
+			// SmartDashboard.putNumber("Desired Arm Pivot", desiredArmPivot);
 
 			arm.setPivotDegrees(MathUtil.clamp(desiredArmPivot, Constants.Arm.kMinPivot, Constants.Arm.kMaxPivot));
 		} else {
@@ -185,16 +182,23 @@ public class AutoAlign extends Command {
 					false);
 		}
 
-		/*-
 		SmartDashboard.putNumber("Targeted April Tag", limelight.getFiducialID());
-		
-		SmartDashboard.putNumber("X to Tag", RobotToTag.getX());
-		SmartDashboard.putNumber("Y to Tag", RobotToTag.getY());
-		SmartDashboard.putNumber("Z to tag", RobotToTag.getZ());
-		
-		SmartDashboard.putNumber("X to target position", outputTranslation.getX());
-		SmartDashboard.putNumber("Y to target position", outputTranslation.getY());
-		 */
+
+		// SmartDashboard.putNumber("TY", limelight.getTY());
+
+		// SmartDashboard.putNumber("X to Tag", RobotToTag.getX());
+		// SmartDashboard.putNumber("Y to Tag", RobotToTag.getY());
+		// SmartDashboard.putNumber("Z to tag", RobotToTag.getZ());
+
+		/*-
+		SmartDashboard.putNumber("TX", limelight.getTX());
+		SmartDashboard.putNumber("tan angle", Math.atan(Math.abs(RobotToTag.getX()) / Math.abs(RobotToTag.getY())));
+		SmartDashboard.putNumber("Output Rotation",
+				-limelight.getTX()
+						- Math.toDegrees(Math.atan(Math.abs(RobotToTag.getX()) / Math.abs(RobotToTag.getY()))));
+		*/
+		// SmartDashboard.putNumber("X to target position", outputTranslation.getX());
+		// SmartDashboard.putNumber("Y to target position", outputTranslation.getY());
 	}
 
 	@Override
@@ -210,7 +214,8 @@ public class AutoAlign extends Command {
 
 	@Override
 	public void end(boolean wasInterrupted) {
-		limelight.setLEDMode_ForceOff();
+		// limelight.setLEDMode_ForceOff();
+		SmartDashboard.putBoolean("Autonomous Lock On", false);
 		swerve.drive(new Translation2d(0, 0), 0, true, false);
 		swerve.setTargetHeading(swerve.getYaw().getDegrees());
 	}

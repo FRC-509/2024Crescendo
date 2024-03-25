@@ -2,8 +2,8 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.72,
-      "y": 6.65
+      "x": 0.74,
+      "y": 6.66
     },
     "rotation": 59.86
   },
@@ -27,6 +27,12 @@
           "type": "path",
           "data": {
             "pathName": "DriveToSecondNoteRev"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "DriveToThirdNote"
           }
         }
       ]

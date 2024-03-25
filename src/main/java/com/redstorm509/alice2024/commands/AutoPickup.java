@@ -71,21 +71,24 @@ public class AutoPickup extends Command {
 			}
 		}
 
-		limelight.setLEDMode_ForceBlink();
+		// limelight.setLEDMode_ForceBlink();
+		SmartDashboard.putBoolean("Autonomous Lock On", false);
 		limelight.setPipelineIndex(Constants.Vision.Pipeline.NeuralNetwork);
 	}
 
 	@Override
 	public void execute() {
 		if (!limelight.getTV() && !beganIntaking) {
-			limelight.setLEDMode_ForceBlink();
+			// limelight.setLEDMode_ForceBlink();
+			SmartDashboard.putBoolean("Autonomous Lock On", false);
 			swerve.drive(
 					new Translation2d(xSupplier.getAsDouble(), ySupplier.getAsDouble()).times(Constants.kMaxSpeed),
 					rotationSupplier.getAsDouble() * Constants.kMaxAngularVelocity,
 					true,
 					false);
 		} else {
-			limelight.setLEDMode_ForceOn();
+			// limelight.setLEDMode_ForceOn();
+			SmartDashboard.putBoolean("Autonomous Lock On", true);
 		}
 
 		// Finds distance to target and how much to move
@@ -96,7 +99,14 @@ public class AutoPickup extends Command {
 
 		// double check correct sign, double negatives l
 
-		if ((limelight.getTV() && indexer.indexingNoteState == IndexerState.Noteless && distanceToTargetY < 3.0)) {
+		if (indexer.indexingNoteState != IndexerState.Noteless) {
+			swerve.drive(
+					new Translation2d(xSupplier.getAsDouble(), ySupplier.getAsDouble()).times(Constants.kMaxSpeed),
+					rotationSupplier.getAsDouble() * Constants.kMaxAngularVelocity,
+					true,
+					false);
+		} else if ((limelight.getTV() && indexer.indexingNoteState == IndexerState.Noteless
+				&& distanceToTargetY < 3.0)) {
 			// checks if target is the same target that has been tracking, if not follows
 			// last known path (slightly jank, but test)
 			double travelDistanceY;
@@ -114,7 +124,8 @@ public class AutoPickup extends Command {
 			} else {
 				travelDistanceY = lastDistanceToTarget / 2;
 				useTX = lastTX / 2;
-				limelight.setLEDMode_ForceBlink();
+				// limelight.setLEDMode_ForceBlink();
+				SmartDashboard.putBoolean("Autonomous Lock On", false);
 			}
 
 			swerve.drive(
@@ -159,7 +170,7 @@ public class AutoPickup extends Command {
 			}
 		}
 
-		SmartDashboard.putNumber("TX", -limelight.getTX());
+		// SmartDashboard.putNumber("TX", -limelight.getTX());
 	}
 
 	@Override
@@ -170,7 +181,8 @@ public class AutoPickup extends Command {
 	@Override
 	public void end(boolean wasInterrupted) {
 		swerve.drive(new Translation2d(0, 0), 0, true, false);
-		limelight.setLEDMode_ForceOff();
+		// limelight.setLEDMode_ForceOff();
+		SmartDashboard.putBoolean("Autonomous Lock On", false);
 		intake.stop();
 		indexer.rawIndexer(0.0);
 	}

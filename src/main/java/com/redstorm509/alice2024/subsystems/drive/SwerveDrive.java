@@ -1,5 +1,6 @@
 package com.redstorm509.alice2024.subsystems.drive;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -16,6 +17,7 @@ import edu.wpi.first.wpilibj.Timer;
 
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -24,10 +26,12 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.redstorm509.alice2024.Constants;
 import com.redstorm509.alice2024.Constants.Chassis;
 import com.redstorm509.alice2024.subsystems.vision.Limelight;
+import com.redstorm509.alice2024.util.PigeonWrapper;
 import com.redstorm509.alice2024.util.math.LoggablePID;
 
 import java.util.Optional;
 
+import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.GeometryUtil;
@@ -58,7 +62,7 @@ public class SwerveDrive extends SubsystemBase {
 	public SwerveDriveOdometry odometry;
 	public SwerveDrivePoseEstimator poseEstimator;
 	private Field2d field2d;
-	private Pigeon2 pigeon;
+	private PigeonWrapper pigeon;
 
 	private Interpolator headingInterplator;
 
@@ -78,8 +82,9 @@ public class SwerveDrive extends SubsystemBase {
 	private double prevRotOutput = 0.0d;
 	private SwerveM2D visualizer;
 	private Limelight shooterCamera;
+	private SendableChooser<Alliance> allianceSelector = new SendableChooser<>();
 
-	public SwerveDrive(Pigeon2 pigeon, Limelight shooterCamera) {
+	public SwerveDrive(PigeonWrapper pigeon, Limelight shooterCamera) {
 		this.manualRotationTimer = new Timer();
 		manualRotationTimer.start();
 
@@ -88,7 +93,10 @@ public class SwerveDrive extends SubsystemBase {
 		this.headingInterplator = new Interpolator(Constants.kMaxAngularVelocity);
 		this.targetHeading = 0.0;
 
-		pigeon.setYaw(0.0d, 1.0d);
+		this.allianceSelector.setDefaultOption("Blue", Alliance.Blue);
+		this.allianceSelector.addOption("Red", Alliance.Red);
+
+		pigeon.setYaw(0.0d);
 
 		swerveModules = new SwerveModule[] {
 				new SwerveModule(Constants.kFrontRight),
@@ -121,11 +129,8 @@ public class SwerveDrive extends SubsystemBase {
 					// This will flip the path being followed to the red side of the field.
 					// THE ORIGIN WILL REMAIN ON THE BLUE SIDE
 
-					Optional<Alliance> alliance = DriverStation.getAlliance();
-					if (alliance.isPresent()) {
-						return alliance.get() == DriverStation.Alliance.Red;
-					}
-					return false;
+					Alliance alliance = getAlliance();
+					return alliance == DriverStation.Alliance.Red;
 				},
 				this);
 		// PathPlannerLogging.setLogActivePathCallback((poses) ->
@@ -150,6 +155,11 @@ public class SwerveDrive extends SubsystemBase {
 		SmartDashboard.putData("Set Heading to 0", new InstantCommand(() -> this.setTargetHeading(0), this));
 		SmartDashboard.putData("Set Heading to 180", new InstantCommand(() -> this.setTargetHeading(180), this));
 		*/
+		SmartDashboard.putData("DYLAN IF YOU FORGET THIS I WILL BE VERY SAD", allianceSelector);
+	}
+
+	public Alliance getAlliance() {
+		return allianceSelector.getSelected();
 	}
 
 	public void drive(Translation2d translationMetersPerSecond, double rotationRadiansPerSecond, boolean fieldRelative,
@@ -297,31 +307,28 @@ public class SwerveDrive extends SubsystemBase {
 	 * Generates a command to reset the odometer to the given pose. Must be relative
 	 * to the BLUE ALLIANCE origin!
 	 */
-	public static Command resetOdometryCmd(SwerveDrive swerve, Pose2d pose) {
+	public Command resetOdometryCmd(Pose2d pose) {
 		return Commands.runOnce(
 				() -> {
+
 					boolean flip = false;
-					Optional<Alliance> alliance = DriverStation.getAlliance();
-					if (alliance.isPresent()) {
-						flip = alliance.get() == DriverStation.Alliance.Red;
-					}
+					Alliance alliance = getAlliance();
+					flip = alliance == DriverStation.Alliance.Red;
 					if (flip) {
 						Pose2d flipped = GeometryUtil.flipFieldPose(pose);
-						swerve.pigeon.setYaw(flipped.getRotation().getDegrees());
-						swerve.resetOdometry(new Pose2d(flipped.getTranslation(), new Rotation2d()));
+						pigeon.setYaw(flipped.getRotation().getDegrees());
+						resetOdometry(new Pose2d(flipped.getTranslation(), getYaw()));
 					} else {
-						swerve.pigeon.setYaw(pose.getRotation().getDegrees());
-						swerve.resetOdometry(new Pose2d(pose.getTranslation(), new Rotation2d()));
+						pigeon.setYaw(pose.getRotation().getDegrees());
+						resetOdometry(new Pose2d(pose.getTranslation(), getYaw()));
 					}
-				}, swerve);
+				}, this);
 	}
 
-	public static double jankFlipHeading(double heading) {
+	public double jankFlipHeading(double heading) {
 		boolean flip = false;
-		Optional<Alliance> alliance = DriverStation.getAlliance();
-		if (alliance.isPresent()) {
-			flip = alliance.get() == DriverStation.Alliance.Red;
-		}
+		Alliance alliance = getAlliance();
+		flip = alliance == DriverStation.Alliance.Red;
 		if (flip) {
 			return -heading;
 		} else {
@@ -329,25 +336,8 @@ public class SwerveDrive extends SubsystemBase {
 		}
 	}
 
-	public static double jankFlipInitialHolonomicRot(double heading) {
-		boolean flip = false;
-		Optional<Alliance> alliance = DriverStation.getAlliance();
-		if (alliance.isPresent()) {
-			flip = alliance.get() == DriverStation.Alliance.Red;
-		}
-		if (flip) {
-			return 180 - heading;
-		} else {
-			return heading;
-		}
-	}
-
-	public void setYawForTeleopEntry(double yaw) {
-		pigeon.setYaw(yaw);
-	}
-
 	public Pose2d getRawOdometeryPose() {
-		return poseEstimator.getEstimatedPosition();
+		return odometry.getPoseMeters();
 	}
 
 	public Pose2d getEstimatedPose() {

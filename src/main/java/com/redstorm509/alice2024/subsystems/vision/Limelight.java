@@ -29,7 +29,6 @@ public class Limelight {
 
 	public Limelight(String limelightName) {
 		name = limelightName;
-		setLEDMode_ForceOff();
 	}
 
 	public class LimelightTarget_Retro {

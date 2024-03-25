@@ -2,7 +2,11 @@
   "robotWidth": 0.8636,
   "robotLength": 0.8636,
   "holonomicMode": true,
-  "pathFolders": [],
+  "pathFolders": [
+    "FourNoteAmpSide",
+    "FourNoteFarSide",
+    "Sabotage"
+  ],
   "autoFolders": [],
   "defaultMaxVel": 5.02,
   "defaultMaxAccel": 5.0,

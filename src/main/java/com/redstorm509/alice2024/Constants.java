@@ -41,18 +41,18 @@ public final class Constants {
 		public static final double kPivotIntegratedI = 0.72;
 		public static final double kPivotIntegratedD = 0.24;
 
-		public static final double kPivotRSP = 8 * 12;
+		public static final double kPivotRSP = 9 * 12;
 		public static final double kPivotRSI = 0 * 12;
-		public static final double kPivotRSD = 0.48 * 12;
+		public static final double kPivotRSD = 0 * 12;
 
 		public static final double kPivotGearRatio = 168.719419;// 512.0d / 3.0d;
 	}
 
 	public static class Shooter {
-		public static final double kFlyWheelP = 0.1;
+		public static final double kFlyWheelP = 0.5;
 		public static final double kFlyWheelI = 0.0;
 		public static final double kFlyWheelD = 0.0;
-		public static final double kFlyWheelS = 0.155;
+		public static final double kFlyWheelS = 0.0;
 		public static final double kFlyWheelV = 0.11;
 		public static final double kFlyWheelA = 0.0;
 
@@ -62,8 +62,8 @@ public final class Constants {
 
 	public static class Indexer {
 		public static final double kShootSpeed = -1.0;
-		public static final double kSpinSpeed = 0.55; // 0.7
-		public static final double kReducedSpinSpeed = 0.4;
+		public static final double kSpinSpeed = 0.4;
+		public static final double kReducedSpinSpeed = 0.35;
 	}
 
 	public static class Intake {

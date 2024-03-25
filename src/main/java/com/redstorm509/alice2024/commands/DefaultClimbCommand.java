@@ -6,6 +6,7 @@ import java.util.function.DoubleSupplier;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.redstorm509.alice2024.Constants;
 import com.redstorm509.alice2024.subsystems.Climber;
+import com.redstorm509.alice2024.util.PigeonWrapper;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Timer;
@@ -20,7 +21,7 @@ public class DefaultClimbCommand extends Command {
 	private BooleanSupplier leftOnlySupplier;
 	private BooleanSupplier rightOnlySupplier;
 	private BooleanSupplier toggleLockSupplier;
-	private Pigeon2 pigeon;
+	private PigeonWrapper pigeon;
 	private boolean usesRollCompensation;
 
 	private Timer toggleDelay = new Timer();
@@ -33,7 +34,7 @@ public class DefaultClimbCommand extends Command {
 			BooleanSupplier leftOnlySupplier,
 			BooleanSupplier rightOnlySupplier,
 			BooleanSupplier toggleLockSupplier,
-			Pigeon2 pigeon,
+			PigeonWrapper pigeon,
 			boolean usesRollCompensation) {
 		this.climber = climber;
 		// this.extendSupplier = extendSupplier;
@@ -63,13 +64,13 @@ public class DefaultClimbCommand extends Command {
 			climber.toggleLockRight();
 			toggleDelay.reset();
 		}
-		double output = outputSupplier.getAsDouble();
+		double output = outputSupplier.getAsDouble() * 0.40;
 		boolean extending = output > 0.1;
 		boolean retracting = output < -0.1;
 		// boolean extending = Math.abs(extendSupplier.getAsDouble()) > 0.1;
 		// boolean retracting = Math.abs(retractSupplier.getAsDouble()) > 0.1;
 
-		double roll = pigeon.getRoll().getValueAsDouble() - climber.getBootRoll();
+		double roll = pigeon.getRoll();
 
 		double rollCompensation = usesRollCompensation
 				? MathUtil.clamp(Math.abs(roll), 0.0, Constants.Climber.kMaxRollCompensationAngle)
@@ -81,6 +82,7 @@ public class DefaultClimbCommand extends Command {
 			// -retractSupplier.getAsDouble();
 			// double compensatedOutput = extending ? extendSupplier.getAsDouble() -
 			// rollCompensation : -retractSupplier.getAsDouble() + rollCompensation;
+
 			double compensatedOutput = extending ? output - rollCompensation : output + rollCompensation;
 
 			// confirm which side is positive roll

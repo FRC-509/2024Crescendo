@@ -5,7 +5,7 @@
       "x": 0.72,
       "y": 6.65
     },
-    "rotation": 59.86
+    "rotation": 59.68
   },
   "command": {
     "type": "sequential",
@@ -20,13 +20,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": "DriveToSecondNote"
+            "pathName": "JankAutoPart2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "DriveToSecondNoteRev"
+            "pathName": "JankAutoPart3"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "JankAutoPart4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "JankAutoPart5"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "JankAutoPart6"
           }
         }
       ]
