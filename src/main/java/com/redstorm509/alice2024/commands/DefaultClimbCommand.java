@@ -24,6 +24,7 @@ public class DefaultClimbCommand extends Command {
 	private boolean usesRollCompensation;
 
 	private Timer toggleDelay = new Timer();
+	private double speedModifier = 0.40;
 
 	public DefaultClimbCommand(
 			Climber climber,
@@ -63,26 +64,22 @@ public class DefaultClimbCommand extends Command {
 			climber.toggleLockRight();
 			toggleDelay.reset();
 		}
-		double output = outputSupplier.getAsDouble() * 0.40;
-		boolean extending = output > 0.1;
-		boolean retracting = output < -0.1;
-		// boolean extending = Math.abs(extendSupplier.getAsDouble()) > 0.1;
-		// boolean retracting = Math.abs(retractSupplier.getAsDouble()) > 0.1;
-
-		double roll = pigeon.getRoll();
 
 		double rollCompensation = usesRollCompensation
-				? MathUtil.clamp(Math.abs(roll), 0.0, Constants.Climber.kMaxRollCompensationAngle)
+				? MathUtil.clamp(Math.abs(pigeon.getRoll()), 0.0, Constants.Climber.kMaxRollCompensationAngle)
 						/ Constants.Climber.kMaxRollCompensationAngle
 				: 0.0;
 
-		if (extending || retracting) {
-			// double output = extending ? extendSupplier.getAsDouble() :
-			// -retractSupplier.getAsDouble();
-			// double compensatedOutput = extending ? extendSupplier.getAsDouble() -
-			// rollCompensation : -retractSupplier.getAsDouble() + rollCompensation;
+		double output = outputSupplier.getAsDouble();
 
+		boolean extending = output > 0.1;
+		boolean retracting = output < -0.1;
+
+		if (extending || retracting) {
 			double compensatedOutput = extending ? output - rollCompensation : output + rollCompensation;
+
+			output *= speedModifier;
+			compensatedOutput *= speedModifier;
 
 			// confirm which side is positive roll
 			if (leftOnlySupplier.getAsBoolean()) {
@@ -90,7 +87,7 @@ public class DefaultClimbCommand extends Command {
 			} else if (rightOnlySupplier.getAsBoolean()) {
 				climber.rightClimb(output);
 			} else {
-				if (roll > 0) {
+				if (pigeon.getRoll() > 0) {
 					climber.leftClimb(output);
 					climber.rightClimb(compensatedOutput);
 				} else {
@@ -100,12 +97,12 @@ public class DefaultClimbCommand extends Command {
 			}
 		} else {
 			// confirm which side is positive roll
-			if (roll > 0) {
-				climber.leftClimb(-rollCompensation);
+			if (pigeon.getRoll() > 0) {
+				climber.leftClimb(-rollCompensation * 0.5);
 				climber.rightClimb(0.0);
 			} else {
 				climber.leftClimb(0.0);
-				climber.rightClimb(-rollCompensation);
+				climber.rightClimb(-rollCompensation * 0.5);
 			}
 		}
 	}

@@ -17,12 +17,16 @@ import com.redstorm509.alice2024.Constants;
 import com.redstorm509.alice2024.subsystems.Arm;
 import com.redstorm509.alice2024.subsystems.drive.SwerveDrive;
 import com.redstorm509.alice2024.subsystems.vision.Limelight;
+import com.redstorm509.alice2024.util.drivers.REVBlinkin;
+import com.redstorm509.alice2024.util.drivers.REVBlinkin.ColorCode;
 
 public class AutoAlign extends Command {
 
 	private SwerveDrive swerve;
 	private Arm arm;
 	private Limelight limelight;
+	private REVBlinkin lights;
+
 	private DoubleSupplier xSupplier;
 	private DoubleSupplier ySupplier;
 	private DoubleSupplier rotationSupplier;
@@ -33,23 +37,29 @@ public class AutoAlign extends Command {
 	private Translation3d RobotToTag;
 	private Translation2d outputTranslation;
 	private double desiredArmPivot = Constants.Arm.kMinPivot;
-	private double kAASlope = -0.781014; // -0.677626
-	private double kAAIntercept = -27.165; // -32.9009
+	private double kPivotSlope = -0.781014; // TUNE ME
+	private double kPivotIntercept = -27.165; // TUNE ME
+	private double kRotationSlope = 0.0; // TUNE ME
+	private double kRotationIntercept = 0.0; // TUNE ME
 
 	// Meant to be an "isDownBind" command
 	public AutoAlign(
 			SwerveDrive swerve,
 			Arm arm,
 			Limelight limelight,
+			REVBlinkin underglow,
 			DoubleSupplier xSupplier,
 			DoubleSupplier ySupplier,
 			DoubleSupplier rotationSupplier) {
 		this.swerve = swerve;
 		this.arm = arm;
 		this.limelight = limelight;
+		this.lights = underglow;
+
 		this.xSupplier = xSupplier;
 		this.ySupplier = ySupplier;
 		this.rotationSupplier = rotationSupplier;
+
 		this.specificTag = false;
 
 		addRequirements(swerve, arm);
@@ -74,9 +84,13 @@ public class AutoAlign extends Command {
 			// SPEAKER TAG OFFSET
 			case 4: // Red Alliance
 			case 7: // Blue Alliance
-				desiredRotation = Math.toRadians(-limelight.getTX() * 4.5);
-				desiredArmPivot = kAASlope * limelight.getTY() + kAAIntercept;
+				desiredRotation = Math.toRadians(
+						-limelight.getTX() + (kRotationSlope * swerve.getYaw().getDegrees() + kRotationIntercept))
+						* 4.5;
+				SmartDashboard.putNumber("Desired Rotation",
+						(kRotationSlope * swerve.getYaw().getDegrees() + kRotationIntercept));
 
+				desiredArmPivot = kPivotSlope * limelight.getTY() + kPivotIntercept;
 				if (!limelight.getTV()) {
 					desiredArmPivot = arm.getPivotDegrees();
 				}
@@ -106,7 +120,8 @@ public class AutoAlign extends Command {
 	public void initialize() {
 		limelight.setPipelineIndex(Constants.Vision.Pipeline.AprilTags);
 
-		// limelight.setLEDMode_ForceBlink();
+		lights.setColor(ColorCode.AutoTargetLost);
+
 		SmartDashboard.putBoolean("Autonomous Lock On", false);
 
 		Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
@@ -123,17 +138,17 @@ public class AutoAlign extends Command {
 	public void execute() {
 		if (limelight.getTV()) {
 			if ((int) limelight.getFiducialID() == 8 || (int) limelight.getFiducialID() == 3) {
-				// limelight.setLEDMode_ForceBlink();
+				lights.setColor(ColorCode.AutoTargetLost);
 				SmartDashboard.putBoolean("Autonomous Lock On", false);
 			} else {
-				// limelight.setLEDMode_ForceOn();
+				lights.setColor(ColorCode.AutoTargetFound);
 				SmartDashboard.putBoolean("Autonomous Lock On", true);
 			}
 			if (!specificTag) {
 				targetTagID = (int) limelight.getFiducialID();
 			}
 		} else {
-			// limelight.setLEDMode_ForceBlink();
+			lights.setColor(ColorCode.AutoTargetLost);
 			SmartDashboard.putBoolean("Autonomous Lock On", false);
 		}
 
@@ -214,7 +229,7 @@ public class AutoAlign extends Command {
 
 	@Override
 	public void end(boolean wasInterrupted) {
-		// limelight.setLEDMode_ForceOff();
+		lights.setDefault();
 		SmartDashboard.putBoolean("Autonomous Lock On", false);
 		swerve.drive(new Translation2d(0, 0), 0, true, false);
 		swerve.setTargetHeading(swerve.getYaw().getDegrees());

@@ -9,6 +9,8 @@ import com.redstorm509.alice2024.subsystems.Intake;
 import com.redstorm509.alice2024.subsystems.Indexer.IndexerState;
 import com.redstorm509.alice2024.subsystems.drive.SwerveDrive;
 import com.redstorm509.alice2024.subsystems.vision.Limelight;
+import com.redstorm509.alice2024.util.drivers.REVBlinkin;
+import com.redstorm509.alice2024.util.drivers.REVBlinkin.ColorCode;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -26,6 +28,8 @@ public class AutoPickup extends Command {
 	private DoubleSupplier xSupplier;
 	private DoubleSupplier ySupplier;
 	private DoubleSupplier rotationSupplier;
+	private REVBlinkin lights;
+
 	private boolean isFinished = false;
 
 	private double lastTX;
@@ -37,6 +41,7 @@ public class AutoPickup extends Command {
 			Limelight limelight,
 			Intake intake,
 			Indexer indexer,
+			REVBlinkin underglow,
 			DoubleSupplier xSupplier,
 			DoubleSupplier ySupplier,
 			DoubleSupplier rotationSupplier) {
@@ -44,6 +49,7 @@ public class AutoPickup extends Command {
 		this.limelight = limelight;
 		this.intake = intake;
 		this.indexer = indexer;
+		this.lights = underglow;
 
 		this.xSupplier = xSupplier;
 		this.ySupplier = ySupplier;
@@ -72,6 +78,7 @@ public class AutoPickup extends Command {
 		}
 
 		// limelight.setLEDMode_ForceBlink();
+		lights.setColor(ColorCode.AutoTargetLost);
 		SmartDashboard.putBoolean("Autonomous Lock On", false);
 		limelight.setPipelineIndex(Constants.Vision.Pipeline.NeuralNetwork);
 	}
@@ -80,6 +87,7 @@ public class AutoPickup extends Command {
 	public void execute() {
 		if (!limelight.getTV() && !beganIntaking) {
 			// limelight.setLEDMode_ForceBlink();
+			lights.setColor(ColorCode.AutoTargetLost);
 			SmartDashboard.putBoolean("Autonomous Lock On", false);
 			swerve.drive(
 					new Translation2d(xSupplier.getAsDouble(), ySupplier.getAsDouble()).times(Constants.kMaxSpeed),
@@ -88,6 +96,7 @@ public class AutoPickup extends Command {
 					false);
 		} else {
 			// limelight.setLEDMode_ForceOn();
+			lights.setColor(ColorCode.AutoTargetFound);
 			SmartDashboard.putBoolean("Autonomous Lock On", true);
 		}
 
@@ -125,6 +134,7 @@ public class AutoPickup extends Command {
 				travelDistanceY = lastDistanceToTarget / 2;
 				useTX = lastTX / 2;
 				// limelight.setLEDMode_ForceBlink();
+				lights.setColor(ColorCode.AutoTargetLost);
 				SmartDashboard.putBoolean("Autonomous Lock On", false);
 			}
 
@@ -182,6 +192,11 @@ public class AutoPickup extends Command {
 	public void end(boolean wasInterrupted) {
 		swerve.drive(new Translation2d(0, 0), 0, true, false);
 		// limelight.setLEDMode_ForceOff();
+		if (indexer.indexingNoteState == IndexerState.HasNote) {
+			lights.setColor(ColorCode.HasNote);
+		} else {
+			lights.setDefault();
+		}
 		SmartDashboard.putBoolean("Autonomous Lock On", false);
 		intake.stop();
 		indexer.rawIndexer(0.0);
