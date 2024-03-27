@@ -33,8 +33,10 @@ public class AutoAlign extends Command {
 	private Translation3d RobotToTag;
 	private Translation2d outputTranslation;
 	private double desiredArmPivot = Constants.Arm.kMinPivot;
-	private double kAASlope = -0.781014; // -0.677626
-	private double kAAIntercept = -27.165; // -32.9009
+	private double kPivotSlope = -0.781014; // TUNE ME
+	private double kPivotIntercept = -27.165; // TUNE ME
+	private double kRotationSlope = 0.0; // TUNE ME
+	private double kRotationIntercept = 0.0; // TUNE ME
 
 	// Meant to be an "isDownBind" command
 	public AutoAlign(
@@ -74,9 +76,10 @@ public class AutoAlign extends Command {
 			// SPEAKER TAG OFFSET
 			case 4: // Red Alliance
 			case 7: // Blue Alliance
-				desiredRotation = Math.toRadians(-limelight.getTX() * 4.5);
-				desiredArmPivot = kAASlope * limelight.getTY() + kAAIntercept;
+				desiredRotation = Math.toRadians(-limelight.getTX() * 4.5) +
+						(kRotationSlope * swerve.getYaw().getRadians() + kRotationIntercept);
 
+				desiredArmPivot = kPivotSlope * limelight.getTY() + kPivotIntercept;
 				if (!limelight.getTV()) {
 					desiredArmPivot = arm.getPivotDegrees();
 				}
