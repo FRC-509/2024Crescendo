@@ -1,6 +1,5 @@
 package com.redstorm509.alice2024.autonomous;
 
-import com.ctre.phoenix6.controls.VoltageOut;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.redstorm509.alice2024.subsystems.*;
@@ -26,6 +25,6 @@ public class SabotageAuto extends SequentialCommandGroup {
 				new WaitCommand(0.5),
 				Commands.runOnce(() -> intake.stop(), intake),
 				Commands.runOnce(() -> indexer.rawIndexer(0), indexer),
-				Commands.runOnce(() -> shooter.shooterLeader.setControl(new VoltageOut(0)), shooter));
+				shooter.stopShooting());
 	}
 }

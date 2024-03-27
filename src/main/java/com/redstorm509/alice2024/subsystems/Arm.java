@@ -19,7 +19,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class ArmRS extends SubsystemBase {
+public class Arm extends SubsystemBase {
 	private TalonFX pivotLeader = new TalonFX(13); // Labelled PIVOTL
 	private TalonFX pivotFollower = new TalonFX(14); // Labelled PIVOTR
 	private CANcoder pivotEncoder = new CANcoder(17);
@@ -30,7 +30,7 @@ public class ArmRS extends SubsystemBase {
 	private PositionVoltage closedLoopPosition = new PositionVoltage(0).withEnableFOC(false);
 	private PositionTarget pivotTarget;
 
-	public ArmRS() {
+	public Arm() {
 		TalonFXConfiguration pivotConf = new TalonFXConfiguration();
 		pivotConf.CurrentLimits.SupplyCurrentLimitEnable = true;
 		pivotConf.CurrentLimits.SupplyCurrentLimit = 35.0;

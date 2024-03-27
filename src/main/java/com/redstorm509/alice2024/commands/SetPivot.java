@@ -1,15 +1,15 @@
 package com.redstorm509.alice2024.commands;
 
-import com.redstorm509.alice2024.subsystems.ArmRS;
+import com.redstorm509.alice2024.subsystems.Arm;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class SetPivot extends Command {
-	private ArmRS arm;
+	private Arm arm;
 	private double targetAngle;
 
-	public SetPivot(ArmRS arm, double targetAngle) {
+	public SetPivot(Arm arm, double targetAngle) {
 		this.arm = arm;
 		this.targetAngle = targetAngle;
 		addRequirements(arm);

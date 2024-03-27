@@ -10,7 +10,6 @@ public class AutoShootMoreJank extends Command {
 	private Shooter shooter;
 	private Indexer indexer;
 	private Timer timer = new Timer();
-	private boolean firstReached = false;
 	private boolean startedindexing = false;
 
 	private boolean isFinished = false;
@@ -26,7 +25,6 @@ public class AutoShootMoreJank extends Command {
 	public void initialize() {
 		timer.reset();
 		timer.start();
-		firstReached = false;
 		startedindexing = false;
 	}
 

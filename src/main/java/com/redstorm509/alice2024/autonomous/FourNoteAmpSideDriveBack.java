@@ -1,13 +1,12 @@
 package com.redstorm509.alice2024.autonomous;
 
-import com.ctre.phoenix6.controls.VoltageOut;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.redstorm509.alice2024.Constants;
 import com.redstorm509.alice2024.commands.SetPivot;
 import com.redstorm509.alice2024.commands.autonomous.AutoShootMoreJank;
 import com.redstorm509.alice2024.commands.autonomous.AutonomousIntakeNote;
-import com.redstorm509.alice2024.subsystems.ArmRS;
+import com.redstorm509.alice2024.subsystems.Arm;
 import com.redstorm509.alice2024.subsystems.Indexer;
 import com.redstorm509.alice2024.subsystems.Intake;
 import com.redstorm509.alice2024.subsystems.Shooter;
@@ -20,11 +19,11 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 public class FourNoteAmpSideDriveBack extends SequentialCommandGroup {
-	public FourNoteAmpSideDriveBack(SwerveDrive swerve, Shooter shooter, ArmRS arm, Indexer indexer,
+	public FourNoteAmpSideDriveBack(SwerveDrive swerve, Shooter shooter, Arm arm, Indexer indexer,
 			Intake intake) {
 		Pose2d startPose = new Pose2d(0.72, 6.65, Rotation2d.fromDegrees(59.86));
 		Command paths = Commands.sequence(
-				Commands.runOnce(() -> shooter.setShooterVelocity(-Constants.Shooter.kTargetSpeed), shooter),
+				shooter.startShooting(),
 				new AutonomousIntakeNote(intake, indexer),
 				new AutoShootMoreJank(shooter, indexer),
 				new SetPivot(arm, Constants.Arm.kMinPivot),
@@ -47,7 +46,7 @@ public class FourNoteAmpSideDriveBack extends SequentialCommandGroup {
 				AutoBuilder.followPath(PathPlannerPath.fromPathFile("JankAutoPart6")),
 				Commands.runOnce(() -> swerve.stopModules(), swerve),
 				new AutoShootMoreJank(shooter, indexer),
-				Commands.runOnce(() -> shooter.shooterLeader.setControl(new VoltageOut(0)), shooter));
+				shooter.stopShooting());
 		addCommands(paths);
 	}
 
