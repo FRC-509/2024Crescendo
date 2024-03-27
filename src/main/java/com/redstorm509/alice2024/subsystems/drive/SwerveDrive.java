@@ -408,7 +408,6 @@ public class SwerveDrive extends SubsystemBase {
 		field2d.setRobotPose(getRawOdometeryPose());
 
 		SmartDashboard.putNumber("yaw", getYaw().getDegrees());
-		SmartDashboard.putNumber("yaw Radians", getYaw().getRadians());
 		SmartDashboard.putBoolean("Heading Correction Enabled?", !alwaysOmitRotationalCorrection);
 		/*-
 		SmartDashboard.putNumber("pitch", pigeon.getPitch().getValueAsDouble());

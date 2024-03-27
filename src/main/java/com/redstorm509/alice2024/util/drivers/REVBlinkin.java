@@ -1,17 +1,52 @@
 package com.redstorm509.alice2024.util.drivers;
 
-import edu.wpi.first.wpilibj.PWM;
+import java.util.Optional;
 
-public class REVBlinkin {
-	private static final PWM pwm = new PWM(5);
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.PWM;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+public class REVBlinkin extends SubsystemBase {
+	private PWM pwm;
 
 	public REVBlinkin(int channel) {
+		pwm = new PWM(channel);
 		pwm.setBoundsMicroseconds(2000, 1500, 1500, 1460, 1000);
 		pwm.setPeriodMultiplier(PWM.PeriodMultiplier.k1X);
 	}
 
-	public static void setMode(BlinkinLedMode mode) {
+	public void setColor(ColorCode color) {
+		pwm.setSpeed(color.value);
+	}
+
+	public void setModeRaw(BlinkinLedMode mode) {
 		pwm.setSpeed(mode.value);
+	}
+
+	public void setDefault() {
+		Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+		if (alliance.isPresent()) {
+			setColor(alliance.get() == DriverStation.Alliance.Blue ? ColorCode.DefaultBlue : ColorCode.DefaultRed);
+		} else {
+			setColor(ColorCode.ERROR);
+		}
+	}
+
+	public static enum ColorCode {
+		DefaultBlue(BlinkinLedMode.FIXED_CHASE_BLUE.value),
+		DefaultRed(BlinkinLedMode.FIXED_CHASE_RED.value),
+		NoteInsideRobot(BlinkinLedMode.SOLID_YELLOW.value),
+		HasNote(BlinkinLedMode.SOLID_GREEN.value),
+		AutoTargetFound(BlinkinLedMode.FIXED_RAINBOW_RAINBOW.value),
+		AutoTargetLost(BlinkinLedMode.SOLID_WHITE.value),
+		BrownOut(BlinkinLedMode.SOLID_HOT_PINK.value),
+		ERROR(BlinkinLedMode.FIXED_STROBE_WHITE.value);
+
+		private final double value;
+
+		ColorCode(double value) {
+			this.value = value;
+		}
 	}
 
 	public static enum BlinkinLedMode {
@@ -133,6 +168,10 @@ public class REVBlinkin {
 
 		BlinkinLedMode(double value) {
 			this.value = value;
+		}
+
+		public double getValue() {
+			return value;
 		}
 	}
 }

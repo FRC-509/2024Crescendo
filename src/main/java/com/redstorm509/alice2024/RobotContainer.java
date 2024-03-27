@@ -33,7 +33,7 @@ public class RobotContainer {
 	public final Shooter shooter;
 	private final ArmRS arm;
 	private final Climber climber;
-	public final REVBlinkin led;
+	public final REVBlinkin lights;
 	public final Limelight intakeCamera = new Limelight("limelight-intake");
 	private final Limelight shooterCamera = new Limelight("limelight-arm");
 
@@ -46,7 +46,7 @@ public class RobotContainer {
 		this.shooter = new Shooter();
 		this.arm = new ArmRS();
 		this.climber = new Climber(pigeon);
-		this.led = new REVBlinkin(9);
+		this.lights = new REVBlinkin(9);
 
 		intakeCamera.setLEDMode_ForceOff();
 		intakeCamera.setPipelineIndex(Constants.Vision.Pipeline.NeuralNetwork);
@@ -103,6 +103,7 @@ public class RobotContainer {
 				swerve,
 				arm,
 				shooterCamera,
+				lights,
 				() -> nonInvSquare(-driverLeft.getY()),
 				() -> nonInvSquare(-driverLeft.getX()),
 				() -> nonInvSquare(-driverRight.getX())));
@@ -112,12 +113,13 @@ public class RobotContainer {
 				intakeCamera,
 				intake,
 				indexer,
+				lights,
 				() -> nonInvSquare(-driverLeft.getY()),
 				() -> nonInvSquare(-driverLeft.getX()),
 				() -> nonInvSquare(-driverRight.getX())));
 
 		// Basic intake and outake commands
-		driverLeft.isDownBind(StickButton.Trigger, new IntakeNote(intake, indexer));
+		driverLeft.isDownBind(StickButton.Trigger, new IntakeNote(intake, indexer, lights));
 		driverRight.isDownBind(StickButton.Trigger, Commands.startEnd(
 				() -> {
 					intake.intake(false);
@@ -128,8 +130,9 @@ public class RobotContainer {
 					intake.stop();
 					indexer.rawIndexer(0);
 					indexer.setNoteless();
+					lights.setDefault();
 				},
-				intake, indexer));
+				intake, indexer, lights));
 
 		// raw indexer
 		driverLeft.isDownBind(StickButton.Right, Commands.startEnd(() -> {
@@ -197,8 +200,9 @@ public class RobotContainer {
 				new ThreeNoteAmpSideDriveBackGoFar(swerve, shooter, arm, indexer, intake));
 
 		chooser.addOption("Two Note (Close) [AMP SIDE]", new TwoNoteAmpSide(swerve, shooter, arm, indexer, intake));
-		chooser.addOption("One Note [ANY]", new OneNote(swerve, shooter, arm, indexer, intake));
-		chooser.addOption("One Note and Taxi [SOURCE SIDE]", new OneNoteAndTaxi(swerve, shooter, arm, indexer, intake));
+		chooser.addOption("One Note [ANY]", new OneNote(swerve, shooter, arm, indexer, intake, lights));
+		chooser.addOption("One Note and Taxi [SOURCE SIDE]",
+				new OneNoteAndTaxi(swerve, shooter, arm, indexer, intake, lights));
 		chooser.addOption("Sabotage / The Samin Special / James Auto",
 				new SabotageAuto(swerve, intake, indexer, shooter));
 		chooser.addOption("\"Go AFK\" (Null)", new InstantCommand());
@@ -219,6 +223,7 @@ public class RobotContainer {
 
 		intakeCamera.setLEDMode_ForceOff();
 		shooterCamera.setLEDMode_ForceOff();
+		lights.setDefault();
 	}
 
 	public void onTeleopEntry() {
