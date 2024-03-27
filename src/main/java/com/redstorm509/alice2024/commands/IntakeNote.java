@@ -1,15 +1,10 @@
 package com.redstorm509.alice2024.commands;
 
-import javax.swing.text.StyleContext.SmallAttributeSet;
-
 import com.redstorm509.alice2024.Constants;
-import com.redstorm509.alice2024.subsystems.ArmRS;
 import com.redstorm509.alice2024.subsystems.Indexer.IndexerState;
-import com.redstorm509.alice2024.subsystems.vision.Limelight;
 import com.redstorm509.alice2024.subsystems.Indexer;
 import com.redstorm509.alice2024.subsystems.Intake;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class IntakeNote extends Command {

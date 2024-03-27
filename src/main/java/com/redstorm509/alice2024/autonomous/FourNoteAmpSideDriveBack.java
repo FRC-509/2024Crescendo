@@ -5,7 +5,6 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.redstorm509.alice2024.Constants;
 import com.redstorm509.alice2024.commands.SetPivot;
-import com.redstorm509.alice2024.commands.autonomous.AutoShootJank;
 import com.redstorm509.alice2024.commands.autonomous.AutoShootMoreJank;
 import com.redstorm509.alice2024.commands.autonomous.AutonomousIntakeNote;
 import com.redstorm509.alice2024.subsystems.ArmRS;

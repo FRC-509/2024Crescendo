@@ -1,6 +1,6 @@
 package com.redstorm509.alice2024.subsystems.drive;
 
-import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -21,7 +21,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.redstorm509.alice2024.Constants;
 import com.redstorm509.alice2024.Constants.Chassis;
@@ -29,10 +28,6 @@ import com.redstorm509.alice2024.subsystems.vision.Limelight;
 import com.redstorm509.alice2024.util.PigeonWrapper;
 import com.redstorm509.alice2024.util.math.LoggablePID;
 
-import java.util.Optional;
-
-import com.ctre.phoenix6.StatusCode;
-import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.GeometryUtil;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
@@ -400,12 +395,13 @@ public class SwerveDrive extends SubsystemBase {
 		poseEstimator.update(getYaw(), getModulePositions());
 
 		if (shooterCamera.getTV()) {
-			Pose2d visionPose = shooterCamera.getAllianceBotPose2d();
+			poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
+			Pose2d visionPose = shooterCamera.getAllianceBotPoseBlue2d();
 			double timestamp = Timer.getFPGATimestamp() - (shooterCamera.getLatency_Pipeline() / 1000.0)
 					- (shooterCamera.getLatency_Capture() / 1000.0);
 			poseEstimator.addVisionMeasurement(visionPose, timestamp);
 		}
-		field2d.setRobotPose(getRawOdometeryPose());
+		field2d.setRobotPose(getEstimatedPose());
 
 		SmartDashboard.putNumber("yaw", getYaw().getDegrees());
 		SmartDashboard.putBoolean("Heading Correction Enabled?", !alwaysOmitRotationalCorrection);

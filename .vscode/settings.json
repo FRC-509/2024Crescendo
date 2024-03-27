@@ -2,6 +2,7 @@
 	"editor.insertSpaces": false,
 	"editor.detectIndentation": false,
 	"editor.formatOnSave": true,
+	"editor.wordWrap": "off",
 	"java.configuration.updateBuildConfiguration": "automatic",
 	"java.server.launchMode": "Standard",
 	"files.exclude": {

@@ -4,20 +4,16 @@ import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import com.redstorm509.alice2024.subsystems.ArmRS;
-import com.redstorm509.alice2024.subsystems.ArmRS;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class DefaultPivotCommand extends Command {
 	private final ArmRS arm;
 	private final DoubleSupplier pivotOutputSup;
-	private final BooleanSupplier rawOutputMode;
-	private boolean enteredRawOutputMode;
 
 	public DefaultPivotCommand(ArmRS arm, DoubleSupplier pivotOutputSup, BooleanSupplier rawOutputMode) {
 		this.arm = arm;
 		this.pivotOutputSup = pivotOutputSup;
-		this.rawOutputMode = rawOutputMode;
 		addRequirements(arm);
 	}
 

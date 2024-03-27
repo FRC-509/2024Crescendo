@@ -154,7 +154,8 @@ public class SwerveModule {
 		if (cosineScalar < 0.0d) {
 			cosineScalar = 0.0d;
 		}
-		double driveRateBackOut = steerMotor.getVelocity().getValue() * Constants.MK4I.kCouplingRatio;
+		// double driveRateBackOut = steerMotor.getVelocity().getValue() *
+		// Constants.MK4I.kCouplingRatio;
 
 		double targetVelocity = Conversions.MPSToFalcon(desiredState.speedMetersPerSecond,
 				Constants.MK4I.kWheelCircumference, Constants.MK4I.kDriveGearRatio) * cosineScalar;

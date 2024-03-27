@@ -3,7 +3,6 @@ package com.redstorm509.alice2024.subsystems.vision;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -14,7 +13,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
@@ -492,16 +490,8 @@ public class Limelight {
 		return getLimelightNTDouble("tclass");
 	}
 
-	public double[] getAllianceBotPose() {
-		Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
-		if (alliance.isPresent()) {
-			if (alliance.get() == DriverStation.Alliance.Blue) {
-				return getLimelightNTDoubleArray("botpose_wpiblue");
-			} else {
-				return getLimelightNTDoubleArray("botpose_wpired");
-			}
-		}
-		return getLimelightNTDoubleArray("botpose");
+	public double[] getBotPoseBlue() {
+		return getLimelightNTDoubleArray("botpose_wpiblue");
 	}
 
 	public void setPriorityTagID(int ID) {
@@ -515,12 +505,12 @@ public class Limelight {
 	 * @param limelightName
 	 * @return
 	 */
-	public Pose2d getAllianceBotPose2d() {
-		return toPose2D(getAllianceBotPose());
+	public Pose2d getAllianceBotPoseBlue2d() {
+		return toPose2D(getBotPoseBlue());
 	}
 
-	public Pose3d getAllianceBotPose3d() {
-		return toPose3D(getAllianceBotPose());
+	public Pose3d getAllianceBotPoseBlue3d() {
+		return toPose3D(getBotPoseBlue());
 	}
 
 	/**

@@ -1,7 +1,6 @@
 package com.redstorm509.alice2024.commands;
 
 import com.redstorm509.alice2024.subsystems.ArmRS;
-import com.redstorm509.alice2024.subsystems.ArmRS;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
