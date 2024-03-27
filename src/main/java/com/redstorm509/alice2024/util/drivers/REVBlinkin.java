@@ -3,14 +3,15 @@ package com.redstorm509.alice2024.util.drivers;
 import edu.wpi.first.wpilibj.PWM;
 
 public class REVBlinkin {
-	private static final PWM pwm = new PWM(5);
+	private PWM pwm;
 
 	public REVBlinkin(int channel) {
+		pwm = new PWM(channel);
 		pwm.setBoundsMicroseconds(2000, 1500, 1500, 1460, 1000);
 		pwm.setPeriodMultiplier(PWM.PeriodMultiplier.k1X);
 	}
 
-	public static void setMode(BlinkinLedMode mode) {
+	public void setMode(BlinkinLedMode mode) {
 		pwm.setSpeed(mode.value);
 	}
 
