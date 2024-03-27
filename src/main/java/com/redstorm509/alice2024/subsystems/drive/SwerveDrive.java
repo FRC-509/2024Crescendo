@@ -17,7 +17,6 @@ import edu.wpi.first.wpilibj.Timer;
 
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -27,6 +26,8 @@ import com.redstorm509.alice2024.Constants.Chassis;
 import com.redstorm509.alice2024.subsystems.vision.Limelight;
 import com.redstorm509.alice2024.util.PigeonWrapper;
 import com.redstorm509.alice2024.util.math.LoggablePID;
+
+import java.util.Optional;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.GeometryUtil;
@@ -77,7 +78,6 @@ public class SwerveDrive extends SubsystemBase {
 	private double prevRotOutput = 0.0d;
 	private SwerveM2D visualizer;
 	private Limelight shooterCamera;
-	private SendableChooser<Alliance> allianceSelector = new SendableChooser<>();
 
 	public SwerveDrive(PigeonWrapper pigeon, Limelight shooterCamera) {
 		this.manualRotationTimer = new Timer();
@@ -87,9 +87,6 @@ public class SwerveDrive extends SubsystemBase {
 		this.shooterCamera = shooterCamera;
 		this.headingInterplator = new Interpolator(Constants.kMaxAngularVelocity);
 		this.targetHeading = 0.0;
-
-		this.allianceSelector.setDefaultOption("Blue", Alliance.Blue);
-		this.allianceSelector.addOption("Red", Alliance.Red);
 
 		pigeon.setYaw(0.0d);
 
@@ -150,11 +147,19 @@ public class SwerveDrive extends SubsystemBase {
 		SmartDashboard.putData("Set Heading to 0", new InstantCommand(() -> this.setTargetHeading(0), this));
 		SmartDashboard.putData("Set Heading to 180", new InstantCommand(() -> this.setTargetHeading(180), this));
 		*/
-		SmartDashboard.putData("DYLAN IF YOU FORGET THIS I WILL BE VERY SAD", allianceSelector);
 	}
 
 	public Alliance getAlliance() {
-		return allianceSelector.getSelected();
+		Optional<Alliance> alliance = DriverStation.getAlliance();
+		if (alliance.isPresent()) {
+			return alliance.get();
+		}
+		if (DriverStation.isFMSAttached()) {
+			DriverStation.reportError("Failed to get alliance color from FMS!", false);
+		} else {
+			DriverStation.reportError("Failed to get alliance color from Driver Station!", false);
+		}
+		return Alliance.Blue;
 	}
 
 	public void drive(Translation2d translationMetersPerSecond, double rotationRadiansPerSecond, boolean fieldRelative,
