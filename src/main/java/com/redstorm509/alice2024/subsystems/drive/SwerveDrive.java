@@ -79,6 +79,13 @@ public class SwerveDrive extends SubsystemBase {
 	private SwerveM2D visualizer;
 	private Limelight shooterCamera;
 
+	private HolonomicPathFollowerConfig pathFollowerConfig = new HolonomicPathFollowerConfig(
+			new PIDConstants(5.0, 0, 0), // Translation constants
+			new PIDConstants(5.0, 0, 0), // Rotation constants
+			Constants.kMaxSpeed,
+			Constants.Chassis.kOffsetToSwerveModule * Math.sqrt(2),
+			new ReplanningConfig(true, true));
+
 	public SwerveDrive(PigeonWrapper pigeon, Limelight shooterCamera) {
 		this.manualRotationTimer = new Timer();
 		manualRotationTimer.start();
@@ -101,13 +108,6 @@ public class SwerveDrive extends SubsystemBase {
 
 		odometry = new SwerveDriveOdometry(kinematics, getYaw(), getModulePositions());
 		poseEstimator = new SwerveDrivePoseEstimator(kinematics, getYaw(), getModulePositions(), new Pose2d());
-
-		HolonomicPathFollowerConfig pathFollowerConfig = new HolonomicPathFollowerConfig(
-				new PIDConstants(5.0, 0, 0), // Translation constants
-				new PIDConstants(5.0, 0, 0), // Rotation constants
-				Constants.kMaxSpeed,
-				Constants.Chassis.kOffsetToSwerveModule * Math.sqrt(2),
-				new ReplanningConfig(false, false));
 
 		AutoBuilder.configureHolonomic(
 				this::getRawOdometeryPose,
@@ -147,6 +147,10 @@ public class SwerveDrive extends SubsystemBase {
 		SmartDashboard.putData("Set Heading to 0", new InstantCommand(() -> this.setTargetHeading(0), this));
 		SmartDashboard.putData("Set Heading to 180", new InstantCommand(() -> this.setTargetHeading(180), this));
 		*/
+	}
+
+	public HolonomicPathFollowerConfig getHolonomicPathFollowerConfig() {
+		return pathFollowerConfig;
 	}
 
 	public Alliance getAlliance() {

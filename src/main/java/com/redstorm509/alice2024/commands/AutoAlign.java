@@ -47,14 +47,14 @@ public class AutoAlign extends Command {
 			SwerveDrive swerve,
 			Arm arm,
 			Limelight limelight,
-			REVBlinkin underglow,
+			REVBlinkin lights,
 			DoubleSupplier xSupplier,
 			DoubleSupplier ySupplier,
 			DoubleSupplier rotationSupplier) {
 		this.swerve = swerve;
 		this.arm = arm;
 		this.limelight = limelight;
-		this.lights = underglow;
+		this.lights = lights;
 
 		this.xSupplier = xSupplier;
 		this.ySupplier = ySupplier;
@@ -62,7 +62,7 @@ public class AutoAlign extends Command {
 
 		this.specificTag = false;
 
-		addRequirements(swerve, arm);
+		addRequirements(swerve, arm, lights);
 	}
 
 	public Pose2d getAlignmentOffset(int TagID) {

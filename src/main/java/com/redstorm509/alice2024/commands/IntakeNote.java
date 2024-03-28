@@ -18,12 +18,12 @@ public class IntakeNote extends Command {
 	private double fastSpeed = Constants.Indexer.kSpinSpeed;
 	private double slowSpeed = Constants.Indexer.kReducedSpinSpeed;
 
-	public IntakeNote(Intake intake, Indexer indexer, REVBlinkin underglow) {
+	public IntakeNote(Intake intake, Indexer indexer, REVBlinkin lights) {
 		this.intake = intake;
 		this.indexer = indexer;
-		this.lights = underglow;
+		this.lights = lights;
 
-		addRequirements(intake, indexer);
+		addRequirements(intake, indexer, lights);
 	}
 
 	@Override
