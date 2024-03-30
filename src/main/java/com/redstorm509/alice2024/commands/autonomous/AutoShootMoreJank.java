@@ -44,6 +44,7 @@ public class AutoShootMoreJank extends Command {
 	@Override
 	public void end(boolean wasInterrupted) {
 		indexer.rawIndexer(0.0);
+		indexer.setNoteless();
 	}
 
 	@Override

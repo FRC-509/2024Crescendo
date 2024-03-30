@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.RobotBase;
 import com.redstorm509.alice2024.autonomous.*;
 import com.redstorm509.alice2024.commands.*;
+import com.redstorm509.alice2024.commands.autonomous.AutoShootMoreJank;
 import com.redstorm509.alice2024.subsystems.*;
 import com.redstorm509.alice2024.subsystems.drive.*;
 import com.redstorm509.alice2024.subsystems.vision.*;
@@ -185,6 +186,8 @@ public class RobotContainer {
 	}
 
 	private void addAutonomousRoutines() {
+		chooser.addOption("4 Note Close Amp Side",
+				new A4Close(swerve, shooter, arm, indexer, intake, shooterCamera, lights));
 		chooser.addOption("\"Go AFK\" (Null)", new InstantCommand());
 		SmartDashboard.putData("Auto Mode", chooser);
 

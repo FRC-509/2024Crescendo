@@ -90,7 +90,7 @@ public class Arm extends SubsystemBase {
 	}
 
 	public void setPivotOpenLoop(double percentOutput) {
-		pivotLeader.setControl(openLoop.withOutput(percentOutput * 0.25));
+		pivotLeader.setControl(openLoop.withOutput(percentOutput));
 	}
 
 	public void setPivotOutput(double percentOutput) {
@@ -99,13 +99,13 @@ public class Arm extends SubsystemBase {
 
 		if (percentOutput <= 0.0d && getPivotDegrees() < (Constants.Arm.kMinPivot + 5.0d)) {
 			if (!isTripped()) {
-				pivotLeader.setControl(openLoop.withOutput(percentOutput));
+				pivotLeader.setControl(openLoop.withOutput(percentOutput * 2));
 			} else {
 				pivotLeader.setControl(openLoop.withOutput(0));
 			}
 		} else if (percentOutput <= 0 && getPivotDegrees() < Constants.Arm.kMinPivot) {
 			if (!isTripped()) {
-				pivotLeader.setControl(openLoop.withOutput(percentOutput));
+				pivotLeader.setControl(openLoop.withOutput(percentOutput * 2));
 			} else {
 				pivotLeader.setControl(openLoop.withOutput(0));
 			}
