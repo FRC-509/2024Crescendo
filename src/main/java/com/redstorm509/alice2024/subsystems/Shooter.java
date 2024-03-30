@@ -49,7 +49,7 @@ public class Shooter extends SubsystemBase {
 	}
 
 	public boolean isAtShooterVelocity() {
-		return Math.abs(Math.abs(getShooterVelocity()) - Constants.Shooter.kTargetSpeed) <= 2.0d;
+		return Math.abs(Math.abs(getShooterVelocity()) - Constants.Shooter.kTargetSpeed) <= 4.0d;
 	}
 
 	@Override

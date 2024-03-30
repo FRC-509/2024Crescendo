@@ -30,7 +30,7 @@ public class AutoShootMoreJank extends Command {
 
 	@Override
 	public void execute() {
-		boolean atSpeed = Math.abs(Math.abs(shooter.getShooterVelocity()) - Constants.Shooter.kTargetSpeed) <= 2.0d;
+		boolean atSpeed = Math.abs(Math.abs(shooter.getShooterVelocity()) - Constants.Shooter.kTargetSpeed) <= 4.0d;
 		if (atSpeed && !startedindexing) {
 			indexer.rawIndexer(Constants.Indexer.kShootSpeed);
 			startedindexing = true;
