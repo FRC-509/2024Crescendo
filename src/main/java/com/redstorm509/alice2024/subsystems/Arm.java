@@ -98,13 +98,13 @@ public class Arm extends SubsystemBase {
 		pivotTarget.update(percentOutput);
 
 		if (percentOutput <= 0.0d && getPivotDegrees() < (Constants.Arm.kMinPivot + 5.0d)) {
-			if (!limitSwitch.get()) {
+			if (!isTripped()) {
 				pivotLeader.setControl(openLoop.withOutput(percentOutput));
 			} else {
 				pivotLeader.setControl(openLoop.withOutput(0));
 			}
 		} else if (percentOutput <= 0 && getPivotDegrees() < Constants.Arm.kMinPivot) {
-			if (!limitSwitch.get()) {
+			if (!isTripped()) {
 				pivotLeader.setControl(openLoop.withOutput(percentOutput));
 			} else {
 				pivotLeader.setControl(openLoop.withOutput(0));
@@ -130,16 +130,20 @@ public class Arm extends SubsystemBase {
 		}
 	}
 
+	public boolean isTripped() {
+		return !limitSwitch.get();
+	}
+
 	@Override
 	public void periodic() {
 		// DIO channels default to high in sim so we dont run this code if we're in sim.
-		if (!RobotBase.isSimulation() && !wasLimitSwitchTripped && limitSwitch.get()) {
+		if (!RobotBase.isSimulation() && !wasLimitSwitchTripped && isTripped()) {
 			pivotLeader.setPosition(Constants.Arm.kMinPivot / 360.0);
 			pivotLeader.setControl(new VoltageOut(0));
 		}
 
-		wasLimitSwitchTripped = limitSwitch.get();
-		SmartDashboard.putBoolean("PivotLimitSwitch", limitSwitch.get());
+		wasLimitSwitchTripped = isTripped();
+		SmartDashboard.putBoolean("PivotLimitSwitch", isTripped());
 		// SmartDashboard.putNumber("PivotL", pivotLeader.getPosition().getValue() *
 		// 360.0d);
 		// SmartDashboard.putNumber("Target Pivot", pivotTarget.getTarget());

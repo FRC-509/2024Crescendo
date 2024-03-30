@@ -11,8 +11,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 
-public class SabotageAuto extends SequentialCommandGroup {
-	public SabotageAuto(SwerveDrive swerve, Intake intake, Indexer indexer, Shooter shooter) {
+public class Sabotage extends SequentialCommandGroup {
+	public Sabotage(SwerveDrive swerve, Intake intake, Indexer indexer, Shooter shooter) {
 		Pose2d startPose = new Pose2d(0.46, 4.12, Rotation2d.fromDegrees(0));
 		addCommands(
 				swerve.resetOdometryCmd(startPose),

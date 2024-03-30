@@ -35,7 +35,7 @@ public class Shooter extends SubsystemBase {
 		shooterLeader.getConfigurator().apply(shootConf);
 		shooterFollower.getConfigurator().apply(shootConf);
 		// shooterFollower.setInverted(true);
-		shooterFollower.setControl(new Follower(shooterLeader.getDeviceID(), true));
+		shooterFollower.setControl(new Follower(shooterLeader.getDeviceID(), false));
 	}
 
 	public void setShooterVelocity(double speed) {

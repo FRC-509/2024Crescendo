@@ -6,8 +6,6 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 
 public final class Constants {
-	public static final double kGravity = 9.80665;
-
 	public static final String kRio = "rio";
 	public static final String kCANIvore = "509CANIvore";
 	public static final double kStickDeadband = 0.1;
@@ -33,19 +31,15 @@ public final class Constants {
 		public static final Translation3d kGoalApex = new Translation3d(0.1, 0, Units.inchesToMeters(80.5) + 0.3);
 		public static final double kMinPivot = -58.166;
 		public static final double kMaxPivot = 71.834;
-		public static final double kMaxPivotSpeed = 250.0d;
+		public static final double kMaxPivotSpeed = 300.0d;
 
 		public static final double kPivotMagnetOffset = -145.880844;
 
-		public static final double kPivotIntegratedP = 5.1;
-		public static final double kPivotIntegratedI = 0.72;
-		public static final double kPivotIntegratedD = 0.24;
-
-		public static final double kPivotRSP = 9 * 12;
+		public static final double kPivotRSP = 13 * 12;
 		public static final double kPivotRSI = 0 * 12;
 		public static final double kPivotRSD = 0 * 12;
 
-		public static final double kPivotGearRatio = 168.719419;// 512.0d / 3.0d;
+		public static final double kPivotGearRatio = 800.0d / 3.0d;
 	}
 
 	public static class Shooter {
@@ -63,7 +57,7 @@ public final class Constants {
 	public static class Indexer {
 		public static final double kShootSpeed = -1.0;
 		public static final double kSpinSpeed = 0.4;
-		public static final double kReducedSpinSpeed = 0.35;
+		public static final double kReducedSpinSpeed = 0.3;
 	}
 
 	public static class Intake {

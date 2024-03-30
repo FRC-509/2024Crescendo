@@ -37,8 +37,8 @@ public class AutoAlign extends Command {
 	private Translation3d RobotToTag;
 	private Translation2d outputTranslation;
 	private double desiredArmPivot = Constants.Arm.kMinPivot;
-	private double kPivotSlope = -0.781014; // TUNE ME
-	private double kPivotIntercept = -27.165; // TUNE ME
+	private double kPivotSlope = -0.710432; // TUNE ME
+	private double kPivotIntercept = -27.0751; // TUNE ME
 	private double kRotationSlope = 0.0; // TUNE ME
 	private double kRotationIntercept = 0.0; // TUNE ME
 
@@ -84,12 +84,14 @@ public class AutoAlign extends Command {
 			// SPEAKER TAG OFFSET
 			case 4: // Red Alliance
 			case 7: // Blue Alliance
+				/*-
 				desiredRotation = Math.toRadians(
 						-limelight.getTX() + (kRotationSlope * swerve.getYaw().getDegrees() + kRotationIntercept))
 						* 4.5;
 				SmartDashboard.putNumber("Desired Rotation",
-						(kRotationSlope * swerve.getYaw().getDegrees() + kRotationIntercept));
+						(kRotationSlope * swerve.getYaw().getDegrees() + kRotationIntercept));*/
 
+				desiredRotation = Math.toRadians(-limelight.getTX());
 				desiredArmPivot = kPivotSlope * limelight.getTY() + kPivotIntercept;
 				if (!limelight.getTV()) {
 					desiredArmPivot = arm.getPivotDegrees();

@@ -29,12 +29,12 @@ public class RobotContainer {
 
 	private final SwerveDrive swerve;
 	private final Intake intake;
-	public final Indexer indexer;
-	public final Shooter shooter;
+	private final Indexer indexer;
+	private final Shooter shooter;
 	private final Arm arm;
-	private final Climber climber;
-	public final REVBlinkin lights;
-	public final Limelight intakeCamera = new Limelight("limelight-intake");
+	// private final Climber climber;
+	private final REVBlinkin lights;
+	private final Limelight intakeCamera = new Limelight("limelight-intake");
 	private final Limelight shooterCamera = new Limelight("limelight-arm");
 
 	private SendableChooser<Command> chooser = new SendableChooser<Command>();
@@ -45,7 +45,7 @@ public class RobotContainer {
 		this.indexer = new Indexer();
 		this.shooter = new Shooter();
 		this.arm = new Arm();
-		this.climber = new Climber(pigeon);
+		// this.climber = new Climber(pigeon);
 		this.lights = new REVBlinkin(9);
 
 		intakeCamera.setLEDMode_ForceOff();
@@ -76,7 +76,7 @@ public class RobotContainer {
 				() -> nonInvSquare(-driverRight.getX()),
 				() -> true));
 
-		// Binds heading locks to the left stick's dpad. Pressing up will face forward,
+		// Binds heading locks to the right stick's dpad. Pressing up will face forward,
 		// pressing down will face backward.
 		(new Trigger(() -> driverRight.getPOV(0) == 0))
 				.onTrue(Commands.runOnce(() -> swerve.setTargetHeading(0), swerve));
@@ -166,18 +166,14 @@ public class RobotContainer {
 		}, shooter));
 
 		operator.a().onTrue(new SetPivot(arm, 43));
-		operator.y().onTrue(new SetPivot(arm, Constants.Arm.kMinPivot + 10));
-
-		// When the B button is held down, the arm goes into raw output mode; there are
-		// no safeties.
-		// operator.getHID().getBButton()
+		operator.y().onTrue(new SetPivot(arm, Constants.Arm.kMinPivot + 5));
 		arm.setDefaultCommand(new DefaultPivotCommand(arm,
 				() -> nonInvSquare(-operator.getLeftY()) / 5, () -> false));
 
 		// The left and right buttons on the d-pad indicate that only that climber
 		// should actuate. The X button toggles the solenoids between their locked and
 		// unlocked position.
-
+		/*-
 		climber.setDefaultCommand(new DefaultClimbCommand(climber,
 				() -> MathUtil.applyDeadband(operator.getRightY(), Constants.kStickDeadband),
 				() -> operator.getHID().getPOV() == 90,
@@ -185,26 +181,10 @@ public class RobotContainer {
 				() -> operator.getHID().getXButton(),
 				pigeon,
 				false));
+				 */
 	}
 
 	private void addAutonomousRoutines() {
-		// chooser.addOption("Four Note (Far) [AMP SIDE]", new
-		// FourNoteAmpSideFar(swerve, shooter, arm, indexer, intake));
-		// chooser.addOption("Four Note (Close) [AMP SIDE]",
-		// new WIPFourNoteAmpSideNear(swerve, shooter, arm, indexer, intake));
-		chooser.addOption("Four Note (Close) [AMP SIDE] {Drives Back Before Shooting, Goes Far (!!)}",
-				new FourNoteAmpSideDriveBack(swerve, shooter, arm, indexer, intake));
-		// chooser.addOption("Three Note (Close) [AMP SIDE]", new
-		// ThreeNoteAmpSide(swerve, shooter, arm, indexer, intake));
-		chooser.addOption("Three Note (Close) [AMP SIDE] {Drives Back Before Shooting, Goes Far (!!)}",
-				new ThreeNoteAmpSideDriveBackGoFar(swerve, shooter, arm, indexer, intake));
-
-		chooser.addOption("Two Note (Close) [AMP SIDE]", new TwoNoteAmpSide(swerve, shooter, arm, indexer, intake));
-		chooser.addOption("One Note [ANY]", new OneNote(swerve, shooter, arm, indexer, intake));
-		chooser.addOption("One Note and Taxi [SOURCE SIDE]",
-				new OneNoteAndTaxi(swerve, shooter, arm, indexer, intake));
-		chooser.addOption("Sabotage / The Samin Special / James Auto",
-				new SabotageAuto(swerve, intake, indexer, shooter));
 		chooser.addOption("\"Go AFK\" (Null)", new InstantCommand());
 		SmartDashboard.putData("Auto Mode", chooser);
 
