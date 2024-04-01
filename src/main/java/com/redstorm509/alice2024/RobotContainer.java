@@ -11,13 +11,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.RobotBase;
 import com.redstorm509.alice2024.autonomous.*;
 import com.redstorm509.alice2024.commands.*;
-import com.redstorm509.alice2024.commands.autonomous.AutoShootMoreJank;
 import com.redstorm509.alice2024.subsystems.*;
 import com.redstorm509.alice2024.subsystems.drive.*;
 import com.redstorm509.alice2024.subsystems.vision.*;
 import com.redstorm509.alice2024.util.PigeonWrapper;
 import com.redstorm509.alice2024.util.drivers.REVBlinkin;
-import com.ctre.phoenix6.controls.VoltageOut;
 import com.redstorm509.stormkit.controllers.ThrustmasterJoystick;
 import com.redstorm509.stormkit.controllers.ThrustmasterJoystick.StickButton;
 
@@ -161,7 +159,7 @@ public class RobotContainer {
 			SmartDashboard.putBoolean("Is At Shoot Speed", shooter.isAtShooterVelocity());
 			SmartDashboard.putBoolean("Is Winding Up", true);
 		}, () -> {
-			shooter.shooterLeader.setControl(new VoltageOut(0.0));
+			shooter.setShooterVelocity(0);
 			SmartDashboard.putBoolean("Is At Shoot Speed", false);
 			SmartDashboard.putBoolean("Is Winding Up", false);
 		}, shooter));

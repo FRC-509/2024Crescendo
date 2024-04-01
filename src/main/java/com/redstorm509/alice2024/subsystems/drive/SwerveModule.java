@@ -173,6 +173,10 @@ public class SwerveModule {
 		}
 	}
 
+	public double getSupplyCurrent() {
+		return driveMotor.getSupplyCurrent().getValueAsDouble() + steerMotor.getSupplyCurrent().getValueAsDouble();
+	}
+
 	public void simPeriodic() {
 		double error = (lastSet.angle.getRotations() - simulated.angle.getRotations()) / Constants.MK4I.kAngleGearRatio;
 		double rotationsPerSecond = Constants.kFalconFreeSpeedRPS * error * Constants.kSteerAngleP / 12.0;

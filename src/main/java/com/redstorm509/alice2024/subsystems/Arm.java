@@ -154,5 +154,8 @@ public class Arm extends SubsystemBase {
 		SmartDashboar
 		d.putNumber("PivotF", pivotFollower.getPosition().getValue() * 360.0d);
 		 */
+
+		SmartDashboard.putNumber("Arm Supply Current", pivotLeader.getSupplyCurrent().getValueAsDouble()
+				+ pivotFollower.getSupplyCurrent().getValueAsDouble());
 	}
 }

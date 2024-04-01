@@ -415,6 +415,11 @@ public class SwerveDrive extends SubsystemBase {
 		}
 		field2d.setRobotPose(getEstimatedPose());
 
+		double totalCurrent = 0.0d;
+		for (SwerveModule mod : swerveModules) {
+			totalCurrent += mod.getSupplyCurrent();
+		}
+		SmartDashboard.putNumber("Swerve Supply Current", totalCurrent);
 		SmartDashboard.putNumber("yaw", getYaw().getDegrees());
 		SmartDashboard.putBoolean("Heading Correction Enabled?", !alwaysOmitRotationalCorrection);
 		/*-
