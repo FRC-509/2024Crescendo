@@ -32,7 +32,7 @@ public class A4Close extends SequentialCommandGroup {
 				swerve.resetOdometryCmd(startPose),
 				Commands.parallel(
 						AutoBuilder.followPath(PathPlannerPath.fromPathFile("FD2N_TwoNoteAmpSide")),
-						new AutonomousIntakeNote(intake, indexer)),
+						new AutonomousIntakeNote(intake, indexer, lights)),
 				Commands.runOnce(() -> swerve.stopModules(), swerve),
 				Commands.runOnce(() -> swerve.setTargetHeading(swerve.jankFlipHeading(29.56)), swerve),
 				new DefaultDriveCommand(swerve, 0.0d, 0.0d, 0.0d, true).withTimeout(0.3),
@@ -42,14 +42,14 @@ public class A4Close extends SequentialCommandGroup {
 				new SetPivot(arm, Constants.Arm.kMinPivot),
 				Commands.parallel(
 						AutoBuilder.followPath(PathPlannerPath.fromPathFile("DriveToThirdNoteClose")),
-						new AutonomousIntakeNote(intake, indexer)),
+						new AutonomousIntakeNote(intake, indexer, lights)),
 				Commands.runOnce(() -> swerve.stopModules(), swerve),
 				new AutoAlign(swerve, arm, shooterCamera, lights),
 				new AutoShootMoreJank(shooter, indexer),
 				new SetPivot(arm, Constants.Arm.kMinPivot),
 				Commands.parallel(
 						AutoBuilder.followPath(PathPlannerPath.fromPathFile("DriveToFourthNoteClose")),
-						new AutonomousIntakeNote(intake, indexer)),
+						new AutonomousIntakeNote(intake, indexer, lights)),
 				Commands.runOnce(() -> swerve.stopModules(), swerve),
 				new AutoAlign(swerve, arm, shooterCamera, lights),
 				new AutoShootMoreJank(shooter, indexer),

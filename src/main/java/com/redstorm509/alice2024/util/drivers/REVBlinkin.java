@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class REVBlinkin extends SubsystemBase {
 	private PWM pwm;
 	private boolean ignoreReset;
-	private Timer resetTimer;
+	private Timer resetTimer = new Timer();
 
 	public REVBlinkin(int channel) {
 		pwm = new PWM(channel);

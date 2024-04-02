@@ -12,6 +12,7 @@ import com.redstorm509.alice2024.subsystems.Indexer;
 import com.redstorm509.alice2024.subsystems.Intake;
 import com.redstorm509.alice2024.subsystems.Shooter;
 import com.redstorm509.alice2024.subsystems.drive.SwerveDrive;
+import com.redstorm509.alice2024.util.drivers.REVBlinkin;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -20,17 +21,17 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 public class A3Close extends SequentialCommandGroup {
-	public A3Close(SwerveDrive swerve, Shooter shooter, Arm arm, Indexer indexer, Intake intake) {
+	public A3Close(SwerveDrive swerve, Shooter shooter, Arm arm, Indexer indexer, Intake intake, REVBlinkin lights) {
 		Pose2d startPose = new Pose2d(0.72, 6.65, Rotation2d.fromDegrees(59.86));
 		Command paths = Commands.sequence(
 				shooter.startShooting(),
-				new AutonomousIntakeNote(intake, indexer),
+				new AutonomousIntakeNote(intake, indexer, lights),
 				new AutoShootMoreJank(shooter, indexer),
 				new SetPivot(arm, Constants.Arm.kMinPivot),
 				swerve.resetOdometryCmd(startPose),
 				Commands.parallel(
 						AutoBuilder.followPath(PathPlannerPath.fromPathFile("FD2N_TwoNoteAmpSide")),
-						new AutonomousIntakeNote(intake, indexer)),
+						new AutonomousIntakeNote(intake, indexer, lights)),
 				Commands.runOnce(() -> swerve.setTargetHeading(swerve.jankFlipHeading(29.56)), swerve),
 				new DefaultDriveCommand(swerve, 0.0, 0.0, 0.0, true).withTimeout(0.5),
 				Commands.runOnce(() -> swerve.stopModules(), swerve),
@@ -40,7 +41,7 @@ public class A3Close extends SequentialCommandGroup {
 				Commands.runOnce(() -> swerve.stopModules(), swerve),
 				Commands.parallel(
 						AutoBuilder.followPath(PathPlannerPath.fromPathFile("DriveToThirdNoteClose")),
-						new AutonomousIntakeNote(intake, indexer)),
+						new AutonomousIntakeNote(intake, indexer, lights)),
 				Commands.runOnce(() -> swerve.setTargetHeading(swerve.jankFlipHeading(13.42)), swerve),
 				new DefaultDriveCommand(swerve, 0.0, 0.0, 0.0, true).withTimeout(0.5),
 				Commands.runOnce(() -> swerve.stopModules(), swerve),
