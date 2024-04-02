@@ -11,6 +11,7 @@ import com.redstorm509.alice2024.subsystems.Indexer;
 import com.redstorm509.alice2024.subsystems.Intake;
 import com.redstorm509.alice2024.subsystems.Shooter;
 import com.redstorm509.alice2024.subsystems.drive.SwerveDrive;
+import com.redstorm509.alice2024.util.drivers.REVBlinkin;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -20,29 +21,29 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 public class FourNoteAmpSideDriveBack extends SequentialCommandGroup {
 	public FourNoteAmpSideDriveBack(SwerveDrive swerve, Shooter shooter, Arm arm, Indexer indexer,
-			Intake intake) {
+			Intake intake, REVBlinkin lights) {
 		Pose2d startPose = new Pose2d(0.72, 6.65, Rotation2d.fromDegrees(59.86));
 		Command paths = Commands.sequence(
 				shooter.startShooting(),
-				new AutonomousIntakeNote(intake, indexer),
+				new AutonomousIntakeNote(intake, indexer, lights),
 				new AutoShootMoreJank(shooter, indexer),
 				new SetPivot(arm, Constants.Arm.kMinPivot),
 				swerve.resetOdometryCmd(startPose),
 				Commands.parallel(
 						AutoBuilder.followPath(PathPlannerPath.fromPathFile("FD2N_TwoNoteAmpSide")),
-						new AutonomousIntakeNote(intake, indexer)),
+						new AutonomousIntakeNote(intake, indexer, lights)),
 				AutoBuilder.followPath(PathPlannerPath.fromPathFile("JankAutoPart2")),
 				Commands.runOnce(() -> swerve.stopModules(), swerve),
 				new AutoShootMoreJank(shooter, indexer),
 				Commands.parallel(
 						AutoBuilder.followPath(PathPlannerPath.fromPathFile("JankAutoPart3")),
-						new AutonomousIntakeNote(intake, indexer)),
+						new AutonomousIntakeNote(intake, indexer, lights)),
 				AutoBuilder.followPath(PathPlannerPath.fromPathFile("JankAutoPart4")),
 				Commands.runOnce(() -> swerve.stopModules(), swerve),
 				new AutoShootMoreJank(shooter, indexer),
 				Commands.parallel(
 						AutoBuilder.followPath(PathPlannerPath.fromPathFile("JankAutoPart5")),
-						new AutonomousIntakeNote(intake, indexer)),
+						new AutonomousIntakeNote(intake, indexer, lights)),
 				AutoBuilder.followPath(PathPlannerPath.fromPathFile("JankAutoPart6")),
 				Commands.runOnce(() -> swerve.stopModules(), swerve),
 				new AutoShootMoreJank(shooter, indexer),

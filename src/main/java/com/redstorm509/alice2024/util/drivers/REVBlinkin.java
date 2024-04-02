@@ -4,23 +4,29 @@ import java.util.Optional;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PWM;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class REVBlinkin extends SubsystemBase {
 	private PWM pwm;
+	private boolean ignoreReset;
+	private Timer resetTimer;
 
 	public REVBlinkin(int channel) {
 		pwm = new PWM(channel);
 		pwm.setBoundsMicroseconds(2000, 1500, 1500, 1460, 1000);
 		pwm.setPeriodMultiplier(PWM.PeriodMultiplier.k1X);
+		resetTimer.start();
 	}
 
 	public void setColor(ColorCode color) {
 		pwm.setSpeed(color.value);
+		resetTimer.reset();
 	}
 
 	public void setModeRaw(BlinkinLedMode mode) {
 		pwm.setSpeed(mode.value);
+		resetTimer.reset();
 	}
 
 	public void setDefault() {
@@ -29,6 +35,25 @@ public class REVBlinkin extends SubsystemBase {
 			setColor(alliance.get() == DriverStation.Alliance.Blue ? ColorCode.DefaultBlue : ColorCode.DefaultRed);
 		} else {
 			setColor(ColorCode.ERROR);
+		}
+	}
+
+	public void disableReset() {
+		ignoreReset = true;
+	}
+
+	public void enableReset() {
+		ignoreReset = false;
+	}
+
+	@Override
+	public void periodic() {
+		if (ignoreReset && resetTimer.hasElapsed(5.0)) {
+			setDefault();
+		}
+
+		if (ignoreReset && resetTimer.hasElapsed(15.0)) {
+			ignoreReset = false;
 		}
 	}
 
