@@ -30,7 +30,7 @@ public class AdaptableBehavior extends SequentialCommandGroup {
 				new FindNearestNote(swerve),
 				new AutonomousAutoPickup(swerve, intakeLL, intake, indexer, lights),
 				Commands.parallel(
-						new IntakeNote(intake, indexer, lights),
+						new IntakeNote(intake, indexer, arm, lights),
 						new PathfindHolonomic(
 								endPose,
 								new PathConstraints(5.02, 5.02, Math.toRadians(660), Math.toRadians(660)),

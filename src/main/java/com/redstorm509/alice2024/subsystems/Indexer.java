@@ -111,7 +111,7 @@ public class Indexer extends SubsystemBase {
 		if (indexingNoteState == prevIndexerState && indexingNoteState != IndexerState.NoteTooShooterExtreme) {
 			currentStateTimer.reset();
 		}
-		if (indexingNoteState == IndexerState.NoteTooShooterExtreme && currentStateTimer.get() >= 0.75) {
+		if (indexingNoteState == IndexerState.NoteTooShooterExtreme && currentStateTimer.get() >= 0.40) {
 			setNoteless();
 		}
 	}

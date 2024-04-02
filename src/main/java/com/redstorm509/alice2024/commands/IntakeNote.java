@@ -4,6 +4,7 @@ import com.redstorm509.alice2024.Constants;
 import com.redstorm509.alice2024.subsystems.Indexer.IndexerState;
 import com.redstorm509.alice2024.util.drivers.REVBlinkin;
 import com.redstorm509.alice2024.util.drivers.REVBlinkin.ColorCode;
+import com.redstorm509.alice2024.subsystems.Arm;
 import com.redstorm509.alice2024.subsystems.Indexer;
 import com.redstorm509.alice2024.subsystems.Intake;
 
@@ -12,15 +13,17 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class IntakeNote extends Command {
 	private final Intake intake;
 	private final Indexer indexer;
+	private final Arm arm;
 	private final REVBlinkin lights;
 
 	private boolean isFinished = false;
 	private double fastSpeed = Constants.Indexer.kSpinSpeed;
 	private double slowSpeed = Constants.Indexer.kReducedSpinSpeed;
 
-	public IntakeNote(Intake intake, Indexer indexer, REVBlinkin lights) {
+	public IntakeNote(Intake intake, Indexer indexer, Arm arm, REVBlinkin lights) {
 		this.intake = intake;
 		this.indexer = indexer;
+		this.arm = arm;
 		this.lights = lights;
 
 		addRequirements(intake, indexer, lights);
@@ -30,10 +33,12 @@ public class IntakeNote extends Command {
 	public void initialize() {
 		isFinished = false;
 		lights.setDefault();
+		lights.disableReset();
 	}
 
 	@Override
 	public void execute() {
+
 		if (indexer.indexingNoteState == IndexerState.HasNote) {
 			isFinished = true;
 
@@ -64,6 +69,10 @@ public class IntakeNote extends Command {
 
 			lights.setColor(ColorCode.NoteInsideRobot);
 		}
+
+		if (!arm.armIsDown()) {
+			intake.stop();
+		}
 	}
 
 	@Override
@@ -80,5 +89,6 @@ public class IntakeNote extends Command {
 		} else {
 			lights.setDefault();
 		}
+		lights.enableReset();
 	}
 }

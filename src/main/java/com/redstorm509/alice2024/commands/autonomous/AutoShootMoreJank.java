@@ -32,6 +32,7 @@ public class AutoShootMoreJank extends Command {
 	public void execute() {
 		boolean atSpeed = shooter.isAtShooterVelocity();
 		if (atSpeed && !startedindexing) {
+			timer.reset();
 			indexer.rawIndexer(Constants.Indexer.kShootSpeed);
 			startedindexing = true;
 		}

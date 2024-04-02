@@ -24,7 +24,8 @@ public class DefaultClimbCommand extends Command {
 	private boolean usesRollCompensation;
 
 	private Timer toggleDelay = new Timer();
-	private double speedModifier = 0.40;
+	private double extendingSpeedModifier = 0.65;
+	private double retractingSpeedModifier = 0.65;
 
 	public DefaultClimbCommand(
 			Climber climber,
@@ -76,10 +77,10 @@ public class DefaultClimbCommand extends Command {
 		boolean retracting = output < -0.1;
 
 		if (extending || retracting) {
-			double compensatedOutput = extending ? output - rollCompensation : output + rollCompensation;
-
-			output *= speedModifier;
-			compensatedOutput *= speedModifier;
+			double compensatedOutput = extending
+					? (output - rollCompensation) * extendingSpeedModifier
+					: (output + rollCompensation) * retractingSpeedModifier;
+			output = extending ? output * extendingSpeedModifier : output * retractingSpeedModifier;
 
 			// confirm which side is positive roll
 			if (leftOnlySupplier.getAsBoolean()) {

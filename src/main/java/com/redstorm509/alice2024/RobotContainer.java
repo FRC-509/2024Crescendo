@@ -31,7 +31,7 @@ public class RobotContainer {
 	private final Indexer indexer;
 	private final Shooter shooter;
 	private final Arm arm;
-	// private final Climber climber;
+	private final Climber climber;
 	private final REVBlinkin lights;
 	private final Limelight intakeCamera = new Limelight("limelight-intake");
 	private final Limelight shooterCamera = new Limelight("limelight-arm");
@@ -44,7 +44,7 @@ public class RobotContainer {
 		this.indexer = new Indexer();
 		this.shooter = new Shooter();
 		this.arm = new Arm();
-		// this.climber = new Climber(pigeon);
+		this.climber = new Climber(pigeon);
 		this.lights = new REVBlinkin(9);
 
 		intakeCamera.setLEDMode_ForceOff();
@@ -118,7 +118,7 @@ public class RobotContainer {
 				() -> nonInvSquare(-driverRight.getX())));
 
 		// Basic intake and outake commands
-		driverLeft.isDownBind(StickButton.Trigger, new IntakeNote(intake, indexer, lights));
+		driverLeft.isDownBind(StickButton.Trigger, new IntakeNote(intake, indexer, arm, lights));
 		driverRight.isDownBind(StickButton.Trigger, Commands.startEnd(
 				() -> {
 					intake.intake(false);
@@ -172,7 +172,7 @@ public class RobotContainer {
 		// The left and right buttons on the d-pad indicate that only that climber
 		// should actuate. The X button toggles the solenoids between their locked and
 		// unlocked position.
-		/*-
+
 		climber.setDefaultCommand(new DefaultClimbCommand(climber,
 				() -> MathUtil.applyDeadband(operator.getRightY(), Constants.kStickDeadband),
 				() -> operator.getHID().getPOV() == 90,
@@ -180,7 +180,6 @@ public class RobotContainer {
 				() -> operator.getHID().getXButton(),
 				pigeon,
 				false));
-				 */
 	}
 
 	private void addAutonomousRoutines() {
@@ -205,6 +204,7 @@ public class RobotContainer {
 		intakeCamera.setLEDMode_ForceOff();
 		shooterCamera.setLEDMode_ForceOff();
 		lights.setDefault();
+		lights.enableReset();
 	}
 
 	public void onTeleopEntry() {

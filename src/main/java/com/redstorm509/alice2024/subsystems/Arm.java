@@ -26,6 +26,8 @@ public class Arm extends SubsystemBase {
 	private DigitalInput limitSwitch = new DigitalInput(6);
 	private boolean wasLimitSwitchTripped = false;
 
+	private boolean armIsDown = true;
+
 	private VoltageOut openLoop = new VoltageOut(0).withEnableFOC(false);
 	private PositionVoltage closedLoopPosition = new PositionVoltage(0).withEnableFOC(false);
 	private PositionTarget pivotTarget;
@@ -84,6 +86,10 @@ public class Arm extends SubsystemBase {
 		double target = getPivotDegrees() + delta;
 		double ticks = target / 360.0d;
 
+		if (target > Constants.Arm.kMinPivot) {
+			armIsDown = false;
+		}
+
 		pivotLeader.setControl(closedLoopPosition.withPosition(ticks));
 
 		pivotTarget.setTarget(target);
@@ -134,6 +140,10 @@ public class Arm extends SubsystemBase {
 		return !limitSwitch.get();
 	}
 
+	public boolean armIsDown() {
+		return armIsDown;
+	}
+
 	@Override
 	public void periodic() {
 		// DIO channels default to high in sim so we dont run this code if we're in sim.
@@ -141,9 +151,13 @@ public class Arm extends SubsystemBase {
 			pivotLeader.setPosition(Constants.Arm.kMinPivot / 360.0);
 			pivotLeader.setControl(new VoltageOut(0));
 		}
+		if (isTripped()) {
+			armIsDown = true;
+		}
 
 		wasLimitSwitchTripped = isTripped();
 		SmartDashboard.putBoolean("PivotLimitSwitch", isTripped());
+		SmartDashboard.putBoolean("Arm Is Down", armIsDown());
 		// SmartDashboard.putNumber("PivotL", pivotLeader.getPosition().getValue() *
 		// 360.0d);
 		// SmartDashboard.putNumber("Target Pivot", pivotTarget.getTarget());

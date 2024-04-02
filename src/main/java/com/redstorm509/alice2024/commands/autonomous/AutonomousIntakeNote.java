@@ -25,9 +25,6 @@ public class AutonomousIntakeNote extends Command {
 		this.lights = lights;
 
 		addRequirements(intake, indexer);
-
-		SmartDashboard.putNumber("Fast Indexer Speed", Constants.Indexer.kSpinSpeed);
-		SmartDashboard.putNumber("Slow Indexer Speed", Constants.Indexer.kReducedSpinSpeed);
 	}
 
 	@Override

@@ -5,11 +5,12 @@ import java.util.Optional;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PWM;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class REVBlinkin extends SubsystemBase {
 	private PWM pwm;
-	private boolean ignoreReset;
+	private boolean ignoreReset = false;
 	private Timer resetTimer = new Timer();
 
 	public REVBlinkin(int channel) {
@@ -55,6 +56,8 @@ public class REVBlinkin extends SubsystemBase {
 		if (ignoreReset && resetTimer.hasElapsed(15.0)) {
 			ignoreReset = false;
 		}
+
+		SmartDashboard.putNumber("LIGHTS RESET TIMER", resetTimer.get());
 	}
 
 	public static enum ColorCode {
