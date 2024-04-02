@@ -37,10 +37,9 @@ public class AutoAlign extends Command {
 	private Translation3d RobotToTag;
 	private Translation2d outputTranslation;
 	private double desiredArmPivot = Constants.Arm.kMinPivot;
-	private double kPivotSlope = -0.781014; // TUNE ME
-	private double kPivotIntercept = -27.165; // TUNE ME
-	private double kRotationSlope = 0.0; // TUNE ME
-	private double kRotationIntercept = 0.0; // TUNE ME
+	private double desiredArmPivotDerivative = Double.POSITIVE_INFINITY;
+	private double kPivotSlope = -0.721546;// -0.710432; // TUNE ME
+	private double kPivotIntercept = -26.4987;// -27.0751; // TUNE ME
 
 	// Meant to be an "isDownBind" command
 	public AutoAlign(
@@ -59,6 +58,26 @@ public class AutoAlign extends Command {
 		this.xSupplier = xSupplier;
 		this.ySupplier = ySupplier;
 		this.rotationSupplier = rotationSupplier;
+
+		this.specificTag = false;
+
+		addRequirements(swerve, arm, lights);
+	}
+
+	// Meant to be an "autonomous" command
+	public AutoAlign(
+			SwerveDrive swerve,
+			Arm arm,
+			Limelight limelight,
+			REVBlinkin lights) {
+		this.swerve = swerve;
+		this.arm = arm;
+		this.limelight = limelight;
+		this.lights = lights;
+
+		this.xSupplier = () -> 0.0d;
+		this.ySupplier = () -> 0.0d;
+		this.rotationSupplier = () -> 0.0d;
 
 		this.specificTag = false;
 
@@ -84,16 +103,15 @@ public class AutoAlign extends Command {
 			// SPEAKER TAG OFFSET
 			case 4: // Red Alliance
 			case 7: // Blue Alliance
-				desiredRotation = Math.toRadians(
-						-limelight.getTX() + (kRotationSlope * swerve.getYaw().getDegrees() + kRotationIntercept))
-						* 4.5;
-				SmartDashboard.putNumber("Desired Rotation",
-						(kRotationSlope * swerve.getYaw().getDegrees() + kRotationIntercept));
-
+				desiredRotation = Math.toRadians(-limelight.getTX()) * 4.5;
+				double previousDesiredArmPivot = desiredArmPivot;
 				desiredArmPivot = kPivotSlope * limelight.getTY() + kPivotIntercept;
+				desiredArmPivotDerivative = (desiredArmPivot - previousDesiredArmPivot) / 0.02;
 				if (!limelight.getTV()) {
 					desiredArmPivot = arm.getPivotDegrees();
 				}
+
+				SmartDashboard.putNumber("desiredRotationAA", desiredRotation);
 
 				return new Pose2d(new Translation2d(0, 0), new Rotation2d(desiredRotation));
 
@@ -118,6 +136,7 @@ public class AutoAlign extends Command {
 
 	@Override
 	public void initialize() {
+		desiredArmPivotDerivative = Double.POSITIVE_INFINITY;
 		limelight.setPipelineIndex(Constants.Vision.Pipeline.AprilTags);
 
 		lights.setColor(ColorCode.AutoTargetLost);
@@ -218,6 +237,9 @@ public class AutoAlign extends Command {
 
 	@Override
 	public boolean isFinished() {
+		if (DriverStation.isAutonomous() && Math.abs(desiredArmPivotDerivative) <= 1 && limelight.getTX() < 0.5d) {
+			return true;
+		}
 		/*-
 		return MathUtil.isNear(0, outputTranslation.getX(), Constants.Vision.kAlignmentTranslationTolerance) &&
 				MathUtil.isNear(0, outputTranslation.getY(), Constants.Vision.kAlignmentTranslationTolerance) &&
@@ -233,5 +255,8 @@ public class AutoAlign extends Command {
 		SmartDashboard.putBoolean("Autonomous Lock On", false);
 		swerve.drive(new Translation2d(0, 0), 0, true, false);
 		swerve.setTargetHeading(swerve.getYaw().getDegrees());
+		if (DriverStation.isAutonomous()) {
+			swerve.stopModules();
+		}
 	}
 }

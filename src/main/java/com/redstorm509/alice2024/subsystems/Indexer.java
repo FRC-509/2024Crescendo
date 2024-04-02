@@ -119,6 +119,7 @@ public class Indexer extends SubsystemBase {
 	@Override
 	public void periodic() {
 		pollState();
+		SmartDashboard.putNumber("Indexer Supply Current", indexer.getOutputCurrent());
 		SmartDashboard.putBoolean("Note Picked Up", indexingNoteState != IndexerState.Noteless);
 		SmartDashboard.putBoolean("Has Note", indexingNoteState == IndexerState.HasNote);
 		SmartDashboard.putString("IndexingState", indexingNoteState.toString());

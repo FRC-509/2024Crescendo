@@ -91,6 +91,8 @@ public class Climber extends SubsystemBase {
 
 	@Override
 	public void periodic() {
+		SmartDashboard.putNumber("Climber Supply Current", leftClimbMotor.getSupplyCurrent().getValueAsDouble()
+				+ rightClimbMotor.getSupplyCurrent().getValueAsDouble());
 		SmartDashboard.putBoolean("LeftSol", leftSol.get());
 		SmartDashboard.putBoolean("RightSol", rightSol.get());
 		SmartDashboard.putNumber("roll", pigeon.getRoll());

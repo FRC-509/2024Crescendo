@@ -118,9 +118,9 @@ public class SwerveDrive extends SubsystemBase {
 
 		odometry = new SwerveDriveOdometry(kinematics, getYaw(), getModulePositions());
 		poseEstimator = new SwerveDrivePoseEstimator(kinematics, getYaw(), getModulePositions(), new Pose2d());
-
+		poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, Math.toRadians(7)));
 		AutoBuilder.configureHolonomic(
-				this::getRawOdometeryPose,
+				this::getEstimatedPose,
 				this::resetOdometry,
 				this::getChassisSpeeds,
 				this::setChassisSpeeds,
@@ -414,14 +414,22 @@ public class SwerveDrive extends SubsystemBase {
 		poseEstimator.update(getYaw(), getModulePositions());
 
 		if (shooterCamera.getTV()) {
-			poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
-			Pose2d visionPose = shooterCamera.getAllianceBotPoseBlue2d();
-			double timestamp = Timer.getFPGATimestamp() - (shooterCamera.getLatency_Pipeline() / 1000.0)
-					- (shooterCamera.getLatency_Capture() / 1000.0);
-			poseEstimator.addVisionMeasurement(visionPose, timestamp);
+			double[] botPoseData = shooterCamera.getBotPoseBlue();
+			int numberOfTags = (int) botPoseData[7];
+			if (numberOfTags >= 2) {
+				Pose2d visionPose = Limelight.toPose2D(botPoseData);
+				double timestamp = Timer.getFPGATimestamp() - (shooterCamera.getLatency_Pipeline() / 1000.0)
+						- (shooterCamera.getLatency_Capture() / 1000.0);
+				poseEstimator.addVisionMeasurement(visionPose, timestamp);
+			}
 		}
 		field2d.setRobotPose(getEstimatedPose());
 
+		double totalCurrent = 0.0d;
+		for (SwerveModule mod : swerveModules) {
+			totalCurrent += mod.getSupplyCurrent();
+		}
+		SmartDashboard.putNumber("Swerve Supply Current", totalCurrent);
 		SmartDashboard.putNumber("yaw", getYaw().getDegrees());
 		SmartDashboard.putBoolean("Heading Correction Enabled?", !alwaysOmitRotationalCorrection);
 		/*-

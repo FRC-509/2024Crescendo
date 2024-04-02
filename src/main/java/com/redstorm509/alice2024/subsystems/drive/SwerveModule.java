@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 
 import com.redstorm509.alice2024.Constants;
 import com.redstorm509.alice2024.util.math.Conversions;
+import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -104,17 +105,20 @@ public class SwerveModule {
 		if (RobotBase.isSimulation()) {
 			return simulated;
 		}
+		double driveRot = BaseStatusSignal.getLatencyCompensatedValue(driveMotor.getPosition(),
+				driveMotor.getVelocity());
+		double steerRot = BaseStatusSignal.getLatencyCompensatedValue(steerMotor.getPosition(),
+				steerMotor.getVelocity());
+
 		// Accounts for coupling; rotation of the angle motor causing the actual drive
 		// wheel to rotate slightly.
-		// double drivePosition = driveMotor.getPosition().getValue() -
-		// steerMotor.getPosition().getValue() * Constants.MK4I.kCouplingRatio;
-		double drivePosition = driveMotor.getPosition().getValue();
+		double drivePosition = driveRot - steerRot * Constants.MK4I.kCouplingRatio;
 		return new SwerveModulePosition(
 				Conversions.falconToMeters(
 						drivePosition,
 						Constants.MK4I.kWheelCircumference,
 						Constants.MK4I.kDriveGearRatio),
-				getAngle());
+				Rotation2d.fromRotations(steerRot));
 	}
 
 	public SwerveModuleState getState() {
@@ -167,6 +171,10 @@ public class SwerveModule {
 					Constants.MK4I.kDriveGearRatio) / Constants.kMaxSpeed * 12.0;
 			driveMotor.setControl(openLoopDriveRequest.withOutput(voltage));
 		}
+	}
+
+	public double getSupplyCurrent() {
+		return driveMotor.getSupplyCurrent().getValueAsDouble() + steerMotor.getSupplyCurrent().getValueAsDouble();
 	}
 
 	public void simPeriodic() {
