@@ -57,7 +57,7 @@ public class SwerveDrive extends SubsystemBase {
 	public SwerveModule[] swerveModules;
 	public SwerveDriveOdometry odometry;
 	public SwerveDrivePoseEstimator poseEstimator;
-	private Field2d field2d;
+	public Field2d field2d;
 	private PigeonWrapper pigeon;
 
 	private Interpolator headingInterplator;
@@ -105,6 +105,16 @@ public class SwerveDrive extends SubsystemBase {
 		};
 
 		field2d = new Field2d();
+		// TODO: add 8 autonomous notes
+		field2d.getObject("Note").setPoses(
+				new Pose2d(),
+				new Pose2d(),
+				new Pose2d(),
+				new Pose2d(),
+				new Pose2d(),
+				new Pose2d(),
+				new Pose2d(),
+				new Pose2d());
 
 		odometry = new SwerveDriveOdometry(kinematics, getYaw(), getModulePositions());
 		poseEstimator = new SwerveDrivePoseEstimator(kinematics, getYaw(), getModulePositions(), new Pose2d());

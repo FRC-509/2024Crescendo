@@ -1,37 +1,28 @@
 package com.redstorm509.alice2024.commands.autonomous;
 
-import com.redstorm509.alice2024.subsystems.Intake;
-import com.redstorm509.alice2024.subsystems.Indexer.IndexerState;
-
-import java.util.Optional;
-
-import com.pathplanner.lib.commands.PathfindHolonomic;
-import com.pathplanner.lib.path.ConstraintsZone;
-import com.pathplanner.lib.path.PathConstraints;
-import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.redstorm509.alice2024.Constants;
 import com.redstorm509.alice2024.subsystems.Indexer;
+import com.redstorm509.alice2024.subsystems.Intake;
+import com.redstorm509.alice2024.subsystems.Indexer.IndexerState;
 import com.redstorm509.alice2024.subsystems.drive.SwerveDrive;
 import com.redstorm509.alice2024.subsystems.vision.Limelight;
 import com.redstorm509.alice2024.util.drivers.REVBlinkin;
 import com.redstorm509.alice2024.util.drivers.REVBlinkin.ColorCode;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
-public class AdaptableAutoPickup extends Command {
+public class AutonomousAutoPickup extends Command {
 
 	private SwerveDrive swerve;
 	private Limelight limelight;
 	private Intake intake;
 	private Indexer indexer;
-	private boolean beganIntaking;
-
 	private REVBlinkin lights;
+
+	private boolean beganIntaking;
 
 	private boolean isFinished = false;
 
@@ -39,9 +30,7 @@ public class AdaptableAutoPickup extends Command {
 	private double lastDistanceToTarget;
 	private boolean lostTarget = false;
 
-	private Pose2d poseToDriveBackTo = new Pose2d();
-
-	public AdaptableAutoPickup(
+	public AutonomousAutoPickup(
 			SwerveDrive swerve,
 			Limelight limelight,
 			Intake intake,
@@ -65,20 +54,20 @@ public class AdaptableAutoPickup extends Command {
 		lastDistanceToTarget = (Constants.Vision.kIntakeCameraHeightFromGround
 				/ Math.tan(Math.toRadians(-limelight.getTY() + -Constants.Vision.kIntakeCameraAngleOffset)));
 
-		limelight.setLEDMode_ForceBlink();
+		// limelight.setLEDMode_ForceBlink();
 		lights.setColor(ColorCode.AutoTargetLost);
 		SmartDashboard.putBoolean("Autonomous Lock On", false);
 		limelight.setPipelineIndex(Constants.Vision.Pipeline.NeuralNetwork);
-
-		poseToDriveBackTo = swerve.getRawOdometeryPose();
 	}
 
 	@Override
 	public void execute() {
 		if (!limelight.getTV() && !beganIntaking) {
-			// add behavior
+			// limelight.setLEDMode_ForceBlink();
+			lights.setColor(ColorCode.AutoTargetLost);
+			SmartDashboard.putBoolean("Autonomous Lock On", false);
 		} else {
-			limelight.setLEDMode_ForceOn();
+			// limelight.setLEDMode_ForceOn();
 			lights.setColor(ColorCode.AutoTargetFound);
 			SmartDashboard.putBoolean("Autonomous Lock On", true);
 		}
@@ -91,27 +80,12 @@ public class AdaptableAutoPickup extends Command {
 
 		// double check correct sign, double negatives l
 
-		if (indexer.indexingNoteState == IndexerState.HasNote) {
-			// if command has grabbed note
-			PathfindHolonomic pathfindercmd = new PathfindHolonomic(
-					poseToDriveBackTo,
-					new PathConstraints(5.02, 5.02, Math.toRadians(660), Math.toRadians(660)),
-					swerve::getEstimatedPose,
-					swerve::getChassisSpeeds,
-					swerve::setChassisSpeeds,
-					swerve.getHolonomicPathFollowerConfig(),
-					swerve);
-			isFinished = true;
-			pathfindercmd.schedule();
-
-		} else if ((limelight.getTV() && indexer.indexingNoteState == IndexerState.Noteless
-				&& distanceToTargetY < 4.0)) {
+		if ((limelight.getTV() && indexer.indexingNoteState == IndexerState.Noteless
+				&& distanceToTargetY < 3.0)) {
 			// checks if target is the same target that has been tracking, if not follows
 			// last known path (slightly jank, but test)
 			double travelDistanceY;
 			double useTX;
-
-			// Lost target logic and corrections
 			if (!lostTarget) {
 				if (Math.abs(distanceToTargetY) < Math
 						.abs(lastDistanceToTarget + Constants.Vision.kMaxTargetDistanceVariation)) {
@@ -125,7 +99,7 @@ public class AdaptableAutoPickup extends Command {
 			} else {
 				travelDistanceY = lastDistanceToTarget / 2;
 				useTX = lastTX / 2;
-				limelight.setLEDMode_ForceBlink();
+				// limelight.setLEDMode_ForceBlink();
 				lights.setColor(ColorCode.AutoTargetLost);
 				SmartDashboard.putBoolean("Autonomous Lock On", false);
 			}
@@ -138,44 +112,21 @@ public class AdaptableAutoPickup extends Command {
 							-Constants.kMaxAngularVelocity, Constants.kMaxAngularVelocity), // tune this
 					false,
 					false);
+		} else {
+			double spinDirection = swerve.getYaw().getDegrees() > 0.0 ? 1.0 : -1.0; // REPLACE WITH WHAT FORWARD IS
+			swerve.drive(
+					new Translation2d(),
+					Math.toRadians(5.0 * spinDirection), // just spin lol
+					true,
+					false);
 		}
 
 		if (distanceToTargetY < 2 || beganIntaking) {
 			beganIntaking = true;
 
-			// has note logic using beam breaks
-
-			// CHANGE TO CONSTANTS
-			if (indexer.indexingNoteState == IndexerState.HasNote) {
-				isFinished = true;
-
-				lights.setColor(ColorCode.HasNote);
-			} else if (indexer.indexingNoteState == IndexerState.Noteless) {
-				indexer.rawIndexer(-Constants.Indexer.kSpinSpeed);
-				intake.intake(true);
-
-				lights.setColor(ColorCode.NoteInsideRobot);
-			} else if (indexer.indexingNoteState == IndexerState.NoteTooShooter) {
-				indexer.rawIndexer(Constants.Indexer.kReducedSpinSpeed); // increase if needed
-				intake.stop();
-
-				lights.setColor(ColorCode.NoteInsideRobot);
-			} else if (indexer.indexingNoteState == IndexerState.NoteTooShooterExtreme) {
-				indexer.rawIndexer(Constants.Indexer.kSpinSpeed);
-				intake.stop();
-
-				lights.setColor(ColorCode.NoteInsideRobot);
-			} else if (indexer.indexingNoteState == IndexerState.NoteTooIntake) {
-				indexer.rawIndexer(-Constants.Indexer.kReducedSpinSpeed); // increase if needed
-				intake.stop();
-
-				lights.setColor(ColorCode.NoteInsideRobot);
-			} else if (indexer.indexingNoteState == IndexerState.NoteTooIntakeExtreme) {
-				indexer.rawIndexer(-Constants.Indexer.kSpinSpeed);
-				intake.intake(true);
-
-				lights.setColor(ColorCode.NoteInsideRobot);
-			}
+			isFinished = indexer.indexingNoteState != IndexerState.Noteless;
+			indexer.rawIndexer(-Constants.Indexer.kSpinSpeed);
+			intake.intake(true);
 		}
 	}
 
@@ -187,7 +138,7 @@ public class AdaptableAutoPickup extends Command {
 	@Override
 	public void end(boolean wasInterrupted) {
 		swerve.drive(new Translation2d(0, 0), 0, true, false);
-		limelight.setLEDMode_ForceOff();
+		// limelight.setLEDMode_ForceOff();
 		if (indexer.indexingNoteState == IndexerState.HasNote) {
 			lights.setColor(ColorCode.HasNote);
 		} else {
