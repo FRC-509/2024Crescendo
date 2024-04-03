@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Shooter extends SubsystemBase {
-	private double kMaxShooterAccel = 230.0d * 0.75;
+	private double kMaxShooterAccel = 230.0d;
 	private TalonFX shooterLeader = new TalonFX(15); // Labelled SHOOTERL
 	private TalonFX shooterFollower = new TalonFX(16); // Labelled SHOOTERR
 	private SlewRateLimiter rateLimiter = new SlewRateLimiter(kMaxShooterAccel);

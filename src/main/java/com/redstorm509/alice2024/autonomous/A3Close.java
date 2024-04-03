@@ -30,7 +30,7 @@ public class A3Close extends SequentialCommandGroup {
 				new SetPivot(arm, Constants.Arm.kMinPivot),
 				swerve.resetOdometryCmd(startPose),
 				Commands.parallel(
-						AutoBuilder.followPath(PathPlannerPath.fromPathFile("FD2N_TwoNoteAmpSide")),
+						AutoBuilder.followPath(PathPlannerPath.fromPathFile("D2N_TwoNoteAmpSide")),
 						new AutonomousIntakeNote(intake, indexer, lights)),
 				Commands.runOnce(() -> swerve.setTargetHeading(swerve.jankFlipHeading(29.56)), swerve),
 				new DefaultDriveCommand(swerve, 0.0, 0.0, 0.0, true).withTimeout(0.5),

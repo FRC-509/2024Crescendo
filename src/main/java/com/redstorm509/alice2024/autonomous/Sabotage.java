@@ -18,7 +18,7 @@ public class Sabotage extends SequentialCommandGroup {
 				swerve.resetOdometryCmd(startPose),
 				Commands.runOnce(() -> intake.intake(true), intake),
 				Commands.runOnce(() -> indexer.rawIndexer(-1), indexer),
-				Commands.runOnce(() -> shooter.setShooterVelocity(-7.5), shooter),
+				Commands.runOnce(() -> shooter.setShooterVelocity(-15), shooter),
 
 				AutoBuilder.followPath(PathPlannerPath.fromPathFile("Sabotage")),
 				Commands.runOnce(() -> swerve.stopModules(), swerve),

@@ -116,6 +116,11 @@ public class Indexer extends SubsystemBase {
 		}
 	}
 
+	public boolean isNoteInside() {
+		return indexingNoteState != IndexerState.Noteless && indexingNoteState != IndexerState.NoteTooIntakeExtreme
+				&& indexingNoteState != IndexerState.NoteTooIntake;
+	}
+
 	@Override
 	public void periodic() {
 		pollState();

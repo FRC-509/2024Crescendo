@@ -30,7 +30,7 @@ public class A3Close1Midfield extends SequentialCommandGroup {
 				new SetPivot(arm, Constants.Arm.kMinPivot),
 				swerve.resetOdometryCmd(startPose),
 				Commands.parallel(
-						AutoBuilder.followPath(PathPlannerPath.fromPathFile("FD2N_TwoNoteAmpSide")),
+						AutoBuilder.followPath(PathPlannerPath.fromPathFile("D2N_TwoNoteAmpSide")),
 						new AutonomousIntakeNote(intake, indexer, lights)),
 				AutoBuilder.followPath(PathPlannerPath.fromPathFile("JankAutoPart2")),
 				Commands.runOnce(() -> swerve.stopModules(), swerve),

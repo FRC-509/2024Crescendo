@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 public class A1Close extends SequentialCommandGroup {
 	public A1Close(SwerveDrive swerve, Shooter shooter, Arm arm, Indexer indexer, Intake intake, REVBlinkin lights) {
-		Pose2d startPose = new Pose2d(0.73, 4.47, Rotation2d.fromDegrees(-59.86));
+		Pose2d startPose = new Pose2d(0.73, 4.47, Rotation2d.fromDegrees(59.86));
 		Command paths = Commands.sequence(
 				shooter.startShooting(),
 				swerve.resetOdometryCmd(startPose),

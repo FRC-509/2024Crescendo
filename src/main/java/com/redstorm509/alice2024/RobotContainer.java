@@ -183,6 +183,10 @@ public class RobotContainer {
 	}
 
 	private void addAutonomousRoutines() {
+		chooser.addOption("1 Note", new A1Close(swerve, shooter, arm, indexer, intake, lights));
+		chooser.addOption("2 Note", new A2Close(swerve, shooter, arm, indexer, intake, shooterCamera, lights));
+		chooser.addOption("Sabotage Auto", new Sabotage(swerve, intake, indexer, shooter));
+		chooser.addOption("GoFar Auto", new A2Close1Midfield(swerve, shooter, arm, indexer, intake, lights));
 		chooser.addOption("4 Note Close Amp Side",
 				new A4Close(swerve, shooter, arm, indexer, intake, shooterCamera, lights));
 		chooser.addOption("\"Go AFK\" (Null)", new InstantCommand());
