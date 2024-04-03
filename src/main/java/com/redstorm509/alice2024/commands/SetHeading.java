@@ -28,7 +28,7 @@ public class SetHeading extends Command {
 
 	@Override
 	public boolean isFinished() {
-		return MathUtil.isNear(targetAngle, swerve.getYaw().getDegrees(), 0.1);
+		return MathUtil.isNear(targetAngle, swerve.getYaw().getDegrees(), 0.25);
 	}
 
 	@Override

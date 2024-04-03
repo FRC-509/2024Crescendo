@@ -1,12 +1,9 @@
 package com.redstorm509.alice2024.autonomous;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.path.PathPlannerPath;
 import com.redstorm509.alice2024.Constants;
-import com.redstorm509.alice2024.commands.DefaultDriveCommand;
+import com.redstorm509.alice2024.autonomous.Actions.DriveToAndShootNote;
 import com.redstorm509.alice2024.commands.SetPivot;
 import com.redstorm509.alice2024.commands.autonomous.AutoShootMoreJank;
-import com.redstorm509.alice2024.commands.autonomous.AutonomousIntakeNote;
 import com.redstorm509.alice2024.subsystems.Arm;
 import com.redstorm509.alice2024.subsystems.Indexer;
 import com.redstorm509.alice2024.subsystems.Intake;
@@ -25,29 +22,14 @@ public class A3Close extends SequentialCommandGroup {
 		Pose2d startPose = new Pose2d(0.72, 6.65, Rotation2d.fromDegrees(59.86));
 		Command paths = Commands.sequence(
 				shooter.startShooting(),
-				new AutonomousIntakeNote(intake, indexer, lights),
 				new AutoShootMoreJank(shooter, indexer),
-				new SetPivot(arm, Constants.Arm.kMinPivot),
 				swerve.resetOdometryCmd(startPose),
-				Commands.parallel(
-						AutoBuilder.followPath(PathPlannerPath.fromPathFile("D2N_TwoNoteAmpSide")),
-						new AutonomousIntakeNote(intake, indexer, lights)),
-				Commands.runOnce(() -> swerve.setTargetHeading(swerve.jankFlipHeading(29.56)), swerve),
-				new DefaultDriveCommand(swerve, 0.0, 0.0, 0.0, true).withTimeout(0.5),
-				Commands.runOnce(() -> swerve.stopModules(), swerve),
-				new SetPivot(arm, -38.622),
-				new AutoShootMoreJank(shooter, indexer),
+				new DriveToAndShootNote("D2N_TwoNoteAmpSide", 31.16, -34.453750, swerve, arm, shooter, indexer, intake,
+						lights),
+				new DriveToAndShootNote("DriveToThirdNoteClose", 0.0, -37.441406, swerve, arm, shooter, indexer, intake,
+						lights),
 				new SetPivot(arm, Constants.Arm.kMinPivot),
 				Commands.runOnce(() -> swerve.stopModules(), swerve),
-				Commands.parallel(
-						AutoBuilder.followPath(PathPlannerPath.fromPathFile("DriveToThirdNoteClose")),
-						new AutonomousIntakeNote(intake, indexer, lights)),
-				Commands.runOnce(() -> swerve.setTargetHeading(swerve.jankFlipHeading(13.42)), swerve),
-				new DefaultDriveCommand(swerve, 0.0, 0.0, 0.0, true).withTimeout(0.5),
-				Commands.runOnce(() -> swerve.stopModules(), swerve),
-				new SetPivot(arm, -38.232).withTimeout(1),
-				new AutoShootMoreJank(shooter, indexer),
-				new SetPivot(arm, Constants.Arm.kMinPivot),
 				shooter.stopShooting());
 		addCommands(paths);
 	}

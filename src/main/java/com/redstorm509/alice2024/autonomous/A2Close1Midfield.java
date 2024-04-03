@@ -1,12 +1,9 @@
 package com.redstorm509.alice2024.autonomous;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.path.PathPlannerPath;
 import com.redstorm509.alice2024.Constants;
 import com.redstorm509.alice2024.autonomous.Actions.DriveToAndShootNote;
 import com.redstorm509.alice2024.commands.SetPivot;
 import com.redstorm509.alice2024.commands.autonomous.AutoShootMoreJank;
-import com.redstorm509.alice2024.commands.autonomous.AutonomousIntakeNote;
 import com.redstorm509.alice2024.subsystems.Arm;
 import com.redstorm509.alice2024.subsystems.Indexer;
 import com.redstorm509.alice2024.subsystems.Intake;

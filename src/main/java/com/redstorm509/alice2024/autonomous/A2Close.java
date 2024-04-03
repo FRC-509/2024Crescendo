@@ -29,7 +29,8 @@ public class A2Close extends SequentialCommandGroup {
 				new DriveToAndShootNote("D2N_TwoNoteAmpSide", 31.16, -34.453750, swerve, arm, shooter, indexer, intake,
 						lights),
 				new SetPivot(arm, Constants.Arm.kMinPivot),
-				Commands.runOnce(() -> swerve.stopModules(), swerve));
+				Commands.runOnce(() -> swerve.stopModules(), swerve),
+				shooter.stopShooting());
 		addCommands(paths);
 	}
 }

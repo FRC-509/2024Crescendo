@@ -7,7 +7,6 @@ import com.redstorm509.alice2024.subsystems.Intake;
 import com.redstorm509.alice2024.util.drivers.REVBlinkin;
 import com.redstorm509.alice2024.util.drivers.REVBlinkin.ColorCode;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class AutonomousIntakeNote extends Command {

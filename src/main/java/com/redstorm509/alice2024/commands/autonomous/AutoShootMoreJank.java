@@ -37,7 +37,7 @@ public class AutoShootMoreJank extends Command {
 			startedindexing = true;
 		}
 
-		if (timer.get() >= 0.75 && startedindexing == true) {
+		if (timer.get() >= 0.50 && startedindexing == true) {
 			isFinished = true;
 		}
 	}

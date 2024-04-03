@@ -18,19 +18,18 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
-public class A4Close extends SequentialCommandGroup {
-	public A4Close(SwerveDrive swerve, Shooter shooter, Arm arm, Indexer indexer, Intake intake,
+public class S3Close extends SequentialCommandGroup {
+	public S3Close(SwerveDrive swerve, Shooter shooter, Arm arm, Indexer indexer, Intake intake,
 			Limelight shooterCamera, REVBlinkin lights) {
-		Pose2d startPose = new Pose2d(0.72, 6.65, Rotation2d.fromDegrees(59.86));
+		Pose2d startPose = new Pose2d(0.72, 4.43, Rotation2d.fromDegrees(-59.86));
 		Command paths = Commands.sequence(
 				shooter.startShooting(),
 				new AutoShootMoreJank(shooter, indexer),
 				swerve.resetOdometryCmd(startPose),
-				new DriveToAndShootNote("D2N_TwoNoteAmpSide", 31.16, -34.453750, swerve, arm, shooter, indexer, intake,
+				new DriveToAndShootNote("D2N_TwoNoteSourceSide", -31.16, -34.453750, swerve, arm, shooter, indexer,
+						intake,
 						lights),
-				new DriveToAndShootNote("DriveToThirdNoteClose", 0.0, -37.441406, swerve, arm, shooter, indexer, intake,
-						lights),
-				new DriveToAndShootNote("DriveToFourthNoteClose", -27.475, -35.683594, swerve, arm, shooter, indexer,
+				new DriveToAndShootNote("SDriveToThirdNoteClose", 0.0, -37.441406, swerve, arm, shooter, indexer,
 						intake,
 						lights),
 				new SetPivot(arm, Constants.Arm.kMinPivot),
