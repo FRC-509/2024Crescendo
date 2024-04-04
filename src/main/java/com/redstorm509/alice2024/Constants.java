@@ -51,6 +51,7 @@ public final class Constants {
 		public static final double kFlyWheelA = 0.0;
 
 		public static final double kTargetSpeed = 97.5;
+		public static final double kSpeakerShootSpeed = kTargetSpeed * 0.42;
 		public static final double kDefaultShootSpeed = kTargetSpeed * 0.25;
 
 		public static final double kFlyWheelCircumference = Units.inchesToMeters(4) * Math.PI; // 0.3192 meters

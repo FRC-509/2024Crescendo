@@ -15,8 +15,6 @@ public class AutonomousIntakeNote extends Command {
 	private final REVBlinkin lights;
 
 	private boolean isFinished = false;
-	private double fastSpeed = Constants.Indexer.kSpinSpeed;
-	private double slowSpeed = Constants.Indexer.kReducedSpinSpeed;
 
 	public AutonomousIntakeNote(Intake intake, Indexer indexer, REVBlinkin lights) {
 		this.intake = intake;
@@ -38,27 +36,27 @@ public class AutonomousIntakeNote extends Command {
 
 			lights.setColor(ColorCode.HasNote);
 		} else if (indexer.indexingNoteState == IndexerState.Noteless) {
-			indexer.rawIndexer(-fastSpeed);
+			indexer.rawIndexer(-Constants.Indexer.kSpinSpeed);
 			intake.intake(true);
 
 			lights.setColor(ColorCode.NoteInsideRobot);
 		} else if (indexer.indexingNoteState == IndexerState.NoteTooShooter) {
-			indexer.rawIndexer(slowSpeed); // increase if needed
+			indexer.rawIndexer(Constants.Indexer.kReducedSpinSpeed); // increase if needed
 			intake.intake(true);
 
 			lights.setColor(ColorCode.NoteInsideRobot);
 		} else if (indexer.indexingNoteState == IndexerState.NoteTooShooterExtreme) {
-			indexer.rawIndexer(fastSpeed);
+			indexer.rawIndexer(Constants.Indexer.kSpinSpeed);
 			intake.intake(true);
 
 			lights.setColor(ColorCode.NoteInsideRobot);
 		} else if (indexer.indexingNoteState == IndexerState.NoteTooIntake) {
-			indexer.rawIndexer(-slowSpeed); // increase if needed
+			indexer.rawIndexer(-Constants.Indexer.kReducedSpinSpeed); // increase if needed
 			intake.stop();
 
 			lights.setColor(ColorCode.NoteInsideRobot);
 		} else if (indexer.indexingNoteState == IndexerState.NoteTooIntakeExtreme) {
-			indexer.rawIndexer(-fastSpeed);
+			indexer.rawIndexer(-Constants.Indexer.kSpinSpeed);
 			intake.intake(true);
 
 			lights.setColor(ColorCode.NoteInsideRobot);

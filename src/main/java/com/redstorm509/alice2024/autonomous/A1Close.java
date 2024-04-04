@@ -1,7 +1,8 @@
 package com.redstorm509.alice2024.autonomous;
 
-import com.redstorm509.alice2024.commands.autonomous.AutoShootMoreJank;
+import com.redstorm509.alice2024.Constants;
 import com.redstorm509.alice2024.commands.autonomous.AutonomousIntakeNote;
+import com.redstorm509.alice2024.commands.autonomous.AutonomousShootEvenMoreJankButItsOk;
 import com.redstorm509.alice2024.subsystems.Arm;
 import com.redstorm509.alice2024.subsystems.Indexer;
 import com.redstorm509.alice2024.subsystems.Intake;
@@ -22,7 +23,7 @@ public class A1Close extends SequentialCommandGroup {
 				shooter.startShooting(),
 				swerve.resetOdometryCmd(startPose),
 				new AutonomousIntakeNote(intake, indexer, lights),
-				new AutoShootMoreJank(shooter, indexer),
+				new AutonomousShootEvenMoreJankButItsOk(Constants.Shooter.kSpeakerShootSpeed, shooter, indexer),
 				shooter.stopShooting());
 		addCommands(paths);
 	}
