@@ -2,6 +2,7 @@ package com.redstorm509.alice2024;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -12,6 +13,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 import com.redstorm509.alice2024.autonomous.*;
 import com.redstorm509.alice2024.commands.*;
 import com.redstorm509.alice2024.subsystems.*;
+import com.redstorm509.alice2024.subsystems.Indexer.IndexerState;
 import com.redstorm509.alice2024.subsystems.drive.*;
 import com.redstorm509.alice2024.subsystems.vision.*;
 import com.redstorm509.alice2024.util.PigeonWrapper;
@@ -170,7 +172,11 @@ public class RobotContainer {
 			SmartDashboard.putBoolean("Is At Shoot Speed", false);
 		}, shooter));
 
-		operator.a().onTrue(new SetPivot(arm, 43));
+		operator.a().onTrue(new ConditionalCommand(
+				new SetPivot(arm, 43),
+				new InstantCommand(),
+				() -> (indexer.indexingNoteState == IndexerState.Noteless
+						|| indexer.indexingNoteState == IndexerState.HasNote)));
 		operator.y().onTrue(new SetPivot(arm, Constants.Arm.kMinPivot + 5));
 		arm.setDefaultCommand(new DefaultPivotCommand(arm,
 				() -> nonInvSquare(-operator.getLeftY()) / 5, () -> false));
