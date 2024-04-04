@@ -1,8 +1,13 @@
 package com.redstorm509.alice2024.autonomous;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathPlannerPath;
 import com.redstorm509.alice2024.Constants;
 import com.redstorm509.alice2024.autonomous.Actions.DriveToAndShootNote;
+import com.redstorm509.alice2024.commands.SetHeading;
 import com.redstorm509.alice2024.commands.SetPivot;
+import com.redstorm509.alice2024.commands.autonomous.AutoShootMoreJank;
+import com.redstorm509.alice2024.commands.autonomous.AutonomousIntakeNote;
 import com.redstorm509.alice2024.commands.autonomous.AutonomousShootEvenMoreJankButItsOk;
 import com.redstorm509.alice2024.subsystems.Arm;
 import com.redstorm509.alice2024.subsystems.Indexer;
@@ -29,8 +34,23 @@ public class A2Close1Midfield extends SequentialCommandGroup {
 						lights),
 				new SetPivot(arm, Constants.Arm.kMinPivot),
 				Commands.runOnce(() -> swerve.stopModules(), swerve),
-				new DriveToAndShootNote("DriveToSecondNote", 24.2, -24.05, swerve, arm, shooter, indexer, intake,
+				Commands.parallel(
+						Commands.sequence(
+								Commands.parallel(
+										new SetPivot(arm, Constants.Arm.kMinPivot),
+										AutoBuilder.followPath(PathPlannerPath.fromPathFile("DriveToThirdNoteFar"))),
+								Commands.waitUntil(() -> indexer.isNoteInside())),
+						new AutonomousIntakeNote(intake, indexer, lights)),
+				Commands.runOnce(() -> swerve.stopModules(), swerve),
+				Commands.parallel(
+						AutoBuilder.followPath(PathPlannerPath.fromPathFile("DriveToThirdNoteFarRev")),
+						new SetHeading(swerve, swerve.jankFlipHeading(24.2)),
+						new SetPivot(arm, -24.05)),
+				Commands.runOnce(() -> swerve.stopModules(), swerve),
+				new AutoShootMoreJank(shooter, indexer),
+				new DriveToAndShootNote("DriveToFourthNoteFar", 24.2, -24.05, swerve, arm, shooter, indexer, intake,
 						lights),
+				Commands.runOnce(() -> swerve.stopModules(), swerve),
 				shooter.stopShooting());
 		addCommands(paths);
 	}

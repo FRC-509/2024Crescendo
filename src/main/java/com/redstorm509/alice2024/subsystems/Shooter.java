@@ -65,10 +65,6 @@ public class Shooter extends SubsystemBase {
 		return MathUtil.isNear(goalVelocity, getShooterVelocity(), 20.0);
 	}
 
-	public void setToDefaultShootSpeed() {
-		goalVelocity = -Constants.Shooter.kDefaultShootSpeed;
-	}
-
 	@Override
 	public void periodic() {
 		if (goalVelocity == 0.0d) {

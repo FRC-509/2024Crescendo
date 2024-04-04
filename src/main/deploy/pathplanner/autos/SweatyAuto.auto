@@ -26,13 +26,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "DriveToSecondNoteRev"
+            "pathName": "DriveToThirdNoteFarRev"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "DriveToThirdNote"
+            "pathName": "DriveToFourthNoteFar"
           }
         }
       ]
