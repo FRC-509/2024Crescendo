@@ -183,13 +183,24 @@ public class RobotContainer {
 	}
 
 	private void addAutonomousRoutines() {
-		chooser.addOption("1 Note", new A1Close(swerve, shooter, arm, indexer, intake, lights));
-		chooser.addOption("2 Note", new A2Close(swerve, shooter, arm, indexer, intake, shooterCamera, lights));
-		chooser.addOption("Sabotage Auto", new Sabotage(swerve, intake, indexer, shooter));
-		chooser.addOption("4 Note Close Amp Side",
-				new A4Close(swerve, shooter, arm, indexer, intake, shooterCamera, lights));
-		chooser.addOption("4 Note Close Source Side",
-				new S4Close(swerve, shooter, arm, indexer, intake, shooterCamera, lights));
+		chooser.addOption("Sabotage (DO NOT USE!)", new Sabotage(swerve, intake, indexer, shooter));
+		chooser.addOption("Sprint (DO NOT USE!)", new Sprint(swerve, arm, intake, indexer, shooter, lights));
+
+		chooser.addOption("[AMP/SOURCE] 1 Note", new A1Close(swerve, shooter, arm, indexer, intake, lights));
+		chooser.addOption("[SOURCE] 1 Note + Taxi", new S1CloseTaxi(swerve, shooter, arm, indexer, intake, lights));
+		chooser.addOption("[AMP] 2 Note Close",
+				new A2Close(swerve, shooter, arm, indexer, intake, lights));
+		chooser.addOption("[AMP] 3 Note Close",
+				new A3Close(swerve, shooter, arm, indexer, intake, lights));
+		chooser.addOption("[AMP] 4 Note Close",
+				new A4Close(swerve, shooter, arm, indexer, intake, lights));
+		chooser.addOption("[SOURCE] 2 Note Close",
+				new S2Close(swerve, shooter, arm, indexer, intake, lights));
+		chooser.addOption("[SOURCE] 3 Note Close",
+				new S3Close(swerve, shooter, arm, indexer, intake, lights));
+		chooser.addOption("[SOURCE] 4 Note Close",
+				new S4Close(swerve, shooter, arm, indexer, intake, lights));
+
 		chooser.addOption("\"Go AFK\" (Null)", new InstantCommand());
 		SmartDashboard.putData("Auto Mode", chooser);
 
