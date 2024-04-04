@@ -156,11 +156,9 @@ public class RobotContainer {
 
 		operator.leftBumper().whileTrue(Commands.runEnd(() -> {
 			shooter.setShooterVelocity(-Constants.Shooter.kTargetSpeed);
-			SmartDashboard.putBoolean("Is At Shoot Speed", shooter.isAtShooterVelocity());
 			SmartDashboard.putBoolean("Is Winding Up", true);
 		}, () -> {
 			shooter.setShooterVelocity(0);
-			SmartDashboard.putBoolean("Is At Shoot Speed", false);
 			SmartDashboard.putBoolean("Is Winding Up", false);
 		}, shooter));
 
@@ -184,7 +182,8 @@ public class RobotContainer {
 
 	private void addAutonomousRoutines() {
 		chooser.addOption("Sabotage (DO NOT USE!)", new Sabotage(swerve, intake, indexer, shooter));
-		chooser.addOption("Sprint (DO NOT USE!)", new Sprint(swerve, arm, intake, indexer, shooter, lights));
+		chooser.addOption("Sprint (DO NOT USE!)",
+				new Sprint(swerve, arm, intake, indexer, shooter, shooterCamera, lights));
 
 		chooser.addOption("[AMP/SOURCE] 1 Note", new A1Close(swerve, shooter, arm, indexer, intake, lights));
 		chooser.addOption("[SOURCE] 1 Note + Taxi", new S1CloseTaxi(swerve, shooter, arm, indexer, intake, lights));

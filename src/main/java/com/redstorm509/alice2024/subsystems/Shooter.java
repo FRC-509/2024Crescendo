@@ -16,8 +16,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Shooter extends SubsystemBase {
 	private double kMaxShooterAccel = 230.0d;
-	private TalonFX shooterLeader = new TalonFX(15); // Labelled SHOOTERL
-	private TalonFX shooterFollower = new TalonFX(16); // Labelled SHOOTERR
+	private TalonFX shooterLeader = new TalonFX(16); // Labelled SHOOTERT
+	private TalonFX shooterFollower = new TalonFX(15); // Labelled SHOOTERB
 	private SlewRateLimiter rateLimiter = new SlewRateLimiter(kMaxShooterAccel);
 	private double goalVelocity = 0.0d;
 
@@ -48,6 +48,10 @@ public class Shooter extends SubsystemBase {
 		// shooterLeader.setControl(closedLoopVelocity.withVelocity(speed));
 	}
 
+	public double getGoalVelocity() {
+		return goalVelocity;
+	}
+
 	public double getShooterVelocity() {
 		return shooterLeader.getVelocity().getValueAsDouble();
 	}
@@ -72,7 +76,7 @@ public class Shooter extends SubsystemBase {
 		SmartDashboard.putNumber("Shooter Supply Current",
 				shooterLeader.getSupplyCurrent().getValueAsDouble()
 						+ shooterFollower.getSupplyCurrent().getValueAsDouble());
-		SmartDashboard.putNumber("Shooter Velocity (rot/s)", shooterLeader.getVelocity().getValue());
+		SmartDashboard.putNumber("Shooter Velocity (rps)", -shooterLeader.getVelocity().getValueAsDouble());
 	}
 
 	public Command startShooting() {

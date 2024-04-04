@@ -37,4 +37,21 @@ public class DriveToAndShootNote extends SequentialCommandGroup {
 				new AutoShootMoreJank(shooter, indexer));
 		addCommands(paths);
 	}
+
+	public DriveToAndShootNote(String pathName, double armPivot, SwerveDrive swerve, Arm arm,
+			Shooter shooter, Indexer indexer,
+			Intake intake, REVBlinkin lights) {
+		Command paths = Commands.sequence(
+				Commands.parallel(
+						Commands.sequence(
+								Commands.parallel(
+										new SetPivot(arm, Constants.Arm.kMinPivot),
+										AutoBuilder.followPath(PathPlannerPath.fromPathFile(pathName))),
+								Commands.waitUntil(() -> indexer.isNoteInside()),
+								new SetPivot(arm, armPivot)),
+						new AutonomousIntakeNote(intake, indexer, lights)),
+				Commands.runOnce(() -> swerve.stopModules(), swerve),
+				new AutoShootMoreJank(shooter, indexer));
+		addCommands(paths);
+	}
 }

@@ -38,8 +38,8 @@ public class AutoAlign extends Command {
 	private Translation2d outputTranslation;
 	private double desiredArmPivot = Constants.Arm.kMinPivot;
 	private double desiredArmPivotDerivative = Double.POSITIVE_INFINITY;
-	private double kPivotSlope = -0.721546;// -0.710432; // TUNE ME
-	private double kPivotIntercept = -26.4987;// -27.0751; // TUNE ME
+	private static double kPivotSlope = -0.721546;// -0.710432; // TUNE ME
+	private static double kPivotIntercept = -26.4987;// -27.0751; // TUNE ME
 
 	// Meant to be an "isDownBind" command
 	public AutoAlign(
@@ -259,4 +259,12 @@ public class AutoAlign extends Command {
 			swerve.stopModules();
 		}
 	}
+
+	/*-
+	private static Pair<Double, Double> getShotParameters(Limelight shooterCamera) {
+		double pivot = kPivotSlope * shooterCamera.getTY() + kPivotIntercept;
+		double headingDelta = shooterCamera.getTX();
+		return Pair.of(pivot, headingDelta);
+	}
+	*/
 }
