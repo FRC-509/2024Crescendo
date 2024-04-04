@@ -1,5 +1,7 @@
 package com.redstorm509.alice2024.autonomous;
 
+import java.util.Set;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.redstorm509.alice2024.Constants;
@@ -20,6 +22,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 public class A2Close1Midfield extends SequentialCommandGroup {
@@ -28,7 +31,7 @@ public class A2Close1Midfield extends SequentialCommandGroup {
 		Pose2d startPose = new Pose2d(0.72, 6.65, Rotation2d.fromDegrees(59.86));
 		Command paths = Commands.sequence(
 				shooter.startShooting(),
-				new AutonomousShootEvenMoreJankButItsOk(-Constants.Shooter.kSpeakerShootSpeed, shooter, indexer),
+				new AutoShootMoreJank(shooter, indexer),
 				swerve.resetOdometryCmd(startPose),
 				new DriveToAndShootNote("D2N_TwoNoteAmpSide", 31.16, -34.453750, swerve, arm, shooter, indexer, intake,
 						lights),
@@ -44,7 +47,9 @@ public class A2Close1Midfield extends SequentialCommandGroup {
 				Commands.runOnce(() -> swerve.stopModules(), swerve),
 				Commands.parallel(
 						AutoBuilder.followPath(PathPlannerPath.fromPathFile("DriveToThirdNoteFarRev")),
-						new SetHeading(swerve, swerve.jankFlipHeading(24.2)),
+						new DeferredCommand(
+								() -> new SetHeading(swerve, swerve.jankFlipHeading(24.2)),
+								Set.of(swerve)),
 						new SetPivot(arm, -24.05)),
 				Commands.runOnce(() -> swerve.stopModules(), swerve),
 				new AutoShootMoreJank(shooter, indexer),

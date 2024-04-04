@@ -3,6 +3,7 @@ package com.redstorm509.alice2024.autonomous;
 import com.redstorm509.alice2024.Constants;
 import com.redstorm509.alice2024.autonomous.Actions.DriveToAndShootNote;
 import com.redstorm509.alice2024.commands.SetPivot;
+import com.redstorm509.alice2024.commands.autonomous.AutoShootMoreJank;
 import com.redstorm509.alice2024.commands.autonomous.AutonomousShootEvenMoreJankButItsOk;
 import com.redstorm509.alice2024.subsystems.Arm;
 import com.redstorm509.alice2024.subsystems.Indexer;
@@ -22,7 +23,7 @@ public class S4Close extends SequentialCommandGroup {
 		Pose2d startPose = new Pose2d(0.72, 4.43, Rotation2d.fromDegrees(-59.86));
 		Command paths = Commands.sequence(
 				shooter.startShooting(),
-				new AutonomousShootEvenMoreJankButItsOk(-Constants.Shooter.kSpeakerShootSpeed, shooter, indexer),
+				new AutoShootMoreJank(shooter, indexer),
 				swerve.resetOdometryCmd(startPose),
 				new DriveToAndShootNote("D2N_TwoNoteSourceSide", -31.16, -34.453750, swerve, arm, shooter, indexer,
 						intake,
