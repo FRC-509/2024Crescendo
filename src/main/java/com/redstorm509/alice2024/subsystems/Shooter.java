@@ -76,11 +76,11 @@ public class Shooter extends SubsystemBase {
 		SmartDashboard.putNumber("Shooter Supply Current",
 				shooterLeader.getSupplyCurrent().getValueAsDouble()
 						+ shooterFollower.getSupplyCurrent().getValueAsDouble());
-		SmartDashboard.putNumber("Shooter Velocity (rps)", -shooterLeader.getVelocity().getValueAsDouble());
+		SmartDashboard.putNumber("Shooter Velocity (rps)", Math.abs(shooterLeader.getVelocity().getValueAsDouble()));
 	}
 
 	public Command startShooting() {
-		return Commands.runOnce(() -> setShooterVelocity(-Constants.Shooter.kTargetSpeed), this);
+		return Commands.runOnce(() -> setShooterVelocity(Constants.Shooter.kTargetSpeed), this);
 	}
 
 	public Command stopShooting() {

@@ -344,7 +344,7 @@ public class SwerveDrive extends SubsystemBase {
 		Alliance alliance = getAlliance();
 		flip = alliance == DriverStation.Alliance.Red;
 		if (flip) {
-			return -heading;
+			return 180.0 - heading;
 		} else {
 			return heading;
 		}
