@@ -78,13 +78,13 @@ public class Indexer extends SubsystemBase {
 	}
 
 	public void pollState() {
-		if ((!indexerBB.get() && !shooterBB.get() && !imStageBB.get())
-				|| (!indexerBB.get() && !shooterBB.get() && imStageBB.get())) {
+		if (!indexerBB.get() && !shooterBB.get() && !imStageBB.get()) {
 			// Note is where we want it to be
 			prevIndexerState = indexingNoteState;
 			indexingNoteState = IndexerState.HasNote;
 			isInvalidState = false;
-		} else if (!indexerBB.get() && shooterBB.get() && imStageBB.get()) {
+		} else if ((!indexerBB.get() && shooterBB.get() && imStageBB.get())
+				|| (!indexerBB.get() && !shooterBB.get() && imStageBB.get())) {
 			// Note is too far out shooter side
 			prevIndexerState = indexingNoteState;
 			indexingNoteState = IndexerState.NoteTooShooter;
@@ -108,10 +108,12 @@ public class Indexer extends SubsystemBase {
 			isInvalidState = true;
 		}
 
-		if (indexingNoteState == prevIndexerState && indexingNoteState != IndexerState.NoteTooShooterExtreme) {
+		if (indexingNoteState != prevIndexerState) {
 			currentStateTimer.reset();
 		}
-		if (indexingNoteState == IndexerState.NoteTooShooterExtreme && currentStateTimer.get() >= 0.40) {
+
+		if (indexingNoteState == prevIndexerState && indexingNoteState != IndexerState.Noteless
+				&& indexingNoteState != IndexerState.HasNote && currentStateTimer.hasElapsed(0.50)) {
 			setNoteless();
 		}
 	}

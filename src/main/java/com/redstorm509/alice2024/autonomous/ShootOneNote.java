@@ -16,14 +16,15 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
-public class A1Close extends SequentialCommandGroup {
-	public A1Close(SwerveDrive swerve, Shooter shooter, Arm arm, Indexer indexer, Intake intake, REVBlinkin lights) {
+public class ShootOneNote extends SequentialCommandGroup {
+	public ShootOneNote(SwerveDrive swerve, Shooter shooter, Arm arm, Indexer indexer, Intake intake,
+			REVBlinkin lights) {
 		Pose2d startPose = new Pose2d(0.73, 4.47, Rotation2d.fromDegrees(59.86));
 		Command paths = Commands.sequence(
 				shooter.startShooting(),
 				swerve.resetOdometryCmd(startPose),
 				new AutonomousIntakeNote(intake, indexer, lights),
-				new AutonomousShootEvenMoreJankButItsOk(Constants.Shooter.kSpeakerShootSpeed, shooter, indexer),
+				new AutonomousShootEvenMoreJankButItsOk(-Constants.Shooter.kSpeakerShootSpeed, shooter, indexer),
 				shooter.stopShooting());
 		addCommands(paths);
 	}

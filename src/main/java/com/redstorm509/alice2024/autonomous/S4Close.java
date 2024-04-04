@@ -22,7 +22,7 @@ public class S4Close extends SequentialCommandGroup {
 		Pose2d startPose = new Pose2d(0.72, 4.43, Rotation2d.fromDegrees(-59.86));
 		Command paths = Commands.sequence(
 				shooter.startShooting(),
-				new AutonomousShootEvenMoreJankButItsOk(Constants.Shooter.kSpeakerShootSpeed, shooter, indexer),
+				new AutonomousShootEvenMoreJankButItsOk(-Constants.Shooter.kSpeakerShootSpeed, shooter, indexer),
 				swerve.resetOdometryCmd(startPose),
 				new DriveToAndShootNote("D2N_TwoNoteSourceSide", -31.16, -34.453750, swerve, arm, shooter, indexer,
 						intake,

@@ -8,6 +8,7 @@ import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -57,7 +58,11 @@ public class Shooter extends SubsystemBase {
 	}
 
 	public boolean isAtShooterVelocity() {
-		return Math.abs(getShooterVelocity()) >= Math.abs(goalVelocity) - 7.0;
+		return MathUtil.isNear(goalVelocity, getShooterVelocity(), 7.0);
+	}
+
+	public boolean isAtShooterVelocityLeniant() {
+		return MathUtil.isNear(goalVelocity, getShooterVelocity(), 20.0);
 	}
 
 	public void setToDefaultShootSpeed() {
@@ -80,7 +85,7 @@ public class Shooter extends SubsystemBase {
 	}
 
 	public Command startShooting() {
-		return Commands.runOnce(() -> setShooterVelocity(Constants.Shooter.kTargetSpeed), this);
+		return Commands.runOnce(() -> setShooterVelocity(-Constants.Shooter.kTargetSpeed), this);
 	}
 
 	public Command stopShooting() {

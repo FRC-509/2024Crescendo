@@ -33,7 +33,7 @@ public class AutonomousShootEvenMoreJankButItsOk extends Command {
 
 	@Override
 	public void execute() {
-		boolean atSpeed = Math.abs(shooter.getShooterVelocity()) - 7.0 >= Math.abs(targetSpeed);
+		boolean atSpeed = Math.abs(shooter.getShooterVelocity()) >= Math.abs(targetSpeed) - 4.0;
 		if (atSpeed && !startedindexing) {
 			timer.reset();
 			indexer.rawIndexer(Constants.Indexer.kShootSpeed);

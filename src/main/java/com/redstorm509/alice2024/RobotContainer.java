@@ -86,6 +86,12 @@ public class RobotContainer {
 		(new Trigger(() -> driverRight.getPOV(0) == 180))
 				.onTrue(Commands.runOnce(() -> swerve.setTargetHeading(180), swerve));
 
+		(new Trigger(() -> driverLeft.getPOV(0) == 0))
+				.onTrue(Commands.runOnce(() -> {
+					indexer.setNoteless();
+					arm.setArmIsDown();
+				}, indexer, arm));
+
 		// Toggle heading correction by pressing the bottom-rightmost botton on the left
 		// side of the right stick. Heading correction defaults to ON at boot.
 		driverRight.isPressedBind(StickButton.LeftSideRightBottom,
@@ -157,7 +163,7 @@ public class RobotContainer {
 		operator.leftBumper().whileTrue(Commands.runEnd(() -> {
 			shooter.setShooterVelocity(-Constants.Shooter.kTargetSpeed);
 			SmartDashboard.putBoolean("Is Winding Up", true);
-			SmartDashboard.putBoolean("Is At Shoot Speed", shooter.isAtShooterVelocity());
+			SmartDashboard.putBoolean("Is At Shoot Speed", shooter.isAtShooterVelocityLeniant());
 		}, () -> {
 			shooter.setShooterVelocity(0);
 			SmartDashboard.putBoolean("Is Winding Up", false);
@@ -187,7 +193,7 @@ public class RobotContainer {
 		chooser.addOption("Sprint (DO NOT USE!)",
 				new Sprint(swerve, arm, intake, indexer, shooter, shooterCamera, lights));
 
-		chooser.addOption("[AMP/SOURCE] 1 Note", new A1Close(swerve, shooter, arm, indexer, intake, lights));
+		chooser.addOption("[AMP/SOURCE] 1 Note", new ShootOneNote(swerve, shooter, arm, indexer, intake, lights));
 		chooser.addOption("[SOURCE] 1 Note + Taxi", new S1CloseTaxi(swerve, shooter, arm, indexer, intake, lights));
 		chooser.addOption("[AMP] 2 Note Close",
 				new A2Close(swerve, shooter, arm, indexer, intake, lights));
