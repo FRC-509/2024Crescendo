@@ -63,7 +63,7 @@ public class REVBlinkin extends SubsystemBase {
 	public static enum ColorCode {
 		DefaultBlue(BlinkinLedMode.FIXED_CHASE_BLUE.value),
 		DefaultRed(BlinkinLedMode.FIXED_CHASE_RED.value),
-		NoteInsideRobot(BlinkinLedMode.SOLID_YELLOW.value),
+		NoteInsideRobot(BlinkinLedMode.SOLID_DARK_GRAY.value),
 		HasNote(BlinkinLedMode.SOLID_GREEN.value),
 		AutoTargetFound(BlinkinLedMode.FIXED_RAINBOW_RAINBOW.value),
 		AutoTargetLost(BlinkinLedMode.SOLID_WHITE.value),

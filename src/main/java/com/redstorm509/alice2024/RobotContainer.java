@@ -157,9 +157,11 @@ public class RobotContainer {
 		operator.leftBumper().whileTrue(Commands.runEnd(() -> {
 			shooter.setShooterVelocity(-Constants.Shooter.kTargetSpeed);
 			SmartDashboard.putBoolean("Is Winding Up", true);
+			SmartDashboard.putBoolean("Is At Shoot Speed", shooter.isAtShooterVelocity());
 		}, () -> {
 			shooter.setShooterVelocity(0);
 			SmartDashboard.putBoolean("Is Winding Up", false);
+			SmartDashboard.putBoolean("Is At Shoot Speed", false);
 		}, shooter));
 
 		operator.a().onTrue(new SetPivot(arm, 43));

@@ -57,7 +57,7 @@ public class Shooter extends SubsystemBase {
 	}
 
 	public boolean isAtShooterVelocity() {
-		return Math.abs(Math.abs(getShooterVelocity()) - Constants.Shooter.kTargetSpeed) <= 4.0d;
+		return Math.abs(getShooterVelocity()) >= Math.abs(goalVelocity) - 7.0;
 	}
 
 	public void setToDefaultShootSpeed() {

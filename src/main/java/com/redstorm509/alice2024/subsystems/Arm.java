@@ -86,8 +86,10 @@ public class Arm extends SubsystemBase {
 		double target = getPivotDegrees() + delta;
 		double ticks = target / 360.0d;
 
-		if (target > Constants.Arm.kMinPivot) {
+		if (target > Constants.Arm.kMinPivot + 2.0) {
 			armIsDown = false;
+		} else {
+			armIsDown = true;
 		}
 
 		pivotLeader.setControl(closedLoopPosition.withPosition(ticks));
