@@ -38,40 +38,45 @@ public class IntakeNote extends Command {
 
 	@Override
 	public void execute() {
+		if (arm.armIsDown()) {
+			if (indexer.indexingNoteState == IndexerState.HasNote) {
+				isFinished = true;
 
-		if (indexer.indexingNoteState == IndexerState.HasNote) {
-			isFinished = true;
+				lights.setColor(ColorCode.HasNote);
+			} else if (indexer.indexingNoteState == IndexerState.Noteless) {
+				indexer.rawIndexer(-fastSpeed);
+				intake.intake(true);
 
-			lights.setColor(ColorCode.HasNote);
-		} else if (indexer.indexingNoteState == IndexerState.Noteless) {
-			indexer.rawIndexer(-fastSpeed);
-			intake.intake(true);
+				lights.setColor(ColorCode.NoteInsideRobot);
+			} else if (indexer.indexingNoteState == IndexerState.NoteTooShooter) {
+				indexer.rawIndexer(slowSpeed); // increase if needed
+				intake.stop();
 
-			lights.setColor(ColorCode.NoteInsideRobot);
-		} else if (indexer.indexingNoteState == IndexerState.NoteTooShooter) {
-			indexer.rawIndexer(slowSpeed); // increase if needed
+				lights.setColor(ColorCode.NoteInsideRobot);
+			} else if (indexer.indexingNoteState == IndexerState.NoteTooShooterExtreme) {
+				indexer.rawIndexer(fastSpeed);
+				intake.stop();
+
+				lights.setColor(ColorCode.NoteInsideRobot);
+			} else if (indexer.indexingNoteState == IndexerState.NoteTooIntake) {
+				indexer.rawIndexer(-slowSpeed); // increase if needed
+				intake.stop();
+
+				lights.setColor(ColorCode.NoteInsideRobot);
+			} else if (indexer.indexingNoteState == IndexerState.NoteTooIntakeExtreme) {
+				indexer.rawIndexer(-fastSpeed);
+				intake.intake(true);
+
+				lights.setColor(ColorCode.NoteInsideRobot);
+			}
+		} else {
 			intake.stop();
-
-			lights.setColor(ColorCode.NoteInsideRobot);
-		} else if (indexer.indexingNoteState == IndexerState.NoteTooShooterExtreme) {
-			indexer.rawIndexer(fastSpeed);
-			intake.stop();
-
-			lights.setColor(ColorCode.NoteInsideRobot);
-		} else if (indexer.indexingNoteState == IndexerState.NoteTooIntake) {
-			indexer.rawIndexer(-slowSpeed); // increase if needed
-			intake.stop();
-
-			lights.setColor(ColorCode.NoteInsideRobot);
-		} else if (indexer.indexingNoteState == IndexerState.NoteTooIntakeExtreme) {
-			indexer.rawIndexer(-fastSpeed);
-			intake.intake(true);
-
-			lights.setColor(ColorCode.NoteInsideRobot);
-		}
-
-		if (!arm.armIsDown()) {
-			intake.stop();
+			if (indexer.getIndexerOnlyState() == IndexerState.HasNote) {
+				isFinished = true;
+			} else {
+				indexer.rawIndexer(-slowSpeed * 0.7);
+				lights.setColor(ColorCode.NoteInsideRobot);
+			}
 		}
 	}
 

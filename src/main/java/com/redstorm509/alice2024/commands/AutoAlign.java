@@ -159,7 +159,8 @@ public class AutoAlign extends Command {
 	@Override
 	public void execute() {
 		if (limelight.getTV()) {
-			if ((int) limelight.getFiducialID() == 8 || (int) limelight.getFiducialID() == 3) {
+			if ((int) limelight.getFiducialID() == 8 || (int) limelight.getFiducialID() == 3
+					|| limelight.getTY() < -0.4) {
 				lights.setColor(ColorCode.AutoTargetLost);
 				SmartDashboard.putBoolean("Autonomous Lock On", false);
 			} else {
@@ -209,6 +210,11 @@ public class AutoAlign extends Command {
 			// SmartDashboard.putNumber("Desired Arm Pivot", desiredArmPivot);
 
 			arm.setPivotDegrees(MathUtil.clamp(desiredArmPivot, Constants.Arm.kMinPivot, Constants.Arm.kMaxPivot));
+			if (MathUtil.isNear(desiredArmPivot, arm.getPivotDegrees(), 1.5)
+					&& Math.abs(desiredArmPivotDerivative) <= 0.3d
+					&& Math.abs(offsetPose.getRotation().getDegrees()) < 3) {
+				lights.setColor(ColorCode.ERROR);
+			}
 		} else {
 			// if valid tag but no translation, sets desired rotation with operator
 			// movement, otherwise full operator control
@@ -220,6 +226,8 @@ public class AutoAlign extends Command {
 		}
 
 		SmartDashboard.putNumber("Targeted April Tag", limelight.getFiducialID());
+		// SmartDashboard.putNumber("DistanceToRotate", Math.abs(desiredArmPivot) -
+		// Math.abs(offestPose.getRotation().getValueAsDouble()));
 
 		// SmartDashboard.putNumber("TY", limelight.getTY());
 

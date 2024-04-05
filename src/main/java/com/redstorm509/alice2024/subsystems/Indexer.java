@@ -118,6 +118,14 @@ public class Indexer extends SubsystemBase {
 		}
 	}
 
+	public IndexerState getIndexerOnlyState() {
+		if (!shooterBB.get() && !indexerBB.get()) {
+			// Note is where we want it to be
+			return IndexerState.HasNote;
+		}
+		return IndexerState.NoteTooIntake;
+	}
+
 	public boolean isNoteInside() {
 		return indexingNoteState != IndexerState.Noteless && indexingNoteState != IndexerState.NoteTooIntakeExtreme
 				&& indexingNoteState != IndexerState.NoteTooIntake;
