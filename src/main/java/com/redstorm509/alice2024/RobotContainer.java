@@ -196,6 +196,8 @@ public class RobotContainer {
 
 	private void addAutonomousRoutines() {
 		chooser.addOption("Sabotage (DO NOT USE!)", new Sabotage(swerve, intake, indexer, shooter));
+		chooser.addOption("[AMP] Mechanical-Disadvantage (Sabotage)",
+				new MechanicalDisadvantage(swerve, intake, indexer, shooter));
 		chooser.addOption("Sprint (DO NOT USE!)",
 				new Sprint(swerve, arm, intake, indexer, shooter, shooterCamera, lights));
 
