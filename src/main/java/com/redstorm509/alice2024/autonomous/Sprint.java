@@ -1,12 +1,6 @@
 package com.redstorm509.alice2024.autonomous;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.path.PathPlannerPath;
-import com.redstorm509.alice2024.Constants;
-import com.redstorm509.alice2024.commands.SetPivot;
-import com.redstorm509.alice2024.commands.autonomous.AutoShootMoreJank;
-import com.redstorm509.alice2024.commands.autonomous.AutonomousIntakeNote;
-import com.redstorm509.alice2024.commands.autonomous.AutonomousShootEvenMoreJankButItsOk;
+import com.redstorm509.alice2024.autonomous.Actions.DriveToAndShootNote2Paths;
 import com.redstorm509.alice2024.subsystems.*;
 import com.redstorm509.alice2024.subsystems.drive.SwerveDrive;
 import com.redstorm509.alice2024.subsystems.vision.Limelight;
@@ -25,34 +19,15 @@ public class Sprint extends SequentialCommandGroup {
 		Command paths = Commands.sequence(
 				shooter.startShooting(),
 				swerve.resetOdometryCmd(startPose),
-				Commands.parallel(
-						new AutonomousIntakeNote(intake, indexer, lights),
-						AutoBuilder.followPath(PathPlannerPath.fromPathFile("Sprint1"))),
-				Commands.parallel(
-						new SetPivot(arm, 0),
-						AutoBuilder.followPath(PathPlannerPath.fromPathFile("Sprint2"))),
-				Commands.runOnce(swerve::stopModules, swerve),
-				new AutoShootMoreJank(shooter, indexer),
-				Commands.parallel(
-						Commands.sequence(
-								new SetPivot(arm, Constants.Arm.kMinPivot),
-								new AutonomousIntakeNote(intake, indexer, lights)),
-						AutoBuilder.followPath(PathPlannerPath.fromPathFile("Sprint3"))),
-				Commands.parallel(
-						new SetPivot(arm, 0),
-						AutoBuilder.followPath(PathPlannerPath.fromPathFile("Sprint4"))),
-				Commands.runOnce(swerve::stopModules, swerve),
-				new AutoShootMoreJank(shooter, indexer),
-				Commands.parallel(
-						Commands.sequence(
-								new SetPivot(arm, Constants.Arm.kMinPivot),
-								new AutonomousIntakeNote(intake, indexer, lights)),
-						AutoBuilder.followPath(PathPlannerPath.fromPathFile("Sprint5"))),
-				Commands.parallel(
-						new SetPivot(arm, 0),
-						AutoBuilder.followPath(PathPlannerPath.fromPathFile("Sprint6"))),
-				Commands.runOnce(swerve::stopModules, swerve),
-				new AutonomousShootEvenMoreJankButItsOk(-Constants.Shooter.kSpeakerShootSpeed, shooter, indexer),
+				new DriveToAndShootNote2Paths("Sprint1", "Sprint2", -25.49, -26.57 + 10, swerve, arm, shooter, indexer,
+						intake,
+						lights),
+				new DriveToAndShootNote2Paths("Sprint3", "Sprint4", -25.49, -26.57 + 10, swerve, arm, shooter, indexer,
+						intake,
+						lights),
+				new DriveToAndShootNote2Paths("Sprint5", "Sprint6", -25.49, -26.57 + 10, swerve, arm, shooter, indexer,
+						intake,
+						lights),
 				shooter.stopShooting());
 		addCommands(paths);
 	}

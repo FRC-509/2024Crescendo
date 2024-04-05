@@ -30,8 +30,7 @@ public class A4Close extends SequentialCommandGroup {
 				new DriveToAndShootNote("DriveToThirdNoteClose", 0.0, -37.441406, swerve, arm, shooter, indexer, intake,
 						lights),
 				new DriveToAndShootNote("DriveToFourthNoteClose", -27.475, -35.683594, swerve, arm, shooter, indexer,
-						intake,
-						lights),
+						intake, lights),
 				new SetPivot(arm, Constants.Arm.kMinPivot),
 				Commands.runOnce(() -> swerve.stopModules(), swerve),
 				shooter.stopShooting());

@@ -1,6 +1,7 @@
 package com.redstorm509.alice2024.commands;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -103,7 +104,7 @@ public class AutoAlign extends Command {
 			// SPEAKER TAG OFFSET
 			case 4: // Red Alliance
 			case 7: // Blue Alliance
-				desiredRotation = Math.toRadians(-limelight.getTX()) * 4.5;
+				desiredRotation = Math.toRadians(-limelight.getTX()) * 5.25; // 4.5
 				double previousDesiredArmPivot = desiredArmPivot;
 				desiredArmPivot = kPivotSlope * limelight.getTY() + kPivotIntercept;
 				desiredArmPivotDerivative = (desiredArmPivot - previousDesiredArmPivot) / 0.02;
@@ -111,7 +112,9 @@ public class AutoAlign extends Command {
 					desiredArmPivot = arm.getPivotDegrees();
 				}
 
-				SmartDashboard.putNumber("desiredRotationAA", desiredRotation);
+				SmartDashboard.putNumber("desiredRotationAA",
+						Math.toDegrees(MathUtil.clamp(Math.toRadians(desiredRotation), -Constants.kMaxAngularVelocity,
+								Constants.kMaxAngularVelocity)));
 
 				return new Pose2d(new Translation2d(0, 0), new Rotation2d(desiredRotation));
 
@@ -260,11 +263,9 @@ public class AutoAlign extends Command {
 		}
 	}
 
-	/*-
-	private static Pair<Double, Double> getShotParameters(Limelight shooterCamera) {
+	public static Pair<Double, Double> getShotParameters(Limelight shooterCamera) {
 		double pivot = kPivotSlope * shooterCamera.getTY() + kPivotIntercept;
 		double headingDelta = shooterCamera.getTX();
 		return Pair.of(pivot, headingDelta);
 	}
-	*/
 }

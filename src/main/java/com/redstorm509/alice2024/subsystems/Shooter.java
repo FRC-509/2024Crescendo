@@ -58,11 +58,11 @@ public class Shooter extends SubsystemBase {
 	}
 
 	public boolean isAtShooterVelocity() {
-		return MathUtil.isNear(goalVelocity, getShooterVelocity(), 7.0);
+		return MathUtil.isNear(goalVelocity, getShooterVelocity(), 3.0);
 	}
 
 	public boolean isAtShooterVelocityLeniant() {
-		return MathUtil.isNear(goalVelocity, getShooterVelocity(), 20.0);
+		return MathUtil.isNear(goalVelocity, getShooterVelocity(), 5.0);
 	}
 
 	@Override
@@ -72,6 +72,7 @@ public class Shooter extends SubsystemBase {
 			shooterLeader.setControl(openLoop.withOutput(0));
 		} else {
 			double rateLimitedSetpoint = rateLimiter.calculate(goalVelocity);
+			// shooterLeader.setControl(openLoop.withOutput(-12));
 			shooterLeader.setControl(closedLoopVelocity.withVelocity(rateLimitedSetpoint));
 		}
 		SmartDashboard.putNumber("Shooter Supply Current",
