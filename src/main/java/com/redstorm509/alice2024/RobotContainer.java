@@ -215,6 +215,7 @@ public class RobotContainer {
 				new S3Close(swerve, shooter, arm, indexer, intake, lights));
 		chooser.addOption("[SOURCE] 4 Note Close",
 				new S4Close(swerve, shooter, arm, indexer, intake, lights));
+		chooser.addOption("[AMP] 2 Close 1 Far", new A2Close1Midfield(swerve, shooter, arm, indexer, intake, lights));
 
 		chooser.addOption("\"Go AFK\" (Null)", new InstantCommand());
 		SmartDashboard.putData("Auto Mode", chooser);
