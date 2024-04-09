@@ -177,7 +177,7 @@ public class RobotContainer {
 				new InstantCommand(),
 				() -> (indexer.indexingNoteState == IndexerState.Noteless
 						|| indexer.indexingNoteState == IndexerState.HasNote)));
-		operator.y().onTrue(new SetPivot(arm, Constants.Arm.kMinPivot + 5));
+		operator.y().onTrue(new SetPivot(arm, Constants.Arm.kMinPivot));
 		arm.setDefaultCommand(new DefaultPivotCommand(arm,
 				() -> nonInvSquare(-operator.getLeftY()) / 5, () -> false));
 

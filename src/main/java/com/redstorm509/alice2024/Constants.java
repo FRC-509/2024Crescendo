@@ -35,7 +35,8 @@ public final class Constants {
 
 		public static final double kPivotMagnetOffset = -145.880844;
 
-		public static final double kPivotRSP = 13 * 12;
+		public static final double kPivotRSP = 20
+				* 12;
 		public static final double kPivotRSI = 0 * 12;
 		public static final double kPivotRSD = 0 * 12;
 
