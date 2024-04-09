@@ -104,10 +104,26 @@ public class AutoAlign extends Command {
 			// SPEAKER TAG OFFSET
 			case 4: // Red Alliance
 			case 7: // Blue Alliance
+
 				desiredRotation = Math.toRadians(-limelight.getTX()) * 5.25; // 4.5
 				double previousDesiredArmPivot = desiredArmPivot;
 				desiredArmPivot = kPivotSlope * limelight.getTY() + kPivotIntercept;
 				desiredArmPivotDerivative = (desiredArmPivot - previousDesiredArmPivot) / 0.02;
+				double velocityTowardsSpeaker = -swerve.getChassisSpeeds().vxMetersPerSecond;
+
+				if (Math.abs(velocityTowardsSpeaker) <= 0.06)
+					velocityTowardsSpeaker = 0.0d;
+
+				final double kNoteSpeed = 12.43;
+				if (Math.abs(velocityTowardsSpeaker) >= 0.25) {
+					double sanitizedPivot = Math.toRadians(desiredArmPivot + 90.0d);
+					double y = kNoteSpeed * Math.sin(sanitizedPivot);
+					double x = kNoteSpeed * Math.cos(sanitizedPivot) + velocityTowardsSpeaker;
+					double compensatedPivot = Math.toDegrees(Math.atan2(y, x)) - 90.0d;
+					SmartDashboard.putNumber("compensatedPivot", compensatedPivot);
+					desiredArmPivot = compensatedPivot;
+				}
+
 				if (!limelight.getTV()) {
 					desiredArmPivot = arm.getPivotDegrees();
 				}
