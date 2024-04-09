@@ -8,6 +8,7 @@ import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -15,14 +16,12 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Shooter extends SubsystemBase {
-	private double kMaxShooterAccel = 230.0d;
-	private TalonFX shooterLeader = new TalonFX(15); // Labelled SHOOTERL
-	private TalonFX shooterFollower = new TalonFX(16); // Labelled SHOOTERR
-	private SlewRateLimiter rateLimiter = new SlewRateLimiter(kMaxShooterAccel);
-	private double goalVelocity = 0.0d;
+	private TalonFX shooterLeader = new TalonFX(16); // Labelled SHOOTERT
+	private TalonFX shooterFollower = new TalonFX(15); // Labelled SHOOTERB
 
 	private VelocityVoltage closedLoopVelocity = new VelocityVoltage(0).withEnableFOC(false);
 	private VoltageOut openLoop = new VoltageOut(0);
+	private double previousTarget = 0.0d;
 
 	// TODO: Define coordinate space!
 	public Shooter() {
@@ -43,9 +42,18 @@ public class Shooter extends SubsystemBase {
 	}
 
 	public void setShooterVelocity(double speed) {
-		goalVelocity = speed;
-		// rateLimiter.calculate(speed);
-		// shooterLeader.setControl(closedLoopVelocity.withVelocity(speed));
+		if (speed != previousTarget) {
+			if (speed == 0.0d) {
+				shooterLeader.setControl(openLoop.withOutput(0));
+			} else {
+				shooterLeader.setControl(closedLoopVelocity.withVelocity(speed));
+			}
+		}
+		previousTarget = speed;
+	}
+
+	public double getGoalVelocity() {
+		return shooterLeader.getClosedLoopReference().getValueAsDouble();
 	}
 
 	public double getShooterVelocity() {
@@ -53,26 +61,16 @@ public class Shooter extends SubsystemBase {
 	}
 
 	public boolean isAtShooterVelocity() {
-		return Math.abs(Math.abs(getShooterVelocity()) - Constants.Shooter.kTargetSpeed) <= 4.0d;
+		return (Math.abs(shooterLeader.getClosedLoopError().getValueAsDouble()) <= 3.0) && getGoalVelocity() != 0.0;
 	}
 
-	public void setToDefaultShootSpeed() {
-		goalVelocity = -Constants.Shooter.kDefaultShootSpeed;
+	public boolean isAtShooterVelocityLeniant() {
+		return (Math.abs(shooterLeader.getClosedLoopError().getValueAsDouble()) <= 10.0) && getGoalVelocity() != 0.0;
 	}
 
 	@Override
 	public void periodic() {
-		if (goalVelocity == 0.0d) {
-			rateLimiter.reset(0.0d);
-			shooterLeader.setControl(openLoop.withOutput(0));
-		} else {
-			double rateLimitedSetpoint = rateLimiter.calculate(goalVelocity);
-			shooterLeader.setControl(closedLoopVelocity.withVelocity(rateLimitedSetpoint));
-		}
-		SmartDashboard.putNumber("Shooter Supply Current",
-				shooterLeader.getSupplyCurrent().getValueAsDouble()
-						+ shooterFollower.getSupplyCurrent().getValueAsDouble());
-		SmartDashboard.putNumber("Shooter Velocity (rot/s)", shooterLeader.getVelocity().getValue());
+		SmartDashboard.putNumber("Shooter Velocity (rps)", Math.abs(shooterLeader.getVelocity().getValueAsDouble()));
 	}
 
 	public Command startShooting() {

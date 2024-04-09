@@ -1,6 +1,7 @@
 package com.redstorm509.alice2024.commands;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -38,8 +39,8 @@ public class AutoAlign extends Command {
 	private Translation2d outputTranslation;
 	private double desiredArmPivot = Constants.Arm.kMinPivot;
 	private double desiredArmPivotDerivative = Double.POSITIVE_INFINITY;
-	private double kPivotSlope = -0.721546;// -0.710432; // TUNE ME
-	private double kPivotIntercept = -26.4987;// -27.0751; // TUNE ME
+	private static double kPivotSlope = -0.721546;// -0.710432; // TUNE ME
+	private static double kPivotIntercept = -26.4987;// -27.0751; // TUNE ME
 
 	// Meant to be an "isDownBind" command
 	public AutoAlign(
@@ -103,7 +104,7 @@ public class AutoAlign extends Command {
 			// SPEAKER TAG OFFSET
 			case 4: // Red Alliance
 			case 7: // Blue Alliance
-				desiredRotation = Math.toRadians(-limelight.getTX()) * 4.5;
+				desiredRotation = Math.toRadians(-limelight.getTX()) * 5.25; // 4.5
 				double previousDesiredArmPivot = desiredArmPivot;
 				desiredArmPivot = kPivotSlope * limelight.getTY() + kPivotIntercept;
 				desiredArmPivotDerivative = (desiredArmPivot - previousDesiredArmPivot) / 0.02;
@@ -111,7 +112,9 @@ public class AutoAlign extends Command {
 					desiredArmPivot = arm.getPivotDegrees();
 				}
 
-				SmartDashboard.putNumber("desiredRotationAA", desiredRotation);
+				SmartDashboard.putNumber("desiredRotationAA",
+						Math.toDegrees(MathUtil.clamp(Math.toRadians(desiredRotation), -Constants.kMaxAngularVelocity,
+								Constants.kMaxAngularVelocity)));
 
 				return new Pose2d(new Translation2d(0, 0), new Rotation2d(desiredRotation));
 
@@ -156,7 +159,8 @@ public class AutoAlign extends Command {
 	@Override
 	public void execute() {
 		if (limelight.getTV()) {
-			if ((int) limelight.getFiducialID() == 8 || (int) limelight.getFiducialID() == 3) {
+			if ((int) limelight.getFiducialID() == 8 || (int) limelight.getFiducialID() == 3
+					|| limelight.getTY() < -0.4) {
 				lights.setColor(ColorCode.AutoTargetLost);
 				SmartDashboard.putBoolean("Autonomous Lock On", false);
 			} else {
@@ -206,6 +210,11 @@ public class AutoAlign extends Command {
 			// SmartDashboard.putNumber("Desired Arm Pivot", desiredArmPivot);
 
 			arm.setPivotDegrees(MathUtil.clamp(desiredArmPivot, Constants.Arm.kMinPivot, Constants.Arm.kMaxPivot));
+			if (MathUtil.isNear(desiredArmPivot, arm.getPivotDegrees(), 1.5)
+					&& Math.abs(desiredArmPivotDerivative) <= 0.3d
+					&& Math.abs(offsetPose.getRotation().getDegrees()) < 3) {
+				lights.setColor(ColorCode.ERROR);
+			}
 		} else {
 			// if valid tag but no translation, sets desired rotation with operator
 			// movement, otherwise full operator control
@@ -217,6 +226,8 @@ public class AutoAlign extends Command {
 		}
 
 		SmartDashboard.putNumber("Targeted April Tag", limelight.getFiducialID());
+		// SmartDashboard.putNumber("DistanceToRotate", Math.abs(desiredArmPivot) -
+		// Math.abs(offestPose.getRotation().getValueAsDouble()));
 
 		// SmartDashboard.putNumber("TY", limelight.getTY());
 
@@ -258,5 +269,11 @@ public class AutoAlign extends Command {
 		if (DriverStation.isAutonomous()) {
 			swerve.stopModules();
 		}
+	}
+
+	public static Pair<Double, Double> getShotParameters(Limelight shooterCamera) {
+		double pivot = kPivotSlope * shooterCamera.getTY() + kPivotIntercept;
+		double headingDelta = shooterCamera.getTX();
+		return Pair.of(pivot, headingDelta);
 	}
 }

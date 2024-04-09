@@ -4,6 +4,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.redstorm509.alice2024.Constants;
 import com.redstorm509.alice2024.util.math.Conversions;
@@ -166,6 +167,9 @@ public class SwerveModule {
 
 		if (closedLoop) {
 			driveMotor.setControl(closedLoopDriveRequest.withVelocity(targetVelocity));
+			SmartDashboard.putNumber("Module " + moduleNumber + "Vel",
+					Conversions.falconToMPS(driveMotor.getVelocity().getValueAsDouble(),
+							Constants.MK4I.kWheelCircumference, Constants.MK4I.kDriveGearRatio));
 		} else {
 			double voltage = Conversions.falconToMPS(targetVelocity, Constants.MK4I.kWheelCircumference,
 					Constants.MK4I.kDriveGearRatio) / Constants.kMaxSpeed * 12.0;

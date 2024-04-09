@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.72,
-      "y": 6.65
+      "x": 1.42,
+      "y": 7.3
     },
-    "rotation": 59.86
+    "rotation": 0
   },
   "command": {
     "type": "sequential",
@@ -14,19 +14,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "D2N_TwoNoteAmpSide"
+            "pathName": "Copy of Sprint1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "XDriveToSecondNote"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "DriveToThirdNoteFarRev"
+            "pathName": "Copy of Sprint2"
           }
         }
       ]

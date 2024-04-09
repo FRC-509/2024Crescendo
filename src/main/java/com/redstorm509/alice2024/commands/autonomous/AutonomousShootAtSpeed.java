@@ -6,20 +6,21 @@ import com.redstorm509.alice2024.subsystems.*;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 
-public class AutonomousShootEvenMoreJankButItsOk extends Command {
+public class AutonomousShootAtSpeed extends Command {
 	private Shooter shooter;
 	private Indexer indexer;
 
 	private Timer timer = new Timer();
 	private boolean startedindexing = false;
-	private double targetSpeed;
+	private double targetVelocity;
+	private double previousVelocity;
 
 	private boolean isFinished = false;
 
-	public AutonomousShootEvenMoreJankButItsOk(double targetSpeed, Shooter shooter, Indexer indexer) {
+	public AutonomousShootAtSpeed(double targetVelocity, Shooter shooter, Indexer indexer) {
 		this.shooter = shooter;
 		this.indexer = indexer;
-		this.targetSpeed = targetSpeed;
+		this.targetVelocity = targetVelocity;
 
 		addRequirements(indexer, shooter);
 	}
@@ -28,12 +29,14 @@ public class AutonomousShootEvenMoreJankButItsOk extends Command {
 	public void initialize() {
 		timer.reset();
 		timer.start();
+		previousVelocity = shooter.getGoalVelocity();
+		shooter.setShooterVelocity(targetVelocity);
 		startedindexing = false;
 	}
 
 	@Override
 	public void execute() {
-		boolean atSpeed = Math.abs(shooter.getShooterVelocity()) >= Math.abs(targetSpeed) - 4.0;
+		boolean atSpeed = Math.abs(Math.abs(shooter.getShooterVelocity()) - targetVelocity) <= 4.0d;
 		if (atSpeed && !startedindexing) {
 			timer.reset();
 			indexer.rawIndexer(Constants.Indexer.kShootSpeed);
@@ -49,6 +52,7 @@ public class AutonomousShootEvenMoreJankButItsOk extends Command {
 	public void end(boolean wasInterrupted) {
 		indexer.rawIndexer(0.0);
 		indexer.setNoteless();
+		shooter.setShooterVelocity(previousVelocity);
 	}
 
 	@Override

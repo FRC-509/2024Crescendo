@@ -2,6 +2,7 @@ package com.redstorm509.alice2024;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -12,6 +13,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 import com.redstorm509.alice2024.autonomous.*;
 import com.redstorm509.alice2024.commands.*;
 import com.redstorm509.alice2024.subsystems.*;
+import com.redstorm509.alice2024.subsystems.Indexer.IndexerState;
 import com.redstorm509.alice2024.subsystems.drive.*;
 import com.redstorm509.alice2024.subsystems.vision.*;
 import com.redstorm509.alice2024.util.PigeonWrapper;
@@ -86,6 +88,12 @@ public class RobotContainer {
 		(new Trigger(() -> driverRight.getPOV(0) == 180))
 				.onTrue(Commands.runOnce(() -> swerve.setTargetHeading(180), swerve));
 
+		(new Trigger(() -> driverLeft.getPOV(0) == 0))
+				.onTrue(Commands.runOnce(() -> {
+					indexer.setNoteless();
+					arm.setArmIsDown();
+				}, indexer, arm));
+
 		// Toggle heading correction by pressing the bottom-rightmost botton on the left
 		// side of the right stick. Heading correction defaults to ON at boot.
 		driverRight.isPressedBind(StickButton.LeftSideRightBottom,
@@ -156,15 +164,19 @@ public class RobotContainer {
 
 		operator.leftBumper().whileTrue(Commands.runEnd(() -> {
 			shooter.setShooterVelocity(-Constants.Shooter.kTargetSpeed);
-			SmartDashboard.putBoolean("Is At Shoot Speed", shooter.isAtShooterVelocity());
 			SmartDashboard.putBoolean("Is Winding Up", true);
+			SmartDashboard.putBoolean("Is At Shoot Speed", shooter.isAtShooterVelocityLeniant());
 		}, () -> {
 			shooter.setShooterVelocity(0);
-			SmartDashboard.putBoolean("Is At Shoot Speed", false);
 			SmartDashboard.putBoolean("Is Winding Up", false);
+			SmartDashboard.putBoolean("Is At Shoot Speed", false);
 		}, shooter));
 
-		operator.a().onTrue(new SetPivot(arm, 43));
+		operator.a().onTrue(new ConditionalCommand(
+				new SetPivot(arm, 43),
+				new InstantCommand(),
+				() -> (indexer.indexingNoteState == IndexerState.Noteless
+						|| indexer.indexingNoteState == IndexerState.HasNote)));
 		operator.y().onTrue(new SetPivot(arm, Constants.Arm.kMinPivot + 5));
 		arm.setDefaultCommand(new DefaultPivotCommand(arm,
 				() -> nonInvSquare(-operator.getLeftY()) / 5, () -> false));
@@ -183,13 +195,28 @@ public class RobotContainer {
 	}
 
 	private void addAutonomousRoutines() {
-		chooser.addOption("1 Note", new A1Close(swerve, shooter, arm, indexer, intake, lights));
-		chooser.addOption("2 Note", new A2Close(swerve, shooter, arm, indexer, intake, shooterCamera, lights));
-		chooser.addOption("Sabotage Auto", new Sabotage(swerve, intake, indexer, shooter));
-		chooser.addOption("4 Note Close Amp Side",
-				new A4Close(swerve, shooter, arm, indexer, intake, shooterCamera, lights));
-		chooser.addOption("4 Note Close Source Side",
-				new S4Close(swerve, shooter, arm, indexer, intake, shooterCamera, lights));
+		chooser.addOption("Sabotage (DO NOT USE!)", new Sabotage(swerve, intake, indexer, shooter));
+		chooser.addOption("[AMP] Mechanical-Disadvantage (Sabotage)",
+				new MechanicalDisadvantage(swerve, intake, indexer, shooter));
+		chooser.addOption("Sprint (DO NOT USE!)",
+				new Sprint(swerve, arm, intake, indexer, shooter, shooterCamera, lights));
+
+		chooser.addOption("[AMP/SOURCE] 1 Note", new ShootOneNote(swerve, shooter, arm, indexer, intake, lights));
+		chooser.addOption("[SOURCE] 1 Note + Taxi", new S1CloseTaxi(swerve, shooter, arm, indexer, intake, lights));
+		chooser.addOption("[AMP] 2 Note Close",
+				new A2Close(swerve, shooter, arm, indexer, intake, lights));
+		chooser.addOption("[AMP] 3 Note Close",
+				new A3Close(swerve, shooter, arm, indexer, intake, lights));
+		chooser.addOption("[AMP] 4 Note Close",
+				new A4Close(swerve, shooter, arm, indexer, intake, lights));
+		chooser.addOption("[SOURCE] 2 Note Close",
+				new S2Close(swerve, shooter, arm, indexer, intake, lights));
+		chooser.addOption("[SOURCE] 3 Note Close",
+				new S3Close(swerve, shooter, arm, indexer, intake, lights));
+		chooser.addOption("[SOURCE] 4 Note Close",
+				new S4Close(swerve, shooter, arm, indexer, intake, lights));
+		chooser.addOption("[AMP] 2 Close 1 Far", new A2Close1Midfield(swerve, shooter, arm, indexer, intake, lights));
+
 		chooser.addOption("\"Go AFK\" (Null)", new InstantCommand());
 		SmartDashboard.putData("Auto Mode", chooser);
 

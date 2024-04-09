@@ -26,7 +26,7 @@ public class A3Close1Midfield extends SequentialCommandGroup {
 		Pose2d startPose = new Pose2d(0.72, 6.65, Rotation2d.fromDegrees(59.86));
 		Command paths = Commands.sequence(
 				shooter.startShooting(),
-				new AutonomousShootEvenMoreJankButItsOk(Constants.Shooter.kSpeakerShootSpeed, shooter, indexer),
+				new AutoShootMoreJank(shooter, indexer),
 				new SetPivot(arm, Constants.Arm.kMinPivot),
 				swerve.resetOdometryCmd(startPose),
 				Commands.parallel(

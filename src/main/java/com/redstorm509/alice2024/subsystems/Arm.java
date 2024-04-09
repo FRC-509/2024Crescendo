@@ -86,8 +86,10 @@ public class Arm extends SubsystemBase {
 		double target = getPivotDegrees() + delta;
 		double ticks = target / 360.0d;
 
-		if (target > Constants.Arm.kMinPivot) {
+		if (target > Constants.Arm.kMinPivot + 5.0) {
 			armIsDown = false;
+		} else {
+			armIsDown = true;
 		}
 
 		pivotLeader.setControl(closedLoopPosition.withPosition(ticks));
@@ -97,6 +99,10 @@ public class Arm extends SubsystemBase {
 
 	public void setPivotOpenLoop(double percentOutput) {
 		pivotLeader.setControl(openLoop.withOutput(percentOutput));
+	}
+
+	public void setArmIsDown() {
+		armIsDown = true;
 	}
 
 	public void setPivotOutput(double percentOutput) {
