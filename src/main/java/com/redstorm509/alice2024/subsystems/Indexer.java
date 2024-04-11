@@ -3,6 +3,8 @@ package com.redstorm509.alice2024.subsystems;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import java.util.function.BooleanSupplier;
+
 import com.revrobotics.CANSparkMax;
 
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -44,19 +46,21 @@ public class Indexer extends SubsystemBase {
 	private IndexerState prevIndexerState;
 	private Timer currentStateTimer = new Timer();
 	private boolean isInvalidState;
+	private BooleanSupplier armIsDown;
 
 	private CANSparkMax indexer = new CANSparkMax(12, MotorType.kBrushed);
 	private DigitalInput shooterBB = new DigitalInput(4); // CHANGE TO REAL PORTS
 	private DigitalInput indexerBB = new DigitalInput(2);
 	private DigitalInput imStageBB = new DigitalInput(0);
 
-	public Indexer() {
+	public Indexer(BooleanSupplier armIsDown) {
 		indexer.setSmartCurrentLimit(30);
 		indexer.setIdleMode(IdleMode.kCoast);
 		indexer.burnFlash();
 		indexingNoteState = IndexerState.Noteless;
 		prevIndexerState = IndexerState.Noteless;
 		isInvalidState = false;
+		this.armIsDown = armIsDown;
 
 		currentStateTimer.start();
 	}
@@ -78,34 +82,39 @@ public class Indexer extends SubsystemBase {
 	}
 
 	public void pollState() {
-		if (!indexerBB.get() && !shooterBB.get() && !imStageBB.get()) {
-			// Note is where we want it to be
-			prevIndexerState = indexingNoteState;
-			indexingNoteState = IndexerState.HasNote;
-			isInvalidState = false;
-		} else if ((!indexerBB.get() && shooterBB.get() && imStageBB.get())
-				|| (!indexerBB.get() && !shooterBB.get() && imStageBB.get())) {
-			// Note is too far out shooter side
-			prevIndexerState = indexingNoteState;
-			indexingNoteState = IndexerState.NoteTooShooter;
-			isInvalidState = false;
-		} else if (!indexerBB.get() && shooterBB.get() && !imStageBB.get()) {
-			// Note is too far out intermediate stage side
-			prevIndexerState = indexingNoteState;
-			indexingNoteState = IndexerState.NoteTooIntake;
-			isInvalidState = false;
-		} else if (indexerBB.get() && !shooterBB.get() && imStageBB.get()) {
-			// Note is way too sticking out shooter
-			prevIndexerState = indexingNoteState;
-			indexingNoteState = IndexerState.NoteTooShooterExtreme;
-			isInvalidState = false;
-		} else if (indexerBB.get() && shooterBB.get() && !imStageBB.get()) {
-			// Note is way too sticking out shooter
-			prevIndexerState = indexingNoteState;
-			indexingNoteState = IndexerState.NoteTooIntakeExtreme;
-			isInvalidState = false;
+		if (armIsDown.getAsBoolean()) {
+			if (!indexerBB.get() && !shooterBB.get() && !imStageBB.get()) {
+				// Note is where we want it to be
+				prevIndexerState = indexingNoteState;
+				indexingNoteState = IndexerState.HasNote;
+				isInvalidState = false;
+			} else if (!indexerBB.get() && !shooterBB.get() && imStageBB.get()) {
+				// Note is too far out shooter side
+				prevIndexerState = indexingNoteState;
+				indexingNoteState = IndexerState.NoteTooShooter;
+				isInvalidState = false;
+			} else if (!indexerBB.get() && shooterBB.get() && !imStageBB.get()) {
+				// Note is too far out intermediate stage side
+				prevIndexerState = indexingNoteState;
+				indexingNoteState = IndexerState.NoteTooIntake;
+				isInvalidState = false;
+			} else if (indexerBB.get() && !shooterBB.get() && imStageBB.get()) {
+				// Note is way too sticking out shooter
+				prevIndexerState = indexingNoteState;
+				indexingNoteState = IndexerState.NoteTooShooterExtreme;
+				isInvalidState = false;
+			} else if (indexerBB.get() && shooterBB.get() && !imStageBB.get()) {
+				// Note is way too close to the intake
+				prevIndexerState = indexingNoteState;
+				indexingNoteState = IndexerState.NoteTooIntakeExtreme;
+				isInvalidState = false;
+			} else {
+				isInvalidState = true;
+			}
 		} else {
-			isInvalidState = true;
+			prevIndexerState = indexingNoteState;
+			indexingNoteState = getIndexerOnlyState();
+			isInvalidState = false;
 		}
 
 		if (indexingNoteState != prevIndexerState) {
@@ -124,6 +133,10 @@ public class Indexer extends SubsystemBase {
 			return IndexerState.HasNote;
 		}
 		return IndexerState.NoteTooIntake;
+	}
+
+	public boolean noSensorsTripped() {
+		return indexerBB.get() && shooterBB.get() && imStageBB.get();
 	}
 
 	public boolean isNoteInside() {

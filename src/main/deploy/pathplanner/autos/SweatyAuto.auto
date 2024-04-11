@@ -20,7 +20,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "XDriveToSecondNote"
+            "pathName": "DriveToThirdNoteFar"
           }
         },
         {
@@ -33,6 +33,12 @@
           "type": "path",
           "data": {
             "pathName": "DriveToFourthNoteFar"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "DriveToFourthNoteFarRev"
           }
         }
       ]

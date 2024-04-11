@@ -106,15 +106,17 @@ public class AutoAlign extends Command {
 			case 7: // Blue Alliance
 
 				desiredRotation = Math.toRadians(-limelight.getTX()) * 5.25; // 4.5
-				double previousDesiredArmPivot = desiredArmPivot;
+				// double previousDesiredArmPivot = desiredArmPivot;
 				desiredArmPivot = kPivotSlope * limelight.getTY() + kPivotIntercept;
+
+				/*-
 				desiredArmPivotDerivative = (desiredArmPivot - previousDesiredArmPivot) / 0.02;
 				double velocityTowardsSpeaker = -swerve.getChassisSpeeds().vxMetersPerSecond;
-
+				
 				if (Math.abs(velocityTowardsSpeaker) <= 0.06)
 					velocityTowardsSpeaker = 0.0d;
-
-				final double kNoteSpeed = 12.43;
+				
+				final double kNoteSpeed = 11.43;
 				if (Math.abs(velocityTowardsSpeaker) >= 0.25) {
 					double sanitizedPivot = Math.toRadians(desiredArmPivot + 90.0d);
 					double y = kNoteSpeed * Math.sin(sanitizedPivot);
@@ -123,6 +125,7 @@ public class AutoAlign extends Command {
 					SmartDashboard.putNumber("compensatedPivot", compensatedPivot);
 					desiredArmPivot = compensatedPivot;
 				}
+				*/
 
 				if (!limelight.getTV()) {
 					desiredArmPivot = arm.getPivotDegrees();
@@ -196,7 +199,14 @@ public class AutoAlign extends Command {
 		Pose3d TagToRobotPose = Limelight.toPose3D(limelight.getBotPose_TargetSpace());
 		RobotToTag = new Translation3d(-TagToRobotPose.getZ(), -TagToRobotPose.getX(), -TagToRobotPose.getY());
 
+		/*-
+		Pose2d offsetPose = limelight.getTV() ? getAlignmentOffset(targetTagID)
+				: new Pose2d(new Translation2d(),
+						swerve.getEstimatedPose().relativeTo(new Pose2d(new Translation2d(0, 5.5), new Rotation2d()))
+								.getRotation().plus(Rotation2d.fromDegrees(180)));
+		*/
 		Pose2d offsetPose = getAlignmentOffset(targetTagID);
+
 		outputTranslation = RobotToTag.toTranslation2d().minus(offsetPose.getTranslation());
 
 		// offsetPose = new Pose2d();
@@ -217,7 +227,7 @@ public class AutoAlign extends Command {
 			} else {
 				swerve.drive(
 						new Translation2d(xSupplier.getAsDouble(), ySupplier.getAsDouble()).times(Constants.kMaxSpeed),
-						MathUtil.clamp(offsetPose.getRotation().getRadians(), -Constants.kMaxAngularVelocity,
+						MathUtil.clamp(offsetPose.getRotation().getRadians() / 2, -Constants.kMaxAngularVelocity,
 								Constants.kMaxAngularVelocity),
 						true,
 						true);
@@ -229,7 +239,7 @@ public class AutoAlign extends Command {
 			if (MathUtil.isNear(desiredArmPivot, arm.getPivotDegrees(), 1.5)
 					&& Math.abs(desiredArmPivotDerivative) <= 0.3d
 					&& Math.abs(offsetPose.getRotation().getDegrees()) < 3) {
-				lights.setColor(ColorCode.ERROR);
+				lights.setColor(ColorCode.HasNote);
 			}
 		} else {
 			// if valid tag but no translation, sets desired rotation with operator

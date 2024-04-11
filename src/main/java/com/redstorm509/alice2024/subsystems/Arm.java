@@ -97,6 +97,26 @@ public class Arm extends SubsystemBase {
 		pivotTarget.setTarget(target);
 	}
 
+	public void setPivotDegreesLazy(double targetDegrees) {
+		double delta = (targetDegrees - getPivotDegrees()) % 360;
+
+		if (delta > 180.0d) {
+			delta -= 360.0d;
+		} else if (delta < -180.0d) {
+			delta += 360.0d;
+		}
+
+		double target = getPivotDegrees() + delta;
+
+		if (target > Constants.Arm.kMinPivot + 5.0) {
+			armIsDown = false;
+		} else {
+			armIsDown = true;
+		}
+
+		pivotTarget.setTarget(target);
+	}
+
 	public void setPivotOpenLoop(double percentOutput) {
 		pivotLeader.setControl(openLoop.withOutput(percentOutput));
 	}
@@ -114,12 +134,7 @@ public class Arm extends SubsystemBase {
 				pivotLeader.setControl(openLoop.withOutput(percentOutput * 2));
 			} else {
 				pivotLeader.setControl(openLoop.withOutput(0));
-			}
-		} else if (percentOutput <= 0 && getPivotDegrees() < Constants.Arm.kMinPivot) {
-			if (!isTripped()) {
-				pivotLeader.setControl(openLoop.withOutput(percentOutput * 2));
-			} else {
-				pivotLeader.setControl(openLoop.withOutput(0));
+				setPivotDegreesLazy(pivotLeader.getPosition().getValueAsDouble() * 360.0);
 			}
 		} else {
 			/*-
@@ -154,7 +169,7 @@ public class Arm extends SubsystemBase {
 	public void periodic() {
 		// DIO channels default to high in sim so we dont run this code if we're in sim.
 		if (!RobotBase.isSimulation() && !wasLimitSwitchTripped && isTripped()) {
-			pivotLeader.setPosition(Constants.Arm.kMinPivot / 360.0);
+			// pivotLeader.setPosition(Constants.Arm.kMinPivot / 360.0);
 			pivotLeader.setControl(new VoltageOut(0));
 		}
 		if (isTripped()) {
@@ -168,6 +183,7 @@ public class Arm extends SubsystemBase {
 		// 360.0d);
 		// SmartDashboard.putNumber("Target Pivot", pivotTarget.getTarget());
 		SmartDashboard.putNumber("Absolute Pivot", pivotEncoder.getPosition().getValue() * 360.0d);
+		SmartDashboard.putNumber("Absolute Pivot Velocity", pivotEncoder.getVelocity().getValue() * 360.0d);
 
 		/*-
 		SmartDashboard.putNumber("PivotRaw", pivotLeader.getPosition().getValue());

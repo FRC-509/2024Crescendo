@@ -31,7 +31,7 @@ public final class Constants {
 		public static final Translation3d kGoalApex = new Translation3d(0.1, 0, Units.inchesToMeters(80.5) + 0.3);
 		public static final double kMinPivot = -58.166;
 		public static final double kMaxPivot = 71.834;
-		public static final double kMaxPivotSpeed = 300.0d;
+		public static final double kMaxPivotSpeed = 275.0d;
 
 		public static final double kPivotMagnetOffset = -145.880844;
 

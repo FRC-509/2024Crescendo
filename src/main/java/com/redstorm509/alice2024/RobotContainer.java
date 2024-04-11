@@ -10,6 +10,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.RobotBase;
+
 import com.redstorm509.alice2024.autonomous.*;
 import com.redstorm509.alice2024.commands.*;
 import com.redstorm509.alice2024.subsystems.*;
@@ -43,9 +44,9 @@ public class RobotContainer {
 	public RobotContainer() {
 		this.swerve = new SwerveDrive(pigeon, shooterCamera);
 		this.intake = new Intake();
-		this.indexer = new Indexer();
 		this.shooter = new Shooter();
 		this.arm = new Arm();
+		this.indexer = new Indexer(() -> arm.armIsDown());
 		this.climber = new Climber(pigeon);
 		this.lights = new REVBlinkin(9);
 
@@ -164,20 +165,27 @@ public class RobotContainer {
 
 		operator.leftBumper().whileTrue(Commands.runEnd(() -> {
 			shooter.setShooterVelocity(-Constants.Shooter.kTargetSpeed);
-			SmartDashboard.putBoolean("Is Winding Up", true);
-			SmartDashboard.putBoolean("Is At Shoot Speed", shooter.isAtShooterVelocityLeniant());
 		}, () -> {
 			shooter.setShooterVelocity(0);
-			SmartDashboard.putBoolean("Is Winding Up", false);
-			SmartDashboard.putBoolean("Is At Shoot Speed", false);
+		}, shooter));
+
+		operator.leftTrigger(0.7).whileTrue(Commands.runEnd(() -> {
+			shooter.setShooterVelocity(-50.9);
+		}, () -> {
+			shooter.setShooterVelocity(0);
 		}, shooter));
 
 		operator.a().onTrue(new ConditionalCommand(
-				new SetPivot(arm, 43),
+				new SetPivot(arm, 38.84),
 				new InstantCommand(),
 				() -> (indexer.indexingNoteState == IndexerState.Noteless
 						|| indexer.indexingNoteState == IndexerState.HasNote)));
-		operator.y().onTrue(new SetPivot(arm, Constants.Arm.kMinPivot));
+		operator.b().onTrue(new ConditionalCommand(
+				new SetPivot(arm, -47.0),
+				new InstantCommand(),
+				() -> (indexer.indexingNoteState == IndexerState.Noteless
+						|| indexer.indexingNoteState == IndexerState.HasNote)));
+		operator.y().onTrue(new SetPivot(arm, Constants.Arm.kMinPivot + 4));
 		arm.setDefaultCommand(new DefaultPivotCommand(arm,
 				() -> nonInvSquare(-operator.getLeftY()) / 5, () -> false));
 
@@ -196,9 +204,7 @@ public class RobotContainer {
 
 	private void addAutonomousRoutines() {
 		chooser.addOption("Sabotage (DO NOT USE!)", new Sabotage(swerve, intake, indexer, shooter));
-		chooser.addOption("[AMP] Mechanical-Disadvantage (Sabotage)",
-				new MechanicalDisadvantage(swerve, intake, indexer, shooter));
-		chooser.addOption("Sprint (DO NOT USE!)",
+		chooser.addOption("Sprint",
 				new Sprint(swerve, arm, intake, indexer, shooter, shooterCamera, lights));
 
 		chooser.addOption("[AMP/SOURCE] 1 Note", new ShootOneNote(swerve, shooter, arm, indexer, intake, lights));
