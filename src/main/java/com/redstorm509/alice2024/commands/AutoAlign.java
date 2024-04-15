@@ -227,7 +227,7 @@ public class AutoAlign extends Command {
 			} else {
 				swerve.drive(
 						new Translation2d(xSupplier.getAsDouble(), ySupplier.getAsDouble()).times(Constants.kMaxSpeed),
-						MathUtil.clamp(offsetPose.getRotation().getRadians() / 2, -Constants.kMaxAngularVelocity,
+						MathUtil.clamp(offsetPose.getRotation().getRadians(), -Constants.kMaxAngularVelocity,
 								Constants.kMaxAngularVelocity),
 						true,
 						true);
