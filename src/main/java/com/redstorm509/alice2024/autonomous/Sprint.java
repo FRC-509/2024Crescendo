@@ -41,7 +41,7 @@ public class Sprint extends SequentialCommandGroup {
 										new SetPivot(arm, Constants.Arm.kMinPivot),
 										AutoBuilder.followPath(PathPlannerPath.fromPathFile("Sprint5")),
 										Commands.runOnce(() -> swerve.stopModules(), swerve),
-										Commands.waitUntil(() -> indexer.isNoteInside()),
+										Commands.waitUntil(() -> indexer.isNoteInsideIndexer()),
 										AutoBuilder.followPath(PathPlannerPath.fromPathFile("Sprint6")),
 										Commands.waitUntil(() -> indexer.hasNote()),
 										new SetPivot(arm, -25.49),

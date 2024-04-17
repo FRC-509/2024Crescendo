@@ -30,12 +30,12 @@ public class DriveToAndShootNote2Paths extends SequentialCommandGroup {
 								new SetPivot(arm, Constants.Arm.kMinPivot),
 								AutoBuilder.followPath(PathPlannerPath.fromPathFile(pathToNote)),
 								Commands.runOnce(() -> swerve.stopModules(), swerve),
-								Commands.waitUntil(() -> indexer.isNoteInside()),
+								Commands.waitUntil(() -> indexer.isNoteInsideRobot()),
 								Commands.parallel(
 										AutoBuilder
 												.followPath(PathPlannerPath.fromPathFile(pathToShoot)),
 										Commands.sequence(
-												Commands.waitUntil(() -> indexer.hasNote()),
+												Commands.waitUntil(() -> indexer.isNoteInsideIndexer()),
 												new SetPivot(arm, armPivot))),
 								new DeferredCommand(
 										() -> new SetHeading(swerve, swerve.jankFlipHeading(heading)),
@@ -54,7 +54,7 @@ public class DriveToAndShootNote2Paths extends SequentialCommandGroup {
 								new SetPivot(arm, Constants.Arm.kMinPivot),
 								AutoBuilder.followPath(PathPlannerPath.fromPathFile(pathToNote)),
 								Commands.runOnce(() -> swerve.stopModules(), swerve),
-								Commands.waitUntil(() -> indexer.isNoteInside()),
+								Commands.waitUntil(() -> indexer.isNoteInsideIndexer()),
 								Commands.parallel(
 										AutoBuilder
 												.followPath(PathPlannerPath.fromPathFile(pathToShoot)),

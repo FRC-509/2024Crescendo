@@ -1,0 +1,37 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 1.47,
+      "y": 3.17
+    },
+    "rotation": 0.0
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "SprintForCenter"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "SprintForCenter2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "SprintForCenter3"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}

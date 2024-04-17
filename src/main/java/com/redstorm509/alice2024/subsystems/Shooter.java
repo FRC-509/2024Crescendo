@@ -28,6 +28,8 @@ public class Shooter extends SubsystemBase {
 		TalonFXConfiguration shootConf = new TalonFXConfiguration();
 		shootConf.CurrentLimits.SupplyCurrentLimitEnable = true;
 		shootConf.CurrentLimits.SupplyCurrentLimit = 30.0;
+		shootConf.CurrentLimits.SupplyCurrentThreshold = 60.0;
+		shootConf.CurrentLimits.SupplyTimeThreshold = 0.05;
 		shootConf.Slot0.kP = Constants.Shooter.kFlyWheelP;
 		shootConf.Slot0.kI = Constants.Shooter.kFlyWheelI;
 		shootConf.Slot0.kD = Constants.Shooter.kFlyWheelD;

@@ -31,7 +31,7 @@ public class DriveToAndShootNote extends SequentialCommandGroup {
 								Commands.parallel(
 										new SetPivot(arm, Constants.Arm.kMinPivot),
 										AutoBuilder.followPath(PathPlannerPath.fromPathFile(pathName))),
-								Commands.waitUntil(() -> indexer.isNoteInside()),
+								Commands.waitUntil(() -> indexer.isNoteInsideIndexer()),
 								Commands.parallel(
 										new DeferredCommand(
 												() -> new SetHeading(swerve, swerve.jankFlipHeading(heading)),
@@ -53,7 +53,7 @@ public class DriveToAndShootNote extends SequentialCommandGroup {
 								Commands.parallel(
 										new SetPivot(arm, Constants.Arm.kMinPivot),
 										AutoBuilder.followPath(PathPlannerPath.fromPathFile(pathName))),
-								Commands.waitUntil(() -> indexer.isNoteInside()),
+								Commands.waitUntil(() -> indexer.isNoteInsideIndexer()),
 								new SetPivot(arm, armPivot)),
 						new AutonomousIntakeNote(intake, indexer, lights)),
 				Commands.runOnce(() -> swerve.stopModules(), swerve),

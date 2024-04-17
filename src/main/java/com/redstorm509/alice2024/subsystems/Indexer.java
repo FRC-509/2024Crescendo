@@ -139,9 +139,13 @@ public class Indexer extends SubsystemBase {
 		return indexerBB.get() && shooterBB.get() && imStageBB.get();
 	}
 
-	public boolean isNoteInside() {
+	public boolean isNoteInsideIndexer() {
 		return indexingNoteState != IndexerState.Noteless && indexingNoteState != IndexerState.NoteTooIntakeExtreme
 				&& indexingNoteState != IndexerState.NoteTooIntake;
+	}
+
+	public boolean isNoteInsideRobot() {
+		return indexingNoteState != IndexerState.Noteless;
 	}
 
 	@Override
