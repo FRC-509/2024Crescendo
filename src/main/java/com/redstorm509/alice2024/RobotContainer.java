@@ -37,7 +37,7 @@ public class RobotContainer {
 	private final Climber climber;
 	private final REVBlinkin lights;
 	private final Limelight intakeCamera = new Limelight("limelight-intake");
-	private final Limelight shooterCamera = new Limelight("limelight-arm");
+	private final Limelight shooterCamera = new Limelight("limelight");
 
 	private SendableChooser<Command> chooser = new SendableChooser<Command>();
 
