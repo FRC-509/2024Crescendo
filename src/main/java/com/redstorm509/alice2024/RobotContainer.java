@@ -47,7 +47,7 @@ public class RobotContainer {
 		this.shooter = new Shooter();
 		this.arm = new Arm();
 		this.indexer = new Indexer(() -> arm.armIsDown());
-		this.climber = new Climber(pigeon);
+		this.climber = new Climber();
 		this.lights = new REVBlinkin(9);
 
 		intakeCamera.setLEDMode_ForceOff();
