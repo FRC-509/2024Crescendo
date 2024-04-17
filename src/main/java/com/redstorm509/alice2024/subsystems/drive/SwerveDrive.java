@@ -1,6 +1,5 @@
 package com.redstorm509.alice2024.subsystems.drive;
 
-import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -24,10 +23,10 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.redstorm509.alice2024.Constants;
 import com.redstorm509.alice2024.Constants.Chassis;
-import com.redstorm509.alice2024.commands.AutoAlign;
 import com.redstorm509.alice2024.subsystems.vision.Limelight;
 import com.redstorm509.alice2024.util.PigeonWrapper;
 import com.redstorm509.alice2024.util.math.LoggablePID;
+import com.redstorm509.alice2024.util.telemetry.ThinNT;
 
 import java.util.Optional;
 
@@ -78,7 +77,6 @@ public class SwerveDrive extends SubsystemBase {
 
 	private double simHeading = 0.0d;
 	private double prevRotOutput = 0.0d;
-	private SwerveM2D visualizer;
 	private Limelight shooterCamera;
 
 	private HolonomicPathFollowerConfig pathFollowerConfig = new HolonomicPathFollowerConfig(
@@ -140,7 +138,6 @@ public class SwerveDrive extends SubsystemBase {
 		// PathPlannerLogging.setLogActivePathCallback((poses) ->
 		// field2d.getObject("path").setPoses(poses));
 		Shuffleboard.getTab("Robot Field Position").add(field2d);
-		visualizer = new SwerveM2D();
 
 		headingPassive.setIntegratorRange(-180, 180);
 		headingAggressive.setIntegratorRange(-180, 180);
@@ -202,7 +199,6 @@ public class SwerveDrive extends SubsystemBase {
 
 		double speed = Math.hypot(translationMetersPerSecond.getX(),
 				translationMetersPerSecond.getY());
-		// SmartDashboard.putNumber("SpeedX", speed);
 
 		if ((speed != 0 && speed < Constants.kMinHeadingCorrectionSpeed) || omitRotationCorrection || hasRotationInput
 				|| manualRotationTimer.get() < Constants.kHeadingTimeout) {
@@ -411,7 +407,6 @@ public class SwerveDrive extends SubsystemBase {
 
 	@Override
 	public void periodic() {
-		visualizer.update(getModuleStates());
 		odometry.update(getYaw(), getModulePositions());
 		poseEstimator.update(getYaw(), getModulePositions());
 
@@ -427,21 +422,25 @@ public class SwerveDrive extends SubsystemBase {
 		}
 		field2d.setRobotPose(getEstimatedPose());
 
-		double totalCurrent = 0.0d;
-		for (SwerveModule mod : swerveModules) {
-			totalCurrent += mod.getSupplyCurrent();
-		}
-		SmartDashboard.putNumber("Swerve Supply Current", totalCurrent);
 		SmartDashboard.putNumber("yaw", getYaw().getDegrees());
 		SmartDashboard.putBoolean("Heading Correction Enabled?", !alwaysOmitRotationalCorrection);
 
-		SmartDashboard.putNumber("SHOOTER CAMERA TX", shooterCamera.getTX());
-		SmartDashboard.putNumber("SHOOTER CAMERA TY", shooterCamera.getTY());
+		ThinNT.putNumber("x-velocity", getChassisSpeeds().vxMetersPerSecond);
+		ThinNT.putNumber("y-velocity", getChassisSpeeds().vyMetersPerSecond);
+		ThinNT.putNumber("yaw-velocity", pigeon.getAngularVelocityZWorld().getValueAsDouble());
+		ThinNT.putNumber("target-heading", targetHeading);
+		ThinNT.putNumber("odometry-x", getRawOdometeryPose().getX());
+		ThinNT.putNumber("odometry-y", getRawOdometeryPose().getY());
+		ThinNT.putNumber("odometry-theta", getRawOdometeryPose().getRotation().getDegrees());
+		ThinNT.putNumber("estimation-x", getEstimatedPose().getX());
+		ThinNT.putNumber("estimation-y", getEstimatedPose().getY());
+		ThinNT.putNumber("estimation-theta", getEstimatedPose().getRotation().getDegrees());
 
-		Pair<Double, Double> params = AutoAlign.getShotParameters(shooterCamera);
-
-		SmartDashboard.putNumber("DESIRED PIVOT", params.getFirst());
-		SmartDashboard.putNumber("DESIRED HEADING DELTA", params.getSecond());
+		for (SwerveModule mod : swerveModules) {
+			SwerveModuleState state = mod.getState();
+			ThinNT.putNumber("module-" + mod.moduleNumber + "-velocity", state.speedMetersPerSecond);
+			ThinNT.putNumber("module-" + mod.moduleNumber + "-angle", state.angle.getDegrees());
+		}
 
 		/*-
 		SmartDashboard.putNumber("pitch", pigeon.getPitch().getValueAsDouble());

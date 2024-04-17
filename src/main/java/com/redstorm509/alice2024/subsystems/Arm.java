@@ -179,19 +179,7 @@ public class Arm extends SubsystemBase {
 		wasLimitSwitchTripped = isTripped();
 		SmartDashboard.putBoolean("PivotLimitSwitch", isTripped());
 		SmartDashboard.putBoolean("Arm Is Down", armIsDown());
-		// SmartDashboard.putNumber("PivotL", pivotLeader.getPosition().getValue() *
-		// 360.0d);
-		// SmartDashboard.putNumber("Target Pivot", pivotTarget.getTarget());
+		SmartDashboard.putNumber("Target Pivot", pivotTarget.getTarget());
 		SmartDashboard.putNumber("Absolute Pivot", pivotEncoder.getPosition().getValue() * 360.0d);
-		SmartDashboard.putNumber("Absolute Pivot Velocity", pivotEncoder.getVelocity().getValue() * 360.0d);
-
-		/*-
-		SmartDashboard.putNumber("PivotRaw", pivotLeader.getPosition().getValue());
-		SmartDashboar
-		d.putNumber("PivotF", pivotFollower.getPosition().getValue() * 360.0d);
-		 */
-
-		SmartDashboard.putNumber("Arm Supply Current", pivotLeader.getSupplyCurrent().getValueAsDouble()
-				+ pivotFollower.getSupplyCurrent().getValueAsDouble());
 	}
 }

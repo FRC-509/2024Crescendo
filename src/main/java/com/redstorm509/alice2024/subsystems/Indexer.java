@@ -49,7 +49,7 @@ public class Indexer extends SubsystemBase {
 	private BooleanSupplier armIsDown;
 
 	private CANSparkMax indexer = new CANSparkMax(12, MotorType.kBrushed);
-	private DigitalInput shooterBB = new DigitalInput(4); // CHANGE TO REAL PORTS
+	private DigitalInput shooterBB = new DigitalInput(4);
 	private DigitalInput indexerBB = new DigitalInput(2);
 	private DigitalInput imStageBB = new DigitalInput(0);
 
@@ -151,13 +151,12 @@ public class Indexer extends SubsystemBase {
 	@Override
 	public void periodic() {
 		pollState();
-		SmartDashboard.putNumber("Indexer Supply Current", indexer.getOutputCurrent());
 		SmartDashboard.putBoolean("Note Picked Up", indexingNoteState != IndexerState.Noteless);
 		SmartDashboard.putBoolean("Has Note", indexingNoteState == IndexerState.HasNote);
 		SmartDashboard.putString("IndexingState", indexingNoteState.toString());
 
-		SmartDashboard.putBoolean("ShootBB", shooterBB.get());
-		SmartDashboard.putBoolean("indexerBB", indexerBB.get());
-		SmartDashboard.putBoolean("intakeBB", imStageBB.get());
+		SmartDashboard.putBoolean("ShooterBB", shooterBB.get());
+		SmartDashboard.putBoolean("IndexerBB", indexerBB.get());
+		SmartDashboard.putBoolean("IMStageBB", imStageBB.get());
 	}
 }

@@ -4,7 +4,6 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.redstorm509.alice2024.util.PigeonWrapper;
 
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
@@ -19,9 +18,8 @@ public class Climber extends SubsystemBase {
 
 	private Solenoid leftSol = new Solenoid(PneumaticsModuleType.REVPH, 13); // changed to REVPH
 	private Solenoid rightSol = new Solenoid(PneumaticsModuleType.REVPH, 15);
-	private PigeonWrapper pigeon;
 
-	public Climber(PigeonWrapper pigeon) {
+	public Climber() {
 		TalonFXConfiguration conf = new TalonFXConfiguration();
 		conf.CurrentLimits.SupplyCurrentLimitEnable = true;
 		conf.CurrentLimits.SupplyCurrentLimit = 10.0;
@@ -29,7 +27,6 @@ public class Climber extends SubsystemBase {
 
 		leftClimbMotor.getConfigurator().apply(conf);
 		rightClimbMotor.getConfigurator().apply(conf);
-		this.pigeon = pigeon;
 	}
 
 	public void lockLeft() {
@@ -91,10 +88,7 @@ public class Climber extends SubsystemBase {
 
 	@Override
 	public void periodic() {
-		SmartDashboard.putNumber("Climber Supply Current", leftClimbMotor.getSupplyCurrent().getValueAsDouble()
-				+ rightClimbMotor.getSupplyCurrent().getValueAsDouble());
 		SmartDashboard.putBoolean("LeftSol", leftSol.get());
 		SmartDashboard.putBoolean("RightSol", rightSol.get());
-		SmartDashboard.putNumber("roll", pigeon.getRoll());
 	}
 }
