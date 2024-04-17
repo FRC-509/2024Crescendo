@@ -6,7 +6,6 @@ import com.redstorm509.alice2024.Constants;
 import com.redstorm509.alice2024.commands.SetPivot;
 import com.redstorm509.alice2024.commands.autonomous.AutoShootMoreJank;
 import com.redstorm509.alice2024.commands.autonomous.AutonomousIntakeNote;
-import com.redstorm509.alice2024.commands.autonomous.AutonomousShootEvenMoreJankButItsOk;
 import com.redstorm509.alice2024.subsystems.Arm;
 import com.redstorm509.alice2024.subsystems.Indexer;
 import com.redstorm509.alice2024.subsystems.Intake;
