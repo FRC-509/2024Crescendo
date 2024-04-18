@@ -247,7 +247,7 @@ public class AutoAlign extends Command {
 			// movement, otherwise full operator control
 			swerve.drive(
 					new Translation2d(xSupplier.getAsDouble(), ySupplier.getAsDouble()).times(Constants.kMaxSpeed),
-					rotationSupplier.getAsDouble() * Constants.kMaxAngularVelocity,
+					rotationSupplier.getAsDouble() * Constants.kMaxAngularVelocity * 0.5,
 					true,
 					false);
 		}

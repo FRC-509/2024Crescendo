@@ -37,7 +37,7 @@ public class RobotContainer {
 	private final Climber climber;
 	private final REVBlinkin lights;
 	private final Limelight intakeCamera = new Limelight("limelight-intake");
-	private final Limelight shooterCamera = new Limelight("limelight");
+	private final Limelight shooterCamera = new Limelight("limelight-arm");
 
 	private SendableChooser<Command> chooser = new SendableChooser<Command>();
 
@@ -170,7 +170,7 @@ public class RobotContainer {
 		}, shooter));
 
 		operator.leftTrigger(0.7).whileTrue(Commands.runEnd(() -> {
-			shooter.setShooterVelocity(-50.9);
+			shooter.setShooterVelocity(-55.9);
 		}, () -> {
 			shooter.setShooterVelocity(0);
 		}, shooter));
@@ -179,12 +179,12 @@ public class RobotContainer {
 				new SetPivot(arm, 38.84),
 				new InstantCommand(),
 				() -> (indexer.indexingNoteState == IndexerState.Noteless
-						|| indexer.indexingNoteState == IndexerState.HasNote)));
+						|| indexer.indexingNoteState == IndexerState.HasNote) || operator.getRawAxis(3) >= 0.7));
 		operator.b().onTrue(new ConditionalCommand(
 				new SetPivot(arm, -47.0),
 				new InstantCommand(),
 				() -> (indexer.indexingNoteState == IndexerState.Noteless
-						|| indexer.indexingNoteState == IndexerState.HasNote)));
+						|| indexer.indexingNoteState == IndexerState.HasNote) || operator.getRawAxis(3) >= 0.7));
 		operator.y().onTrue(new SetPivot(arm, Constants.Arm.kMinPivot + 4));
 		arm.setDefaultCommand(new DefaultPivotCommand(arm,
 				() -> nonInvSquare(-operator.getLeftY()) / 5, () -> false));

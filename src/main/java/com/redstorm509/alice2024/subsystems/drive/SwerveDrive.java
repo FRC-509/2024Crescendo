@@ -10,6 +10,9 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -78,6 +81,9 @@ public class SwerveDrive extends SubsystemBase {
 	private double simHeading = 0.0d;
 	private double prevRotOutput = 0.0d;
 	private Limelight shooterCamera;
+	private StructArrayPublisher<SwerveModuleState> moduleStatePublisher;
+	private StructPublisher<Pose2d> odometryPublisher;
+	private StructPublisher<Pose2d> poseEstimatePublisher;
 
 	private HolonomicPathFollowerConfig pathFollowerConfig = new HolonomicPathFollowerConfig(
 			new PIDConstants(5.0, 0, 0), // Translation constants
@@ -144,6 +150,12 @@ public class SwerveDrive extends SubsystemBase {
 		headingPassive.setTolerance(0.25);
 		headingAggressive.setTolerance(0.25);
 
+		moduleStatePublisher = NetworkTableInstance.getDefault()
+				.getStructArrayTopic("module-states", SwerveModuleState.struct).publish();
+		odometryPublisher = NetworkTableInstance.getDefault()
+				.getStructTopic("odometry-pose", Pose2d.struct).publish();
+		poseEstimatePublisher = NetworkTableInstance.getDefault()
+				.getStructTopic("estimated-pose", Pose2d.struct).publish();
 		/*-
 		SmartDashboard.putNumber("HeadingPassiveP", Constants.kHeadingPassiveP);
 		SmartDashboard.putNumber("HeadingPassiveI", Constants.kHeadingPassiveI);
@@ -429,18 +441,10 @@ public class SwerveDrive extends SubsystemBase {
 		ThinNT.putNumber("y-velocity", getChassisSpeeds().vyMetersPerSecond);
 		ThinNT.putNumber("yaw-velocity", pigeon.getAngularVelocityZWorld().getValueAsDouble());
 		ThinNT.putNumber("target-heading", targetHeading);
-		ThinNT.putNumber("odometry-x", getRawOdometeryPose().getX());
-		ThinNT.putNumber("odometry-y", getRawOdometeryPose().getY());
-		ThinNT.putNumber("odometry-theta", getRawOdometeryPose().getRotation().getDegrees());
-		ThinNT.putNumber("estimation-x", getEstimatedPose().getX());
-		ThinNT.putNumber("estimation-y", getEstimatedPose().getY());
-		ThinNT.putNumber("estimation-theta", getEstimatedPose().getRotation().getDegrees());
 
-		for (SwerveModule mod : swerveModules) {
-			SwerveModuleState state = mod.getState();
-			ThinNT.putNumber("module-" + mod.moduleNumber + "-velocity", state.speedMetersPerSecond);
-			ThinNT.putNumber("module-" + mod.moduleNumber + "-angle", state.angle.getDegrees());
-		}
+		moduleStatePublisher.set(getModuleStates());
+		odometryPublisher.set(getRawOdometeryPose());
+		poseEstimatePublisher.set(getEstimatedPose());
 
 		/*-
 		SmartDashboard.putNumber("pitch", pigeon.getPitch().getValueAsDouble());

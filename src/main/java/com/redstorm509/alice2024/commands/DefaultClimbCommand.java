@@ -24,7 +24,7 @@ public class DefaultClimbCommand extends Command {
 	private boolean usesRollCompensation;
 
 	private Timer toggleDelay = new Timer();
-	private double extendingSpeedModifier = 0.65;
+	private double extendingSpeedModifier = 0.80; // was 65 during Q6
 	private double retractingSpeedModifier = 0.65;
 
 	public DefaultClimbCommand(
