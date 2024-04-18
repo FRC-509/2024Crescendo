@@ -29,10 +29,10 @@ public class Sprint extends SequentialCommandGroup {
 		Command paths = Commands.sequence(
 				shooter.startShooting(),
 				swerve.resetOdometryCmd(startPose),
-				new DriveToAndShootNote2Paths("Sprint1", "Sprint2", -25.49, -26.57 - 10, swerve, arm, shooter, indexer,
+				new DriveToAndShootNote2Paths("Sprint1", "Sprint2", -32.648, -26.57 - 10, swerve, arm, shooter, indexer,
 						intake,
 						lights),
-				new DriveToAndShootNote2Paths("Sprint3", "Sprint4", -25.49, -26.57 - 10, swerve, arm, shooter, indexer,
+				new DriveToAndShootNote2Paths("Sprint3", "Sprint4", -32.648, -26.57 - 10, swerve, arm, shooter, indexer,
 						intake,
 						lights),
 				Commands.sequence(

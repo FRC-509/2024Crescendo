@@ -170,7 +170,7 @@ public class RobotContainer {
 		}, shooter));
 
 		operator.leftTrigger(0.7).whileTrue(Commands.runEnd(() -> {
-			shooter.setShooterVelocity(-55.9);
+			shooter.setShooterVelocity(-53.5);
 		}, () -> {
 			shooter.setShooterVelocity(0);
 		}, shooter));
