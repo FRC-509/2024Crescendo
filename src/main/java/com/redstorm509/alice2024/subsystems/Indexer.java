@@ -5,6 +5,7 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import java.util.function.BooleanSupplier;
 
+import com.redstorm509.alice2024.util.telemetry.ThinNT;
 import com.revrobotics.CANSparkMax;
 
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -151,6 +152,8 @@ public class Indexer extends SubsystemBase {
 	@Override
 	public void periodic() {
 		pollState();
+		ThinNT.putNumber("IndexerDutyCycle", indexer.get());
+
 		SmartDashboard.putBoolean("Note Picked Up", indexingNoteState != IndexerState.Noteless);
 		SmartDashboard.putBoolean("Has Note", indexingNoteState == IndexerState.HasNote);
 		SmartDashboard.putString("IndexingState", indexingNoteState.toString());
