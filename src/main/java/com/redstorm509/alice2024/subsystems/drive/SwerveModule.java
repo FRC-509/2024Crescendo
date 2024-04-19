@@ -69,7 +69,7 @@ public class SwerveModule {
 		steerMotorConfig.Slot0.kD = Constants.kSteerAngleD;
 		steerMotorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 		steerMotorConfig.CurrentLimits.SupplyCurrentLimit = 35.0d;
-		steerMotorConfig.CurrentLimits.SupplyCurrentThreshold = 60.0d;
+		steerMotorConfig.CurrentLimits.SupplyCurrentThreshold = 45.0d;
 		steerMotorConfig.CurrentLimits.SupplyTimeThreshold = 0.1;
 		// Since we've just configured the steer motors to use data from the absolute
 		// encoders, we don't need to divide the steer motor's position by the gear
@@ -90,7 +90,7 @@ public class SwerveModule {
 		driveMotorConfig.Slot0.kV = Constants.kDriveVelocityV;
 		driveMotorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 		driveMotorConfig.CurrentLimits.SupplyCurrentLimit = 35.0d;
-		driveMotorConfig.CurrentLimits.SupplyCurrentThreshold = 60.0d;
+		driveMotorConfig.CurrentLimits.SupplyCurrentThreshold = 45.0d;
 		driveMotorConfig.CurrentLimits.SupplyTimeThreshold = 0.1;
 
 		this.driveMotor = new TalonFX(configs.driveMotorId(), Constants.kCANIvore);
