@@ -122,8 +122,8 @@ public class Indexer extends SubsystemBase {
 			currentStateTimer.reset();
 		}
 
-		if (indexingNoteState == prevIndexerState && indexingNoteState != IndexerState.Noteless
-				&& indexingNoteState != IndexerState.HasNote && currentStateTimer.hasElapsed(0.50)) {
+		if (indexingNoteState != IndexerState.Noteless && indexingNoteState != IndexerState.HasNote
+				&& currentStateTimer.hasElapsed(0.50)) {
 			setNoteless();
 		}
 	}
@@ -132,6 +132,10 @@ public class Indexer extends SubsystemBase {
 		if (!shooterBB.get() && !indexerBB.get()) {
 			// Note is where we want it to be
 			return IndexerState.HasNote;
+		} else if (shooterBB.get() && indexerBB.get()) {
+			// this creates a small area that it thinks its noteless, but it is so low in
+			// the indexer that it will never occur
+			return IndexerState.Noteless;
 		}
 		return IndexerState.NoteTooIntake;
 	}
