@@ -31,15 +31,18 @@ public class DriveToAndShootNote extends SequentialCommandGroup {
 								Commands.parallel(
 										new SetPivot(arm, Constants.Arm.kMinPivot),
 										AutoBuilder.followPath(PathPlannerPath.fromPathFile(pathName))),
-								Commands.waitUntil(() -> indexer.isNoteInside()),
+								Commands.waitUntil(() -> indexer.isNoteInsideRobot()).withTimeout(5.0), // CT
 								Commands.parallel(
 										new DeferredCommand(
 												() -> new SetHeading(swerve, swerve.jankFlipHeading(heading)),
 												Set.of(swerve)),
-										new SetPivot(arm, armPivot))),
+										Commands.sequence(
+												Commands.waitUntil(() -> indexer.isNoteInsideIndexer())
+														.withTimeout(5.0), // CT
+												new SetPivot(arm, armPivot)))),
 						new AutonomousIntakeNote(intake, indexer, lights)),
 				Commands.runOnce(() -> swerve.stopModules(), swerve),
-				new AutoShootMoreJank(shooter, indexer),
+				new AutoShootMoreJank(shooter, indexer).withTimeout(5.0), // CT
 				new SetPivot(arm, Constants.Arm.kMinPivot));
 		addCommands(paths);
 	}
@@ -53,11 +56,12 @@ public class DriveToAndShootNote extends SequentialCommandGroup {
 								Commands.parallel(
 										new SetPivot(arm, Constants.Arm.kMinPivot),
 										AutoBuilder.followPath(PathPlannerPath.fromPathFile(pathName))),
-								Commands.waitUntil(() -> indexer.isNoteInside()),
+								Commands.waitUntil(() -> indexer.isNoteInsideIndexer()).withTimeout(5.0), // CT
 								new SetPivot(arm, armPivot)),
 						new AutonomousIntakeNote(intake, indexer, lights)),
 				Commands.runOnce(() -> swerve.stopModules(), swerve),
-				new AutoShootMoreJank(shooter, indexer));
+				new AutoShootMoreJank(shooter, indexer).withTimeout(5.0), // CT
+				new SetPivot(arm, Constants.Arm.kMinPivot));
 		addCommands(paths);
 	}
 }

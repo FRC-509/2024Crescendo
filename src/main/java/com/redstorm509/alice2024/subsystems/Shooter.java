@@ -1,6 +1,7 @@
 package com.redstorm509.alice2024.subsystems;
 
 import com.redstorm509.alice2024.Constants;
+import com.redstorm509.alice2024.util.telemetry.ThinNT;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -8,8 +9,6 @@ import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -28,6 +27,8 @@ public class Shooter extends SubsystemBase {
 		TalonFXConfiguration shootConf = new TalonFXConfiguration();
 		shootConf.CurrentLimits.SupplyCurrentLimitEnable = true;
 		shootConf.CurrentLimits.SupplyCurrentLimit = 30.0;
+		shootConf.CurrentLimits.SupplyCurrentThreshold = 35.0;
+		shootConf.CurrentLimits.SupplyTimeThreshold = 0.05;
 		shootConf.Slot0.kP = Constants.Shooter.kFlyWheelP;
 		shootConf.Slot0.kI = Constants.Shooter.kFlyWheelI;
 		shootConf.Slot0.kD = Constants.Shooter.kFlyWheelD;
@@ -70,6 +71,7 @@ public class Shooter extends SubsystemBase {
 
 	@Override
 	public void periodic() {
+		ThinNT.putNumber("ShooterStPt", Math.abs(getGoalVelocity()));
 		SmartDashboard.putNumber("Shooter Velocity (rps)", Math.abs(shooterLeader.getVelocity().getValueAsDouble()));
 	}
 

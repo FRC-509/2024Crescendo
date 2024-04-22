@@ -88,8 +88,6 @@ public class Arm extends SubsystemBase {
 
 		if (target > Constants.Arm.kMinPivot + 5.0) {
 			armIsDown = false;
-		} else {
-			armIsDown = true;
 		}
 
 		pivotLeader.setControl(closedLoopPosition.withPosition(ticks));
@@ -110,8 +108,6 @@ public class Arm extends SubsystemBase {
 
 		if (target > Constants.Arm.kMinPivot + 5.0) {
 			armIsDown = false;
-		} else {
-			armIsDown = true;
 		}
 
 		pivotTarget.setTarget(target);
@@ -168,30 +164,19 @@ public class Arm extends SubsystemBase {
 	@Override
 	public void periodic() {
 		// DIO channels default to high in sim so we dont run this code if we're in sim.
-		if (!RobotBase.isSimulation() && !wasLimitSwitchTripped && isTripped()) {
+		if (!RobotBase.isSimulation() && !wasLimitSwitchTripped && armIsDown()) {
 			// pivotLeader.setPosition(Constants.Arm.kMinPivot / 360.0);
 			pivotLeader.setControl(new VoltageOut(0));
 		}
+
 		if (isTripped()) {
 			armIsDown = true;
 		}
 
-		wasLimitSwitchTripped = isTripped();
+		wasLimitSwitchTripped = armIsDown();
 		SmartDashboard.putBoolean("PivotLimitSwitch", isTripped());
 		SmartDashboard.putBoolean("Arm Is Down", armIsDown());
-		// SmartDashboard.putNumber("PivotL", pivotLeader.getPosition().getValue() *
-		// 360.0d);
-		// SmartDashboard.putNumber("Target Pivot", pivotTarget.getTarget());
+		SmartDashboard.putNumber("Target Pivot", pivotTarget.getTarget());
 		SmartDashboard.putNumber("Absolute Pivot", pivotEncoder.getPosition().getValue() * 360.0d);
-		SmartDashboard.putNumber("Absolute Pivot Velocity", pivotEncoder.getVelocity().getValue() * 360.0d);
-
-		/*-
-		SmartDashboard.putNumber("PivotRaw", pivotLeader.getPosition().getValue());
-		SmartDashboar
-		d.putNumber("PivotF", pivotFollower.getPosition().getValue() * 360.0d);
-		 */
-
-		SmartDashboard.putNumber("Arm Supply Current", pivotLeader.getSupplyCurrent().getValueAsDouble()
-				+ pivotFollower.getSupplyCurrent().getValueAsDouble());
 	}
 }

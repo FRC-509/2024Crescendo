@@ -27,7 +27,7 @@ public class DriveAndShootWhileMoving extends SequentialCommandGroup {
 				Commands.parallel(
 						AutoBuilder.followPath(PathPlannerPath.fromPathFile(pathName)),
 						Commands.sequence(
-								Commands.waitUntil(() -> indexer.isNoteInside()),
+								Commands.waitUntil(() -> indexer.isNoteInsideIndexer()),
 								new SetPivot(arm, armPivot)),
 						Commands.sequence(
 								new WaitCommand(timeToShoot),

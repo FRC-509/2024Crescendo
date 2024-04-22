@@ -38,7 +38,7 @@ public class AutoAlign extends Command {
 	private Translation3d RobotToTag;
 	private Translation2d outputTranslation;
 	private double desiredArmPivot = Constants.Arm.kMinPivot;
-	private double desiredArmPivotDerivative = Double.POSITIVE_INFINITY;
+	// private double desiredArmPivotDerivative = Double.POSITIVE_INFINITY;
 	private static double kPivotSlope = -0.721546;// -0.710432; // TUNE ME
 	private static double kPivotIntercept = -26.4987;// -27.0751; // TUNE ME
 
@@ -135,6 +135,10 @@ public class AutoAlign extends Command {
 						Math.toDegrees(MathUtil.clamp(Math.toRadians(desiredRotation), -Constants.kMaxAngularVelocity,
 								Constants.kMaxAngularVelocity)));
 
+				SmartDashboard.putNumber("desiredArmPivotAA",
+						Math.toDegrees(MathUtil.clamp(desiredArmPivot, Constants.Arm.kMinPivot,
+								Constants.Arm.kMaxPivot)));
+
 				return new Pose2d(new Translation2d(0, 0), new Rotation2d(desiredRotation));
 
 			// SPEAKER SIDE TAG OFFSETS (43 cm to the right of central tags)
@@ -158,7 +162,7 @@ public class AutoAlign extends Command {
 
 	@Override
 	public void initialize() {
-		desiredArmPivotDerivative = Double.POSITIVE_INFINITY;
+		// desiredArmPivotDerivative = Double.POSITIVE_INFINITY;
 		limelight.setPipelineIndex(Constants.Vision.Pipeline.AprilTags);
 
 		lights.setColor(ColorCode.AutoTargetLost);
@@ -227,17 +231,14 @@ public class AutoAlign extends Command {
 			} else {
 				swerve.drive(
 						new Translation2d(xSupplier.getAsDouble(), ySupplier.getAsDouble()).times(Constants.kMaxSpeed),
-						MathUtil.clamp(offsetPose.getRotation().getRadians() / 2, -Constants.kMaxAngularVelocity,
+						MathUtil.clamp(offsetPose.getRotation().getRadians(), -Constants.kMaxAngularVelocity,
 								Constants.kMaxAngularVelocity),
 						true,
 						true);
 			}
 
-			// SmartDashboard.putNumber("Desired Arm Pivot", desiredArmPivot);
-
 			arm.setPivotDegrees(MathUtil.clamp(desiredArmPivot, Constants.Arm.kMinPivot, Constants.Arm.kMaxPivot));
 			if (MathUtil.isNear(desiredArmPivot, arm.getPivotDegrees(), 1.5)
-					&& Math.abs(desiredArmPivotDerivative) <= 0.3d
 					&& Math.abs(offsetPose.getRotation().getDegrees()) < 3) {
 				lights.setColor(ColorCode.HasNote);
 			}
@@ -246,35 +247,17 @@ public class AutoAlign extends Command {
 			// movement, otherwise full operator control
 			swerve.drive(
 					new Translation2d(xSupplier.getAsDouble(), ySupplier.getAsDouble()).times(Constants.kMaxSpeed),
-					rotationSupplier.getAsDouble() * Constants.kMaxAngularVelocity,
+					rotationSupplier.getAsDouble() * Constants.kMaxAngularVelocity * 0.5,
 					true,
 					false);
 		}
 
 		SmartDashboard.putNumber("Targeted April Tag", limelight.getFiducialID());
-		// SmartDashboard.putNumber("DistanceToRotate", Math.abs(desiredArmPivot) -
-		// Math.abs(offestPose.getRotation().getValueAsDouble()));
-
-		// SmartDashboard.putNumber("TY", limelight.getTY());
-
-		// SmartDashboard.putNumber("X to Tag", RobotToTag.getX());
-		// SmartDashboard.putNumber("Y to Tag", RobotToTag.getY());
-		// SmartDashboard.putNumber("Z to tag", RobotToTag.getZ());
-
-		/*-
-		SmartDashboard.putNumber("TX", limelight.getTX());
-		SmartDashboard.putNumber("tan angle", Math.atan(Math.abs(RobotToTag.getX()) / Math.abs(RobotToTag.getY())));
-		SmartDashboard.putNumber("Output Rotation",
-				-limelight.getTX()
-						- Math.toDegrees(Math.atan(Math.abs(RobotToTag.getX()) / Math.abs(RobotToTag.getY()))));
-		*/
-		// SmartDashboard.putNumber("X to target position", outputTranslation.getX());
-		// SmartDashboard.putNumber("Y to target position", outputTranslation.getY());
 	}
 
 	@Override
 	public boolean isFinished() {
-		if (DriverStation.isAutonomous() && Math.abs(desiredArmPivotDerivative) <= 1 && limelight.getTX() < 0.5d) {
+		if (DriverStation.isAutonomous() && limelight.getTX() < 0.5d) {
 			return true;
 		}
 		/*-

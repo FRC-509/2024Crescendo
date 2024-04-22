@@ -1,5 +1,6 @@
 package com.redstorm509.alice2024;
 
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -29,6 +30,7 @@ public class Robot extends TimedRobot {
 		// and put our
 		// autonomous chooser on the dashboard.
 		m_robotContainer = new RobotContainer();
+		DataLogManager.logNetworkTables(true);
 	}
 
 	/**
@@ -55,12 +57,14 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void disabledExit() {
+		DataLogManager.start();
 		m_robotContainer.onRobotEnable();
 	}
 
 	/** This function is called once each time the robot enters Disabled mode. */
 	@Override
 	public void disabledInit() {
+		DataLogManager.stop();
 	}
 
 	@Override

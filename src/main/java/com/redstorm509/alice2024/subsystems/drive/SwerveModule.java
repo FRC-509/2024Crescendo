@@ -4,7 +4,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.redstorm509.alice2024.Constants;
 import com.redstorm509.alice2024.util.math.Conversions;
@@ -69,7 +68,9 @@ public class SwerveModule {
 		steerMotorConfig.Slot0.kI = Constants.kSteerAngleI;
 		steerMotorConfig.Slot0.kD = Constants.kSteerAngleD;
 		steerMotorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-		steerMotorConfig.CurrentLimits.SupplyCurrentLimit = 35;
+		steerMotorConfig.CurrentLimits.SupplyCurrentLimit = 35.0d;
+		steerMotorConfig.CurrentLimits.SupplyCurrentThreshold = 45.0d;
+		steerMotorConfig.CurrentLimits.SupplyTimeThreshold = 0.1;
 		// Since we've just configured the steer motors to use data from the absolute
 		// encoders, we don't need to divide the steer motor's position by the gear
 		// ratio ourselves.
@@ -88,7 +89,10 @@ public class SwerveModule {
 		driveMotorConfig.Slot0.kS = Constants.kDriveVelocityS;
 		driveMotorConfig.Slot0.kV = Constants.kDriveVelocityV;
 		driveMotorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-		driveMotorConfig.CurrentLimits.SupplyCurrentLimit = 35;
+		driveMotorConfig.CurrentLimits.SupplyCurrentLimit = 35.0d;
+		driveMotorConfig.CurrentLimits.SupplyCurrentThreshold = 45.0d;
+		driveMotorConfig.CurrentLimits.SupplyTimeThreshold = 0.1;
+
 		this.driveMotor = new TalonFX(configs.driveMotorId(), Constants.kCANIvore);
 		this.driveMotor.getConfigurator().apply(driveMotorConfig);
 
@@ -167,9 +171,6 @@ public class SwerveModule {
 
 		if (closedLoop) {
 			driveMotor.setControl(closedLoopDriveRequest.withVelocity(targetVelocity));
-			SmartDashboard.putNumber("Module " + moduleNumber + "Vel",
-					Conversions.falconToMPS(driveMotor.getVelocity().getValueAsDouble(),
-							Constants.MK4I.kWheelCircumference, Constants.MK4I.kDriveGearRatio));
 		} else {
 			double voltage = Conversions.falconToMPS(targetVelocity, Constants.MK4I.kWheelCircumference,
 					Constants.MK4I.kDriveGearRatio) / Constants.kMaxSpeed * 12.0;

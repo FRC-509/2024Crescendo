@@ -1,0 +1,37 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.72,
+      "y": 4.43
+    },
+    "rotation": -59.860000000000014
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "D2N_TwoNoteSourceSide"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "SDriveToThirdNoteFar"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "SDriveToThirdNoteFarRev"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}

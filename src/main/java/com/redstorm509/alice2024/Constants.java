@@ -66,7 +66,7 @@ public final class Constants {
 	public static class Intake {
 		public static final double kIntakeSpinSpeed = 0.3;
 		public static final double kPreCompressorSpinSpeed = 0.8;
-		public static final double kIntermediateStageSpinSpeed = 0.8;
+		public static final double kIntermediateStageSpinSpeed = 1.0;
 	}
 
 	public static class Vision {

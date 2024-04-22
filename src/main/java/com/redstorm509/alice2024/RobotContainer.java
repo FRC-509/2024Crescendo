@@ -47,7 +47,7 @@ public class RobotContainer {
 		this.shooter = new Shooter();
 		this.arm = new Arm();
 		this.indexer = new Indexer(() -> arm.armIsDown());
-		this.climber = new Climber(pigeon);
+		this.climber = new Climber();
 		this.lights = new REVBlinkin(9);
 
 		intakeCamera.setLEDMode_ForceOff();
@@ -170,7 +170,7 @@ public class RobotContainer {
 		}, shooter));
 
 		operator.leftTrigger(0.7).whileTrue(Commands.runEnd(() -> {
-			shooter.setShooterVelocity(-50.9);
+			shooter.setShooterVelocity(-53.5);
 		}, () -> {
 			shooter.setShooterVelocity(0);
 		}, shooter));
@@ -179,12 +179,12 @@ public class RobotContainer {
 				new SetPivot(arm, 38.84),
 				new InstantCommand(),
 				() -> (indexer.indexingNoteState == IndexerState.Noteless
-						|| indexer.indexingNoteState == IndexerState.HasNote)));
+						|| indexer.indexingNoteState == IndexerState.HasNote) || operator.getRawAxis(3) >= 0.7));
 		operator.b().onTrue(new ConditionalCommand(
 				new SetPivot(arm, -47.0),
 				new InstantCommand(),
 				() -> (indexer.indexingNoteState == IndexerState.Noteless
-						|| indexer.indexingNoteState == IndexerState.HasNote)));
+						|| indexer.indexingNoteState == IndexerState.HasNote) || operator.getRawAxis(3) >= 0.7));
 		operator.y().onTrue(new SetPivot(arm, Constants.Arm.kMinPivot + 4));
 		arm.setDefaultCommand(new DefaultPivotCommand(arm,
 				() -> nonInvSquare(-operator.getLeftY()) / 5, () -> false));
@@ -222,6 +222,8 @@ public class RobotContainer {
 		chooser.addOption("[SOURCE] 4 Note Close",
 				new S4Close(swerve, shooter, arm, indexer, intake, lights));
 		chooser.addOption("[AMP] 2 Close 1 Far", new A2Close1Midfield(swerve, shooter, arm, indexer, intake, lights));
+		chooser.addOption("[SOURCE] 2 Close 1 Far",
+				new S2Close1Midfield(swerve, shooter, arm, indexer, intake, lights));
 
 		chooser.addOption("\"Go AFK\" (Null)", new InstantCommand());
 		SmartDashboard.putData("Auto Mode", chooser);

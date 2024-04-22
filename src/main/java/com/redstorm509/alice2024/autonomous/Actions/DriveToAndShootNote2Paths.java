@@ -30,19 +30,19 @@ public class DriveToAndShootNote2Paths extends SequentialCommandGroup {
 								new SetPivot(arm, Constants.Arm.kMinPivot),
 								AutoBuilder.followPath(PathPlannerPath.fromPathFile(pathToNote)),
 								Commands.runOnce(() -> swerve.stopModules(), swerve),
-								Commands.waitUntil(() -> indexer.isNoteInside()),
-								Commands.parallel(
-										AutoBuilder
-												.followPath(PathPlannerPath.fromPathFile(pathToShoot)),
-										Commands.sequence(
-												Commands.waitUntil(() -> indexer.hasNote()),
-												new SetPivot(arm, armPivot))),
+								Commands.waitUntil(() -> indexer.isNoteInsideRobot()).withTimeout(5.0), // CT
+								AutoBuilder.followPath(PathPlannerPath.fromPathFile(pathToShoot)),
+								Commands.sequence(
+										Commands.waitUntil(() -> indexer.isNoteInsideIndexer())
+												.withTimeout(5.0), // CT
+										new SetPivot(arm, armPivot)),
 								new DeferredCommand(
 										() -> new SetHeading(swerve, swerve.jankFlipHeading(heading)),
 										Set.of(swerve))),
 						new AutonomousIntakeNote(intake, indexer, lights)),
 				Commands.runOnce(() -> swerve.stopModules(), swerve),
-				new AutoShootMoreJank(shooter, indexer));
+				new AutoShootMoreJank(shooter, indexer).withTimeout(5.0), // CT
+				new SetPivot(arm, Constants.Arm.kMinPivot));
 		addCommands(paths);
 	}
 
@@ -54,16 +54,17 @@ public class DriveToAndShootNote2Paths extends SequentialCommandGroup {
 								new SetPivot(arm, Constants.Arm.kMinPivot),
 								AutoBuilder.followPath(PathPlannerPath.fromPathFile(pathToNote)),
 								Commands.runOnce(() -> swerve.stopModules(), swerve),
-								Commands.waitUntil(() -> indexer.isNoteInside()),
-								Commands.parallel(
-										AutoBuilder
-												.followPath(PathPlannerPath.fromPathFile(pathToShoot)),
-										Commands.sequence(
-												Commands.waitUntil(() -> indexer.hasNote()),
-												new SetPivot(arm, armPivot)))),
+								Commands.waitUntil(() -> indexer.isNoteInsideRobot()).withTimeout(5.0), // CT
+								AutoBuilder
+										.followPath(PathPlannerPath.fromPathFile(pathToShoot)),
+								Commands.sequence(
+										Commands.waitUntil(() -> indexer.isNoteInsideIndexer())
+												.withTimeout(5.0), // CT
+										new SetPivot(arm, armPivot))),
 						new AutonomousIntakeNote(intake, indexer, lights)),
 				Commands.runOnce(() -> swerve.stopModules(), swerve),
-				new AutoShootMoreJank(shooter, indexer));
+				new AutoShootMoreJank(shooter, indexer).withTimeout(5.0), // CT
+				new SetPivot(arm, Constants.Arm.kMinPivot));
 		addCommands(paths);
 	}
 }

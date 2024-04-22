@@ -5,6 +5,7 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import java.util.function.BooleanSupplier;
 
+import com.redstorm509.alice2024.util.telemetry.ThinNT;
 import com.revrobotics.CANSparkMax;
 
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -49,7 +50,7 @@ public class Indexer extends SubsystemBase {
 	private BooleanSupplier armIsDown;
 
 	private CANSparkMax indexer = new CANSparkMax(12, MotorType.kBrushed);
-	private DigitalInput shooterBB = new DigitalInput(4); // CHANGE TO REAL PORTS
+	private DigitalInput shooterBB = new DigitalInput(4);
 	private DigitalInput indexerBB = new DigitalInput(2);
 	private DigitalInput imStageBB = new DigitalInput(0);
 
@@ -121,8 +122,8 @@ public class Indexer extends SubsystemBase {
 			currentStateTimer.reset();
 		}
 
-		if (indexingNoteState == prevIndexerState && indexingNoteState != IndexerState.Noteless
-				&& indexingNoteState != IndexerState.HasNote && currentStateTimer.hasElapsed(0.50)) {
+		if (indexingNoteState != IndexerState.Noteless && indexingNoteState != IndexerState.HasNote
+				&& currentStateTimer.hasElapsed(0.50)) {
 			setNoteless();
 		}
 	}
@@ -131,6 +132,10 @@ public class Indexer extends SubsystemBase {
 		if (!shooterBB.get() && !indexerBB.get()) {
 			// Note is where we want it to be
 			return IndexerState.HasNote;
+		} else if (shooterBB.get() && indexerBB.get()) {
+			// this creates a small area that it thinks its noteless, but it is so low in
+			// the indexer that it will never occur
+			return IndexerState.Noteless;
 		}
 		return IndexerState.NoteTooIntake;
 	}
@@ -139,21 +144,26 @@ public class Indexer extends SubsystemBase {
 		return indexerBB.get() && shooterBB.get() && imStageBB.get();
 	}
 
-	public boolean isNoteInside() {
+	public boolean isNoteInsideIndexer() {
 		return indexingNoteState != IndexerState.Noteless && indexingNoteState != IndexerState.NoteTooIntakeExtreme
 				&& indexingNoteState != IndexerState.NoteTooIntake;
+	}
+
+	public boolean isNoteInsideRobot() {
+		return indexingNoteState != IndexerState.Noteless;
 	}
 
 	@Override
 	public void periodic() {
 		pollState();
-		SmartDashboard.putNumber("Indexer Supply Current", indexer.getOutputCurrent());
+		ThinNT.putNumber("IndexerDutyCycle", indexer.get());
+
 		SmartDashboard.putBoolean("Note Picked Up", indexingNoteState != IndexerState.Noteless);
 		SmartDashboard.putBoolean("Has Note", indexingNoteState == IndexerState.HasNote);
 		SmartDashboard.putString("IndexingState", indexingNoteState.toString());
 
-		SmartDashboard.putBoolean("ShootBB", shooterBB.get());
-		SmartDashboard.putBoolean("indexerBB", indexerBB.get());
-		SmartDashboard.putBoolean("intakeBB", imStageBB.get());
+		SmartDashboard.putBoolean("ShooterBB", shooterBB.get());
+		SmartDashboard.putBoolean("IndexerBB", indexerBB.get());
+		SmartDashboard.putBoolean("IMStageBB", imStageBB.get());
 	}
 }
